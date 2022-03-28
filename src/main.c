@@ -6,6 +6,6 @@ int main()
 	printf("Hej");
 	printf("Tjena");
 	printf("Hej");
-
+	printf("WASSUP GUYS!!");
 	return (0);
 }
