@@ -1,11 +1,9 @@
 #include <stdio.h>
+#include "application.h"
 
 int main()
 {
-	printf("Hello World!\n");
-	printf("Hej");
-	printf("Tjena");
-	printf("Hej");
-	printf("WASSUP GUYS!!");
-	return (0);
+    Application theApp = createApplication();
+    applicationUpdate(theApp);
+    destoryApplication(theApp);
 }
