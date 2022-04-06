@@ -57,7 +57,6 @@ PUBLIC void applicationUpdate(Application theApp){
 
     SDL_Renderer *gRenderer = NULL;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
-
     Bullet b = NULL;
     SDL_Texture *bulletTexture = NULL;
     SDL_Rect bullet;
@@ -65,6 +64,7 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Surface* bulletSurface = NULL;
     Bullet bullets[10];
     int bulletFrame = 0;
+    SDL_RendererFlip bulletflip = SDL_FLIP_NONE;
 
 
     Soldier soldier = createSoldier(10,10);
@@ -99,7 +99,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
 
     
-    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+   gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips);
 
@@ -158,6 +158,7 @@ PUBLIC void applicationUpdate(Application theApp){
                         setBulletPositionY(b, possition.y);
                         setBulletHeight(b, 10);
                         setBulletWidth(b, 10);
+                        setBulletFlip(b,flip);
                         bullets[counter] = b;
                         counter++;
                         loadBulletMedia(gRenderer, &bulletTexture, &b);
@@ -177,9 +178,10 @@ PUBLIC void applicationUpdate(Application theApp){
                 bulletPossition = getBulletPositionSDL(bullets[i]);
                 bulletFrame = getBulletFrame(bullets[i]);
                 bullet = getBulletSDL(bullets[i]);
+                bulletflip = getBulletFlip(bullets[i]);
                 //printf("%d %d %d %d ", bullet.x, bullet.y, bullet.h, bullet.w);
-                move(&bulletPossition, bulletFrame, flip);
-                SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPossition, 0, NULL, flip);
+                move(&bulletPossition, bulletFrame, bulletflip);
+                SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPossition, 0, NULL, bulletflip);
                 setBulletPositionX(bullets[i], bulletPossition.x);
                 setBulletPositionY(bullets[i], bulletPossition.y);
             }

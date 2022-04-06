@@ -17,6 +17,7 @@ struct bullet{
     SDL_Rect bulletPosition;
     SDL_Rect bulletSDL;
     int bulletFrame;
+    SDL_RendererFlip bulletflip;
 };
 
 PUBLIC Bullet createBullet(int x, int y, int speed){
@@ -42,18 +43,19 @@ PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
         break;
     case 2:
         if(flip == SDL_FLIP_HORIZONTAL){
-            b->x -= 2;
-        }else{
+           b->x -= 2;
+        }
+        if(flip == SDL_FLIP_NONE){
             b->x += 2;
         }
         break;
     case 3:
         if(flip == SDL_FLIP_HORIZONTAL){
             b->x -= 2;
-        }else{
+        }if(flip == SDL_FLIP_NONE){
             b->x += 2;
         }
-        break;
+        break; 
     case 4:
         b->y -= 2;
         break;
@@ -64,6 +66,7 @@ PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
         break;
     }
 }
+
 
 PUBLIC void setBulletPositionX(Bullet b, int positionX){
     b->bulletPosition.x = positionX;
@@ -119,4 +122,12 @@ PUBLIC void setBulletFrame(Bullet b, int frame){
 
 PUBLIC int getBulletFrame(Bullet b){
     return b->bulletFrame;
+}
+
+PUBLIC void setBulletFlip(Bullet b, SDL_RendererFlip flip){
+    b->bulletflip = flip;
+}
+
+PUBLIC SDL_RendererFlip getBulletFlip(Bullet b){
+    return b->bulletflip;
 }
