@@ -21,6 +21,7 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
 PRIVATE void update(Application theApp, double delta_time);
 //PRIVATE void draw(Application theApp);
 PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
+PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
 
 
 PUBLIC Application createApplication(){
@@ -182,8 +183,17 @@ PUBLIC void applicationUpdate(Application theApp){
                 //printf("%d %d %d %d ", bullet.x, bullet.y, bullet.h, bullet.w);
                 move(&bulletPossition, bulletFrame, bulletflip);
                 SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPossition, 0, NULL, bulletflip);
-                setBulletPositionX(bullets[i], bulletPossition.x);
-                setBulletPositionY(bullets[i], bulletPossition.y);
+                if(bulletPossition.x == 600 || bulletPossition.y == 480)
+                {
+                    free(bullets[i]);
+                    counter = deleteBullet(&counter,bullets, i);
+                    
+                }else{
+                    setBulletPositionX(bullets[i], bulletPossition.x);
+                    setBulletPositionY(bullets[i], bulletPossition.y);
+                }
+                
+                
             }
             
         }
@@ -192,6 +202,16 @@ PUBLIC void applicationUpdate(Application theApp){
     }
 }
 
+PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete)
+{
+    
+    for (int i = delete; i < (*counter-1); i++)
+    {
+        bullets[i] = bullets[i+1];
+    }
+    (*counter)--;
+    return *counter;
+}
 
 
 PRIVATE void update(Application theApp, double delta_time){
