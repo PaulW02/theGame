@@ -27,6 +27,7 @@ PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
 PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
+PRIVATE int checkBulletAngle(int frame);
 
 
 PUBLIC Application createApplication(){
@@ -65,8 +66,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     playerPosition.y = getSoldierPositionY(soldier);
     playerPosition.x = getSoldierPositionX(soldier);
-    playerPosition.h = 16;
-    playerPosition.w = 16;
+    playerPosition.h = 24;
+    playerPosition.w = 24;
 
     Bullet b = NULL;
     SDL_Texture *bulletTexture = NULL;
@@ -75,6 +76,7 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Surface* bulletSurface = NULL;
     Bullet bullets[10];
     int bulletFrame = 0;
+    int bulletAngle = 0;
     SDL_RendererFlip bulletflip = SDL_FLIP_NONE;
 
     int frame = 3;
@@ -140,10 +142,12 @@ PUBLIC void applicationUpdate(Application theApp){
                         Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
                         setBulletFrame(b, frame);
                         setBulletPositionX(b, playerPosition.x);
-                        setBulletPositionY(b, playerPosition.y);
-                        setBulletHeight(b, 10);
+                        setBulletPositionY(b, playerPosition.y+14);
+                        setBulletHeight(b, 5);
                         setBulletWidth(b, 10);
                         setBulletFlip(b,flip);
+                        bulletAngle = checkBulletAngle(frame);
+                        setBulletAngle(b,bulletAngle);
                         bullets[counter] = b;
                         counter++;
                         loadBulletMedia(gRenderer, &bulletTexture, &b);
@@ -165,8 +169,9 @@ PUBLIC void applicationUpdate(Application theApp){
             bulletFrame = getBulletFrame(bullets[i]);
             bullet = getBulletSDL(bullets[i]);
             bulletflip = getBulletFlip(bullets[i]);
+            bulletAngle = getBulletAngle(bullets[i]);
             move(&bulletPosition, bulletFrame, bulletflip);
-            SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, 0, NULL, bulletflip);
+            SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletflip);
             if(checkBulletOutOfBoundaries(b, bulletPosition))
             {
                 free(bullets[i]);
@@ -178,6 +183,20 @@ PUBLIC void applicationUpdate(Application theApp){
         }
         SDL_RenderPresent(gRenderer);
         update(theApp, 10.0/60.0);
+    }
+}
+
+PRIVATE int checkBulletAngle(int frame)
+{
+    if(frame == 0 || frame == 1)
+    {
+        return 90;
+    }else if( frame == 2 || frame == 3)
+    {
+        return 0;
+    }else
+    {
+        return -90;
     }
 }
 
@@ -226,56 +245,47 @@ PRIVATE void update(Application theApp, double delta_time){
 */
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet)
 {
-    SDL_Surface* bulletSurface = IMG_Load("resources/ALIEN.PNG");
+    SDL_Surface* bulletSurface = IMG_Load("resources/BULLETS.png");
     *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
 
-    setBulletSDLPos(*bullet, 0,0,10,10);
+    setBulletSDLPos(*bullet, 0,0,10,5);
 }
 
 PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[])
 {
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/SPACEMAN.PNG");
+    SDL_Surface* gSpacemanSurface = IMG_Load("resources/MALE09.png");
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
+     
     gSpriteClips[ 0 ].x =   0;
     gSpriteClips[ 0 ].y =   0;
-    gSpriteClips[ 0 ].w =  16;
-    gSpriteClips[ 0 ].h = 16;
+    gSpriteClips[ 0 ].w =  25;
+    gSpriteClips[ 0 ].h = 30;
     
-    gSpriteClips[ 1 ].x =  16;
+    gSpriteClips[ 1 ].x =  26;
     gSpriteClips[ 1 ].y =   0;
-    gSpriteClips[ 1 ].w =  16;
-    gSpriteClips[ 1 ].h = 16;
+    gSpriteClips[ 1 ].w =  25;
+    gSpriteClips[ 1 ].h = 30;
     
-    gSpriteClips[ 2 ].x = 32;
+    gSpriteClips[ 2 ].x = 51;
     gSpriteClips[ 2 ].y =   0;
-    gSpriteClips[ 2 ].w =  16;
-    gSpriteClips[ 2 ].h = 16;
+    gSpriteClips[ 2 ].w =  23;
+    gSpriteClips[ 2 ].h = 30;
     
-    gSpriteClips[ 3 ].x = 48;
+    gSpriteClips[ 3 ].x = 74;
     gSpriteClips[ 3 ].y =   0;
-    gSpriteClips[ 3 ].w =  16;
-    gSpriteClips[ 3 ].h = 16;
+    gSpriteClips[ 3 ].w =  21;
+    gSpriteClips[ 3 ].h = 30;
     
-    gSpriteClips[ 4 ].x = 64;
+    gSpriteClips[ 4 ].x = 96;
     gSpriteClips[ 4 ].y =   0;
-    gSpriteClips[ 4 ].w =  16;
-    gSpriteClips[ 4 ].h = 16;
+    gSpriteClips[ 4 ].w =  25;
+    gSpriteClips[ 4 ].h = 30;
     
-    gSpriteClips[ 5 ].x = 80;
+    gSpriteClips[ 5 ].x = 121;
     gSpriteClips[ 5 ].y =   0;
-    gSpriteClips[ 5 ].w =  16;
-    gSpriteClips[ 5 ].h = 16;
-    
-    gSpriteClips[ 6 ].x = 96;
-    gSpriteClips[ 6 ].y =   0;
-    gSpriteClips[ 6 ].w =  16;
-    gSpriteClips[ 6 ].h = 16;
-    
-    gSpriteClips[ 7 ].x = 112;
-    gSpriteClips[ 7 ].y =   0;
-    gSpriteClips[ 7 ].w =  16;
-    gSpriteClips[ 7 ].h = 16;
+    gSpriteClips[ 5 ].w =  25;
+    gSpriteClips[ 5 ].h = 30;
 }
 
 PUBLIC void destoryApplication(Application theApp){
