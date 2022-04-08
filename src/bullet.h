@@ -24,5 +24,7 @@ void setBulletFrame(Bullet b, int frame);
 int getBulletFrame(Bullet b);
 void setBulletFlip(Bullet b, SDL_RendererFlip flip);
 SDL_RendererFlip getBulletFlip(Bullet b);
+void setBulletAngle(Bullet b, int bulletAngle);
+int getBulletAngle(Bullet b);
 
 #endif

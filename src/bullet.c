@@ -18,6 +18,7 @@ struct bullet{
     SDL_Rect bulletSDL;
     int bulletFrame;
     SDL_RendererFlip bulletflip;
+    int bulletAngle;
 };
 
 PUBLIC Bullet createBullet(int x, int y, int speed){
@@ -126,4 +127,12 @@ PUBLIC void setBulletFlip(Bullet b, SDL_RendererFlip flip){
 
 PUBLIC SDL_RendererFlip getBulletFlip(Bullet b){
     return b->bulletflip;
+}
+
+PUBLIC void setBulletAngle(Bullet b, int bulletAngle){
+    b->bulletAngle = bulletAngle;
+}
+
+PUBLIC int getBulletAngle(Bullet b){
+    return b->bulletAngle;
 }
