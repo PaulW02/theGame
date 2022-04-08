@@ -79,7 +79,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     int frame = 3;
     int counter = 0;
-    
+    bool shotFired = true;
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips);
@@ -136,6 +136,7 @@ PUBLIC void applicationUpdate(Application theApp){
                             frame = 2;
                         break;
                     case SDLK_SPACE:
+                        shotFired = true;
                         Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
                         setBulletFrame(b, frame);
                         setBulletPositionX(b, playerPosition.x);
