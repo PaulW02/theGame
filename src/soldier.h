@@ -14,6 +14,11 @@
 
 typedef struct soldier *Soldier;
 
+
+int getSoldierHeight();
+int getSoldierWidth();
+void setSoldierPositionX(Soldier s, int x);
+void setSoldierPositionY(Soldier s, int y);
 int getSoldierPositionX(Soldier s);
 int getSoldierPositionY(Soldier s);
 Soldier createSoldier(int x, int y);

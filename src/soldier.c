@@ -41,6 +41,14 @@ PUBLIC int getSoldierWidth(){
     return WIDTH;
 }
 
+PUBLIC void setSoldierPositionX(Soldier s, int x){
+    s->soldierXPos = x;
+}
+
+PUBLIC void setSoldierPositionY(Soldier s, int y){
+    s->soldierYPos = y;
+}
+
 PUBLIC int getSoldierPositionX(Soldier s){
     return s->soldierXPos;
 }
