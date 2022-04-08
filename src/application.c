@@ -27,7 +27,7 @@ PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
 PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
-PRIVATE int checkBulletAngle(int frame);
+PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 
 
 PUBLIC Application createApplication(){
@@ -145,8 +145,8 @@ PUBLIC void applicationUpdate(Application theApp){
                         setBulletPositionY(b, playerPosition.y+14);
                         setBulletHeight(b, 5);
                         setBulletWidth(b, 10);
+                        bulletAngle = checkBulletAngle(frame, &flip);
                         setBulletFlip(b,flip);
-                        bulletAngle = checkBulletAngle(frame);
                         setBulletAngle(b,bulletAngle);
                         bullets[counter] = b;
                         counter++;
@@ -186,7 +186,7 @@ PUBLIC void applicationUpdate(Application theApp){
     }
 }
 
-PRIVATE int checkBulletAngle(int frame)
+PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
 {
     if(frame == 0 || frame == 1)
     {
@@ -195,8 +195,9 @@ PRIVATE int checkBulletAngle(int frame)
     {
         return 0;
     }else
-    {
-        return -90;
+    {   
+        *flip = SDL_FLIP_HORIZONTAL;
+        return 90;
     }
 }
 
