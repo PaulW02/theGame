@@ -28,10 +28,6 @@ PUBLIC Bullet createBullet(int x, int y, int speed){
     return b;
 }
 
-PUBLIC void draw(Bullet b){
-
-}
-
 PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
     switch (frame)
     {
