@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "application.h"
+#include "world.h"
 #include "soldier.h"
 #include "bullet.h"
 
@@ -19,9 +20,11 @@ struct application{
 
 };
 
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[]);
+PRIVATE bool init(SDL_Renderer **gRenderer);
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[]);
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet);
 PRIVATE void update(Application theApp, double delta_time);
+PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTile, SDL_Rect gTiles[]);
 //PRIVATE void draw(Application theApp);
 PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
 PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
@@ -82,9 +85,16 @@ PUBLIC void applicationUpdate(Application theApp){
     int frame = 3;
     int counter = 0;
     bool shotFired = true;
+
+     // Background
+    SDL_Texture *mTiles = NULL;
+    SDL_Rect gTiles[16];
+   
+    
+
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
-    loadMedia(gRenderer, &mSoldier, gSpriteClips);
+    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -160,6 +170,7 @@ PUBLIC void applicationUpdate(Application theApp){
         
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
+        renderBackground(gRenderer, mTiles, gTiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
 
@@ -252,7 +263,7 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
     setBulletSDLPos(*bullet, 0,0,10,5);
 }
 
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[])
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
 {
     SDL_Surface* gSpacemanSurface = IMG_Load("resources/MALE09.png");
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
@@ -287,9 +298,37 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
     gSpriteClips[ 5 ].y =   0;
     gSpriteClips[ 5 ].w =  25;
     gSpriteClips[ 5 ].h = 30;
+
+    SDL_Surface* gTilesSurface = IMG_Load("resources/TILES.PNG");
+    *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
+    for (int i = 0; i < 16; i++) {
+        gTiles[i].x = i*getTileWidth();
+        gTiles[i].y = 0;
+        gTiles[i].w = getTileWidth();
+        gTiles[i].h = getTileHeight();
+    }
 }
 
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
 }
+
+PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]){
+    
+    SDL_Rect possition;
+    possition.y = 0;
+    possition.x = 0;
+    possition.h = getTileHeight();
+    possition.w = getTileWidth();
+    
+    for (int i = 0; i<getTileColumns(); i++) {
+        for (int j = 0; j<getTileRows(); j++) {
+            possition.y = i*getTileHeight();
+            possition.x = j*getTileWidth();
+            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i,j)],&possition , 0, NULL, SDL_FLIP_NONE);
+        }
+    }
+    
+}
+
