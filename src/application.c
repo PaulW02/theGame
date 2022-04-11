@@ -265,7 +265,7 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
 
 PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
 {
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/MALE09.png");
+    SDL_Surface* gSpacemanSurface = IMG_Load("resources/MALE.png");
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
      
@@ -284,17 +284,17 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
     gSpriteClips[ 2 ].w =  23;
     gSpriteClips[ 2 ].h = 30;
     
-    gSpriteClips[ 3 ].x = 74;
+    gSpriteClips[ 3 ].x = 76;
     gSpriteClips[ 3 ].y =   0;
     gSpriteClips[ 3 ].w =  21;
     gSpriteClips[ 3 ].h = 30;
     
-    gSpriteClips[ 4 ].x = 96;
+    gSpriteClips[ 4 ].x = 105;
     gSpriteClips[ 4 ].y =   0;
     gSpriteClips[ 4 ].w =  25;
     gSpriteClips[ 4 ].h = 30;
     
-    gSpriteClips[ 5 ].x = 121;
+    gSpriteClips[ 5 ].x = 130;
     gSpriteClips[ 5 ].y =   0;
     gSpriteClips[ 5 ].w =  25;
     gSpriteClips[ 5 ].h = 30;
