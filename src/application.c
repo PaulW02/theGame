@@ -10,8 +10,8 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH 512
+#define WINDOW_HEIGHT 512
 
 struct application{
     SDL_Window  *window;
@@ -299,7 +299,7 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
     gSpriteClips[ 5 ].w =  25;
     gSpriteClips[ 5 ].h = 30;
 
-    SDL_Surface* gTilesSurface = IMG_Load("resources/TILES.PNG");
+    SDL_Surface* gTilesSurface = IMG_Load("resources/GrassAndTowersStraight.PNG");
     *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
     for (int i = 0; i < 16; i++) {
         gTiles[i].x = i*getTileWidth();
