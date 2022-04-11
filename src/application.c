@@ -149,6 +149,7 @@ PUBLIC void applicationUpdate(Application theApp){
                         break;
                     case SDLK_SPACE:
                         shotFired = true;
+                        printf("Shot fired\n");
                         Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
                         setBulletFrame(b, frame);
                         setBulletPositionX(b, playerPosition.x);
