@@ -91,15 +91,15 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     playerPosition.y = getSoldierPositionY(soldier);
     playerPosition.x = getSoldierPositionX(soldier);
-    playerPosition.h = 24;
-    playerPosition.w = 24;
+    playerPosition.h = 32;
+    playerPosition.w = 32;
     int oldX, oldY, soldierXPos, soldierYPos;
 
     //Second player data
     playerPosition1.y = getSoldierPositionY(soldier1);
     playerPosition1.x = getSoldierPositionX(soldier1);
-    playerPosition1.h = 24;
-    playerPosition1.w = 24;
+    playerPosition1.h = 32;
+    playerPosition1.w = 32;
 
     int secondFrame = 3;
     SDL_RendererFlip secondFlip = SDL_FLIP_NONE;
@@ -410,7 +410,7 @@ PRIVATE void update(Application theApp, double delta_time){
 */
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet)
 {
-    SDL_Surface* bulletSurface = IMG_Load("resources/BULLETS.png");
+    SDL_Surface* bulletSurface = IMG_Load("resources/THEBULLET.png");
     *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
 
     setBulletSDLPos(*bullet, 0,0,10,5);
@@ -418,39 +418,39 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
 
 PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
 {
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/MALE.png");
+    SDL_Surface* gSpacemanSurface = IMG_Load("resources/Karaktarer/SKELETON/SKELETONrodBLUE.png");
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
      
     gSpriteClips[ 0 ].x =   0;
     gSpriteClips[ 0 ].y =   0;
-    gSpriteClips[ 0 ].w =  25;
-    gSpriteClips[ 0 ].h = 30;
+    gSpriteClips[ 0 ].w =  32;
+    gSpriteClips[ 0 ].h = 32;
     
-    gSpriteClips[ 1 ].x =  26;
+    gSpriteClips[ 1 ].x =  66;
     gSpriteClips[ 1 ].y =   0;
-    gSpriteClips[ 1 ].w =  25;
-    gSpriteClips[ 1 ].h = 30;
+    gSpriteClips[ 1 ].w =  32;
+    gSpriteClips[ 1 ].h = 32;
     
-    gSpriteClips[ 2 ].x = 51;
-    gSpriteClips[ 2 ].y =   0;
-    gSpriteClips[ 2 ].w =  23;
-    gSpriteClips[ 2 ].h = 30;
+    gSpriteClips[ 2 ].x = 0;
+    gSpriteClips[ 2 ].y =   64;
+    gSpriteClips[ 2 ].w =  32;
+    gSpriteClips[ 2 ].h = 32;
     
-    gSpriteClips[ 3 ].x = 76;
-    gSpriteClips[ 3 ].y =   0;
-    gSpriteClips[ 3 ].w =  21;
-    gSpriteClips[ 3 ].h = 30;
+    gSpriteClips[ 3 ].x = 66;
+    gSpriteClips[ 3 ].y =   64;
+    gSpriteClips[ 3 ].w =  32;
+    gSpriteClips[ 3 ].h = 32;
     
-    gSpriteClips[ 4 ].x = 105;
-    gSpriteClips[ 4 ].y =   0;
-    gSpriteClips[ 4 ].w =  25;
-    gSpriteClips[ 4 ].h = 30;
+    gSpriteClips[ 4 ].x = 0;
+    gSpriteClips[ 4 ].y =   96;
+    gSpriteClips[ 4 ].w =  32;
+    gSpriteClips[ 4 ].h = 32;
     
-    gSpriteClips[ 5 ].x = 130;
-    gSpriteClips[ 5 ].y =   0;
-    gSpriteClips[ 5 ].w =  25;
-    gSpriteClips[ 5 ].h = 30;
+    gSpriteClips[ 5 ].x = 66;
+    gSpriteClips[ 5 ].y =   96;
+    gSpriteClips[ 5 ].w =  32;
+    gSpriteClips[ 5 ].h = 32;
 
     SDL_Surface* gTilesSurface = IMG_Load("resources/GrassAndTowersStraight.PNG");
     *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
