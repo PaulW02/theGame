@@ -1,5 +1,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include "application.h"
@@ -13,12 +14,29 @@
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512
 
+#define MAX_BULLETS 10
+
 struct application{
     SDL_Window  *window;
     SDL_Surface *window_surface;
     SDL_Event    window_event;
 
 };
+
+struct data {
+    int playerX;
+    int playerY;
+    int frame;
+    SDL_RendererFlip flip;
+
+    SDL_Rect bulletPosition[MAX_BULLETS];
+    SDL_Rect bulletSDL[MAX_BULLETS];
+    int bulletFrame[MAX_BULLETS];
+    SDL_RendererFlip bulletFlip[MAX_BULLETS];
+    int bulletAngle[MAX_BULLETS];
+    int amountOfBullets;
+};
+typedef struct data Data;
 
 PRIVATE bool init(SDL_Renderer **gRenderer);
 PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[]);
@@ -27,7 +45,7 @@ PRIVATE void update(Application theApp, double delta_time);
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTile, SDL_Rect gTiles[]);
 //PRIVATE void draw(Application theApp);
 PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
-PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
+PRIVATE int deleteBullet(int *amountOfBullets, Bullet bullets[],int delete);
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
@@ -35,6 +53,7 @@ PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
+
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("Failed to initialize the SDL2 library\n");
@@ -63,39 +82,101 @@ PUBLIC void applicationUpdate(Application theApp){
 
     //Create player and set start position
     Soldier soldier = createSoldier(10,10);
+    Soldier soldier1 = createSoldier(20,10);
     SDL_Texture *mSoldier = NULL;
+    SDL_Texture *mSoldier1 = NULL;
     SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
+    SDL_Rect playerPosition1;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     playerPosition.y = getSoldierPositionY(soldier);
     playerPosition.x = getSoldierPositionX(soldier);
     playerPosition.h = 24;
     playerPosition.w = 24;
+    int oldX, oldY, soldierXPos, soldierYPos;
+
+    //Second player data
+    playerPosition1.y = getSoldierPositionY(soldier1);
+    playerPosition1.x = getSoldierPositionX(soldier1);
+    playerPosition1.h = 24;
+    playerPosition1.w = 24;
+
+    int secondFrame = 3;
+    SDL_RendererFlip secondFlip = SDL_FLIP_NONE;
 
     Bullet b = NULL;
     SDL_Texture *bulletTexture = NULL;
+    SDL_Texture *recvBulletTexture = NULL;
+    
     SDL_Rect bullet;
+    
     SDL_Rect bulletPosition;
-    SDL_Surface* bulletSurface = NULL;
-    Bullet bullets[10];
+    SDL_Rect recvBulletPosition;
+
+    int oldBulletXPos, oldBulletYPos, bulletXPos, bulletYPos;
+
+    Bullet bullets[MAX_BULLETS];
+    Bullet recvBullets[MAX_BULLETS];
+    
     int bulletFrame = 0;
     int bulletAngle = 0;
-    SDL_RendererFlip bulletflip = SDL_FLIP_NONE;
+    int recvBulletAngle = 0;
+
+    SDL_RendererFlip bulletFlip = SDL_FLIP_NONE;
+    SDL_RendererFlip recvBulletFlip = SDL_FLIP_NONE;
 
     int frame = 3;
-    int counter = 0;
+    int amountOfBullets = 0;
+    int recvAmountOfBullets = 0;
     bool shotFired = true;
+
+    int playerXPos, playerYPos, playerFrame, bulletXPosToSend, bulletYPosToSend;
+    SDL_RendererFlip playerFlip; 
 
      // Background
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
-   
+
+
+
+    UDPsocket sd;
+	IPaddress srvadd;
+	UDPpacket *p;
+    UDPpacket *p2;
+
+    Data udpData;
+    Data udpData2;
+
+    if (SDLNet_Init() < 0)
+	{
+		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+    if (!(sd = SDLNet_UDP_Open(0)))
+	{
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+    /* Resolve server name  */
+	if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 2000) == -1)
+	{
+		fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+    if (!((p = SDLNet_AllocPacket(1024))&& (p2 = SDLNet_AllocPacket(1024))))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
     
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
-
+    loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles);
     bool keep_window_open = true;
     while(keep_window_open)
     {
@@ -158,9 +239,10 @@ PUBLIC void applicationUpdate(Application theApp){
                         bulletAngle = checkBulletAngle(frame, &flip);
                         setBulletFlip(b,flip);
                         setBulletAngle(b,bulletAngle);
-                        bullets[counter] = b;
-                        counter++;
+                        bullets[amountOfBullets] = b;
+                        amountOfBullets++;
                         loadBulletMedia(gRenderer, &bulletTexture, &b);
+                        loadBulletMedia(gRenderer, &recvBulletTexture, &b);
                     default:
                         
                         break;
@@ -168,30 +250,101 @@ PUBLIC void applicationUpdate(Application theApp){
             }
         }
         
+        soldierXPos = getSoldierPositionX(soldier);
+        soldierYPos = getSoldierPositionY(soldier);
+
+
+
+        // send and retrive positions  
+        //if(oldX != soldierXPos || oldY != soldierYPos){   
+            udpData.playerX = soldierXPos;
+            udpData.playerY = soldierYPos;
+            udpData.frame = frame;
+            udpData.flip = flip;
+            for (int i = 0; i < amountOfBullets; i++){
+                udpData.bulletPosition[i].x = getBulletPositionX(bullets[i]);
+                udpData.bulletPosition[i].y = getBulletPositionY(bullets[i]);
+                udpData.bulletPosition[i].w = getBulletWidth(bullets[i]);
+                udpData.bulletPosition[i].h = getBulletHeight(bullets[i]);
+                udpData.bulletAngle[i] = getBulletAngle(bullets[i]);
+                udpData.bulletFlip[i] = getBulletFlip(bullets[i]);
+            }
+
+            udpData.amountOfBullets = amountOfBullets;
+            memcpy(p->data, &udpData, sizeof(struct data)+1);
+            p->address.host = srvadd.host;	/* Set the destination host */
+		    p->address.port = srvadd.port;	/* And destination port */
+		    p->len = sizeof(struct data)+1;
+            SDLNet_UDP_Send(sd, -1, p); 
+            oldX = soldierXPos;
+            oldY = soldierYPos;
+            
+        //}      
+        
+        //printf("UDP RECIEVE %d\n", SDLNet_UDP_Recv(sd, p2));
+        if (SDLNet_UDP_Recv(sd, p2)){
+
+            memcpy(&udpData2, (char * ) p2->data, sizeof(struct data)+1);
+            secondFrame = udpData2.frame;
+            secondFlip = udpData2.flip;
+            recvAmountOfBullets = udpData2.amountOfBullets;
+            for (int i = 0; i < recvAmountOfBullets; i++)
+            {
+                Bullet recvB = createBullet(udpData2.bulletPosition[i].x, udpData2.bulletPosition[i].y, 5);
+                recvBullets[i] = recvB;
+                setBulletPositionX(recvBullets[i], udpData2.bulletPosition[i].x);
+                setBulletPositionY(recvBullets[i], udpData2.bulletPosition[i].y);
+                setBulletWidth(recvBullets[i], udpData2.bulletPosition[i].w);
+                setBulletHeight(recvBullets[i], udpData2.bulletPosition[i].h);
+                setBulletAngle(recvBullets[i],udpData2.bulletAngle[i]);
+                setBulletFlip(recvBullets[i],udpData2.bulletFlip[i]);
+            }
+            playerPosition1.x = udpData2.playerX;
+            playerPosition1.y = udpData2.playerY;
+        }
+
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
+        SDL_RenderCopyEx(gRenderer, mSoldier1, &gSpriteClips[secondFrame],&playerPosition1 , 0, NULL, secondFlip);
+        for (int i = 0; i < recvAmountOfBullets; i++){
+            recvBulletPosition = getBulletPositionSDL(recvBullets[i]);
+            recvBulletAngle = getBulletAngle(recvBullets[i]);
+            recvBulletFlip = getBulletFlip(recvBullets[i]);
+            SDL_RenderCopyEx(gRenderer, recvBulletTexture, &bullet,&recvBulletPosition, bulletAngle, NULL, recvBulletFlip);
+            if(checkBulletOutOfBoundaries(recvBullets[i], recvBulletPosition)){
+                free(recvBullets[i]);
+                recvAmountOfBullets = deleteBullet(&recvAmountOfBullets,recvBullets, i);
+            }
+        }
 
-        for (int i = 0; i < counter; i++)
-        {
+        for (int i = 0; i < amountOfBullets; i++){
             bulletPosition = getBulletPositionSDL(bullets[i]);
+            
             bulletFrame = getBulletFrame(bullets[i]);
             bullet = getBulletSDL(bullets[i]);
-            bulletflip = getBulletFlip(bullets[i]);
+            bulletFlip = getBulletFlip(bullets[i]);
+            
             bulletAngle = getBulletAngle(bullets[i]);
-            move(&bulletPosition, bulletFrame, bulletflip);
-            SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletflip);
+            bulletXPos = getBulletPositionX(bullets[i]);
+            bulletYPos = getBulletPositionY(bullets[i]);
+
+            move(&bulletPosition, bulletFrame, bulletFlip);
+            
+            SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletFlip);
+
             if(checkBulletOutOfBoundaries(b, bulletPosition))
             {
                 free(bullets[i]);
-                counter = deleteBullet(&counter,bullets, i);
+                amountOfBullets = deleteBullet(&amountOfBullets,bullets, i);
             }else{
                 setBulletPositionX(bullets[i], bulletPosition.x);
                 setBulletPositionY(bullets[i], bulletPosition.y);
             }
         }
+  
         SDL_RenderPresent(gRenderer);
         update(theApp, 10.0/60.0);
     }
@@ -212,13 +365,13 @@ PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
     }
 }
 
-PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete)
+PRIVATE int deleteBullet(int *amountOfBullets, Bullet bullets[],int delete)
 {
-    for (int i = delete; i < (*counter-1); i++){
+    for (int i = delete; i < (*amountOfBullets-1); i++){
         bullets[i] = bullets[i+1];
     }
-    (*counter)--;
-    return *counter;
+    (*amountOfBullets)--;
+    return *amountOfBullets;
 }
 
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition)
@@ -238,7 +391,7 @@ PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition)
 
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition)
 {
-    if(bulletPosition.x == WINDOW_WIDTH || bulletPosition.y == WINDOW_HEIGHT || bulletPosition.x == -10 || bulletPosition.y == -10){
+    if(bulletPosition.x >= WINDOW_WIDTH || bulletPosition.y >= WINDOW_HEIGHT || bulletPosition.x <= -10 || bulletPosition.y <= -10){
         return 1;
     }else{
         return 0;
@@ -331,4 +484,6 @@ PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_
     }
     
 }
+
+
 
