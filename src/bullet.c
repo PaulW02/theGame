@@ -10,6 +10,8 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
+#define bulletVel 2
+
 struct bullet{
     int xPos;
     int yPos;
@@ -33,31 +35,31 @@ PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
     switch (frame)
     {
     case 0:
-        b->y += 2;
+        b->y += bulletVel;
         break;
     case 1:
-        b->y += 2;
+        b->y += bulletVel;
         break;
     case 2:
         if(flip == SDL_FLIP_HORIZONTAL){
-           b->x -= 2;
+           b->x -= bulletVel;
         }
         if(flip == SDL_FLIP_NONE){
-            b->x += 2;
+            b->x += bulletVel;
         }
         break;
     case 3:
         if(flip == SDL_FLIP_HORIZONTAL){
-            b->x -= 2;
+            b->x -= bulletVel;
         }if(flip == SDL_FLIP_NONE){
-            b->x += 2;
+            b->x += bulletVel;
         }
         break; 
     case 4:
-        b->y -= 2;
+        b->y -= bulletVel;
         break;
     case 5:
-        b->y -= 2;
+        b->y -= bulletVel;
         break;
     default:
         break;
