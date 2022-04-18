@@ -6,13 +6,16 @@
 //  Copyright © 2016 Jonas Wåhslén. All rights reserved.
 //
 
+#include <string.h>
 #include "soldier.h"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "weapon.h"
 
 
 #define PUBLIC /* empty */
 #define PRIVATE static
+#define MAXCHAR 100
 
 PRIVATE int WIDTH = 16;
 PRIVATE int HEIGHT = 16;
@@ -22,6 +25,8 @@ struct soldier{
     int soldierYPos;
     int soldierFrame;
     int speed;
+    Weapon weapon;
+    char soldierFileName[MAXCHAR];
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -29,7 +34,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->soldierYPos = y;
     s->soldierXPos = x;
     s->soldierFrame = 0;
-    s->speed = 1;
+    s->speed = 1; 
     return s;
 }
 
@@ -55,6 +60,26 @@ PUBLIC int getSoldierPositionX(Soldier s){
 
 PUBLIC int getSoldierPositionY(Soldier s){
     return s->soldierYPos;
+}
+
+PUBLIC void setSoldierWeapon(Soldier s, Weapon weapon)
+{
+    s->weapon = weapon;
+}
+
+PUBLIC Weapon getSoldierWeapon(Soldier s)
+{
+    return  s->weapon;
+}
+
+PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
+{
+    strcpy(s->soldierFileName,soldierFileName);
+}
+
+PUBLIC const char* getSoldierFileName(Soldier s)
+{
+    return  s->soldierFileName;
 }
 
 

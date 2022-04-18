@@ -2,10 +2,12 @@
 #include "SDL2/SDL_image.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "application.h"
 #include "world.h"
 #include "soldier.h"
 #include "bullet.h"
+#include "weapon.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -21,7 +23,7 @@ struct application{
 };
 
 PRIVATE bool init(SDL_Renderer **gRenderer);
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[]);
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s);
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet);
 PRIVATE void update(Application theApp, double delta_time);
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTile, SDL_Rect gTiles[]);
@@ -31,6 +33,7 @@ PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
+PRIVATE void weaponChoiceHandler(Soldier soldier);
 
 
 PUBLIC Application createApplication(){
@@ -72,6 +75,8 @@ PUBLIC void applicationUpdate(Application theApp){
     playerPosition.h = 32;
     playerPosition.w = 32;
 
+    
+
     Bullet b = NULL;
     SDL_Texture *bulletTexture = NULL;
     SDL_Rect bullet;
@@ -90,11 +95,14 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
-    
+    setSoldierFileName(soldier,"resources/Karaktarer/BOY/BOYpistol.png");
+    weaponChoiceHandler(soldier);
+
+
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
-    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
+    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -263,9 +271,9 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
     setBulletSDLPos(*bullet, 0,0,10,5);
 }
 
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s)
 {
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/Karaktarer/SKELETON/SKELETONrodBLUE.png");
+    SDL_Surface* gSpacemanSurface = IMG_Load(getSoldierFileName(s));
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
      
@@ -332,3 +340,34 @@ PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_
     
 }
 
+PRIVATE void weaponChoiceHandler(Soldier soldier)
+{
+
+    Weapon pistol = createWeapon(10,10,10);
+    Weapon bow = createWeapon(5,6,7);
+    Weapon spear = createWeapon(5,6,7);
+    Weapon rodBlue = createWeapon(5,6,7);
+    Weapon rodRed = createWeapon(5,6,7);
+
+    if (strstr(getSoldierFileName(soldier),"pistol"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    if (strstr(getSoldierFileName(soldier),"bow"))
+    {
+        setSoldierWeapon(soldier,bow);
+    }
+    if (strstr(getSoldierFileName(soldier),"spear"))
+    {
+        setSoldierWeapon(soldier,spear);
+    }
+    if (strstr(getSoldierFileName(soldier),"rodBLUE"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    if (strstr(getSoldierFileName(soldier),"rodRED"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    printf("%d", getWeaponRange(getSoldierWeapon(soldier)));
+}
