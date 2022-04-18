@@ -452,7 +452,7 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
     gSpriteClips[ 5 ].w =  32;
     gSpriteClips[ 5 ].h = 32;
 
-    SDL_Surface* gTilesSurface = IMG_Load("resources/GrassAndTowersStraight.PNG");
+    SDL_Surface* gTilesSurface = IMG_Load("resources/GrassTowersPortals.PNG");
     *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
     for (int i = 0; i < 16; i++) {
         gTiles[i].x = i*getTileWidth();
