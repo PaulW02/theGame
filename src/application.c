@@ -6,6 +6,7 @@
 #include "world.h"
 #include "soldier.h"
 #include "bullet.h"
+#include "menu.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -93,6 +94,9 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+
+    Menu m = createMenu(gRenderer);
+    startMenu(m);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
 
