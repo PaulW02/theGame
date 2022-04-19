@@ -91,12 +91,13 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
-    
+
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
+    //Menu
     Menu m = createMenu(gRenderer);
-    startMenu(m);
+    MenuApplication(m);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
 
