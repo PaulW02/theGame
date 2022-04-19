@@ -26,5 +26,7 @@ void setBulletFlip(Bullet b, SDL_RendererFlip flip);
 SDL_RendererFlip getBulletFlip(Bullet b);
 void setBulletAngle(Bullet b, int bulletAngle);
 int getBulletAngle(Bullet b);
+void setShooter(Bullet b, int player);
+int getShooter(Bullet b);
 
 #endif

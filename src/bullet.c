@@ -21,6 +21,7 @@ struct bullet{
     int bulletFrame;
     SDL_RendererFlip bulletflip;
     int bulletAngle;
+    int shooter;
 };
 
 PUBLIC Bullet createBullet(int x, int y, int speed){
@@ -137,4 +138,12 @@ PUBLIC void setBulletAngle(Bullet b, int bulletAngle){
 
 PUBLIC int getBulletAngle(Bullet b){
     return b->bulletAngle;
+}
+
+PUBLIC void setShooter(Bullet b, int player){
+    b->shooter = player;
+}
+
+PUBLIC int getShooter(Bullet b){
+    return b->shooter;
 }

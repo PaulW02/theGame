@@ -9,7 +9,7 @@
 #include "soldier.h"
 #include "bullet.h"
 #include "tile.h"
-#include <unistd.h>
+#include <unistd.h> //Behövs inte men kan användas för "sleep();"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -55,8 +55,11 @@ PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]);
 PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip);
 PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip);
-PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
+PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *amountOfBullets);
+PRIVATE void bulletPlayerCollision(Bullet bullets[], int *amountOfBullets, Soldier s1, Soldier s2);
 PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition);
+
+
 
 
 PUBLIC Application createApplication(){
@@ -89,8 +92,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Renderer *gRenderer = NULL;
 
     //Create player and set start position
-    Soldier soldier = createSoldier(10,10);
-    Soldier soldier1 = createSoldier(20,10);
+    Soldier soldier = createSoldier(10,10, 1);
+    Soldier soldier1 = createSoldier(20,10, 2);
     SDL_Texture *mSoldier = NULL;
     SDL_Texture *mSoldier1 = NULL;
     SDL_Rect gSpriteClips[8];
@@ -250,6 +253,8 @@ PUBLIC void applicationUpdate(Application theApp){
                         setBulletPositionY(b, playerPosition.y+14);
                         setBulletHeight(b, 5);
                         setBulletWidth(b, 10);
+
+                        setShooter(b, getSoldierNumber(soldier));
                         bulletAngle = checkBulletAngle(frame, &flip);
                         setBulletFlip(b,flip);
                         setBulletAngle(b,bulletAngle);
@@ -322,11 +327,10 @@ PUBLIC void applicationUpdate(Application theApp){
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
 
-        int checkPortalType;
-
         soldierWallCollision(tiles, soldier, &playerPosition, frame, flip);
-        
         bulletWallCollision(tiles, bullets, &amountOfBullets);
+        bulletPlayerCollision(bullets, &amountOfBullets, soldier, soldier1);
+
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
         SDL_RenderCopyEx(gRenderer, mSoldier1, &gSpriteClips[secondFrame],&playerPosition1 , 0, NULL, secondFlip);
         for (int i = 0; i < recvAmountOfBullets; i++){
@@ -483,6 +487,7 @@ PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *coun
     int rightA, rightB;
     int topA, topB;
     int bottomA, bottomB;
+
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
             if(getTileCollision(tiles[i][j])==1){
@@ -503,10 +508,44 @@ PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *coun
                     if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
                     }else{
                         deleteBullet(counter, bullets, k);
-                    }                    
+                    }
                 }
             }
         }
+    }
+}
+
+PRIVATE void bulletPlayerCollision(Bullet bullets[], int *amountOfBullets, Soldier s1, Soldier s2){
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+    Soldier soldiers[2]={s1, s2};
+
+    for (int i = 0; i < (*amountOfBullets); i++){
+        for (int j = 0; j < 2; j++){
+               //Rect Bullet
+            leftA = getBulletPositionX(bullets[i]);
+            rightA = (getBulletPositionX(bullets[i]) + getBulletWidth(bullets[i]));
+            topA = getBulletPositionY(bullets[i]);
+            bottomA = (getBulletPositionY(bullets[i]) + getBulletHeight(bullets[i]));
+
+                //Rect Player
+            leftB = (getSoldierPositionX(soldiers[j]));
+            rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth()));
+            topB = (getSoldierPositionY(soldiers[j]));
+            bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight()));
+
+            printf("%d", getShooter(bullets[i]));
+
+            if( ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
+            }else{
+                if(((getShooter(bullets[i])) != (j+1))){
+                    deleteBullet(amountOfBullets, bullets, i);
+                }
+            }   
+        }
+        
     }
 }
 

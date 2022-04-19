@@ -21,7 +21,9 @@ void setSoldierPositionX(Soldier s, int x);
 void setSoldierPositionY(Soldier s, int y);
 int getSoldierPositionX(Soldier s);
 int getSoldierPositionY(Soldier s);
-Soldier createSoldier(int x, int y);
+Soldier createSoldier(int x, int y, int num);
+void setSoldierNumber(Soldier s, int number);
+int getSoldierNumber(Soldier s);
 
 #endif /* spaceman_h */
 

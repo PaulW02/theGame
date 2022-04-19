@@ -22,12 +22,14 @@ struct soldier{
     int soldierYPos;
     int soldierFrame;
     int speed;
+    int soldierNumber;
 };
 
-PUBLIC Soldier createSoldier(int x, int y){
+PUBLIC Soldier createSoldier(int x, int y, int num){
     Soldier s = malloc(sizeof(struct soldier));
     s->soldierYPos = y;
     s->soldierXPos = x;
+    s->soldierNumber = num;
     s->soldierFrame = 0;
     s->speed = 1;
     return s;
@@ -60,6 +62,13 @@ PUBLIC int getSoldierPositionY(Soldier s){
 
 PUBLIC void tick(int direction){
     
-    
+}
+
+PUBLIC void setSoldierNumber(Soldier s, int number){
+    s->soldierNumber = number;
+}
+
+PUBLIC int getSoldierNumber(Soldier s){
+    return s->soldierNumber;
 }
 
