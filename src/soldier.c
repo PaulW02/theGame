@@ -14,8 +14,8 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-PRIVATE int WIDTH = 16;
-PRIVATE int HEIGHT = 16;
+PRIVATE int WIDTH = 25;
+PRIVATE int HEIGHT = 30;
 
 struct soldier{
     int soldierXPos;

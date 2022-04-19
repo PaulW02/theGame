@@ -15,6 +15,7 @@ struct tile{
     int number;
     int worldTileWidth;
     int worldTileHeight;
+    int tileCollision;
     SDL_Rect tilePosition;
 };
 
@@ -81,4 +82,12 @@ PUBLIC void setTileSDLRec(Tile t, int x, int y, int w, int h){
 
 PUBLIC SDL_Rect getTileSDLRec(Tile t){
     return t->tilePosition;
+}
+
+PUBLIC void setTileCollision(Tile t, int collision){
+    t->tileCollision = collision;
+}
+
+PUBLIC int getTileCollision(Tile t){
+    return t->tileCollision;
 }

@@ -23,5 +23,7 @@ void setTileNumber(Tile t, int num);
 int getTileNumber(Tile t);
 void setTileSDLRec(Tile t, int x, int y, int w, int h);
 SDL_Rect getTileSDLRec(Tile t);
+void setTileCollision(Tile t, int collision);
+int getTileCollision(Tile t);
 
 #endif /* tile_h */

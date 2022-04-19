@@ -8,6 +8,7 @@
 #include "soldier.h"
 #include "bullet.h"
 #include "tile.h"
+#include <unistd.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -34,6 +35,9 @@ PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]);
+PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip);
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s);
+PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
 
 
 PUBLIC Application createApplication(){
@@ -94,16 +98,19 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect gTiles[16];
    
     Tile tiles[32][32];
+    bool tilesWithCollisionCounter=false;
+    struct tilesWithCollision{
+        int x;
+        int y;
+    };
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
 
     bool keep_window_open = true;
-    printf("1");
     while(keep_window_open)
     {
-        printf("2");
         while(SDL_PollEvent(&theApp->window_event) > 0)
         {
             if(theApp->window_event.type == SDL_QUIT)
@@ -176,8 +183,11 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
-        collisionCheck(soldier, &playerPosition, tiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
+        if(soldierWallCollision(tiles, soldier)){
+            stepBack(soldier, &playerPosition, frame, flip);
+        }
+        bulletWallCollision(tiles, bullets, &counter);
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
 
         for (int i = 0; i < counter; i++)
@@ -242,22 +252,89 @@ PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition)
     }
 }
 
+PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip){
+    int newYPos, newXPos;
+    if (frame == 0 || frame == 1){
+        newYPos=(playerPosition->y-=2);
+        setSoldierPositionY(s, newYPos);
+    }
+    if ((flip==0) && (frame == 2 || frame == 3)){
+        newXPos=(playerPosition->x-=2);
+        setSoldierPositionX(s, newXPos);
+    }
+    if ((flip==1) && (frame == 2 || frame == 3)){
+        newXPos=(playerPosition->x+=2);
+        setSoldierPositionX(s, newXPos);
+    }
+    if (frame == 4 || frame == 5){
+        newYPos=(playerPosition->y+=2);
+        setSoldierPositionY(s, newYPos);
+    }
+}
 
-
-
-PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]){
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s){
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
-            if(getSoldierPositionX(s)==getTilePositionX(tiles[i][j]) && getSoldierPositionY(s)==getTilePositionY(tiles[i][j]) && getTileNumber(tiles[i][j])==0x08){
-                playerPosition->x=10;
-                playerPosition->y=10;
+            if(getTileCollision(tiles[i][j])==1){
                 
-                //playerPosition->x=getTilePositionX(tiles[i][j]);
-                //playerPosition->y=getTilePositionY(tiles[i][j]);
+                //Rect Player
+                leftA = (getSoldierPositionX(s)+4);
+                rightA = (getSoldierPositionX(s) + (getSoldierWidth()-6));
+                topA = (getSoldierPositionY(s)+4);
+                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-6));
+
+                //Rect Tile
+                leftB = getTilePositionX(tiles[i][j]);
+                rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
+                topB = getTilePositionY(tiles[i][j]);
+                bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
+
+                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
+                }else{
+                    return true;
+                }
+            }   
+        }
+    }
+    return false;
+}
+
+PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter){
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+    for (int i = 0; i<getTileColumns(); i++){
+        for (int j = 0; j<getTileRows(); j++){
+            if(getTileCollision(tiles[i][j])==1){
+                for (int k = 0; k < (*counter); k++){
+
+                    //Rect Bullet
+                    leftA = getBulletPositionX(bullets[k]);
+                    rightA = (getBulletPositionX(bullets[k]) + getBulletWidth(bullets[k]));
+                    topA = getBulletPositionY(bullets[k]);
+                    bottomA = (getBulletPositionY(bullets[k]) + getBulletHeight(bullets[k]));
+
+                    //Rect Tile
+                    leftB = getTilePositionX(tiles[i][j]);
+                    rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
+                    topB = getTilePositionY(tiles[i][j]);
+                    bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
+
+                    if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
+                    }else{
+                        deleteBullet(counter, bullets, k);
+                    }                    
+                }
             }
         }
     }
 }
+
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition)
 {
     if(bulletPosition.x == WINDOW_WIDTH || bulletPosition.y == WINDOW_HEIGHT || bulletPosition.x == -10 || bulletPosition.y == -10){
@@ -338,26 +415,31 @@ PUBLIC void destoryApplication(Application theApp){
 
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[32][32]){
     
-    SDL_Rect tilePos;
-    Tile tile;
+    SDL_Rect possition;
+
     int height=0, width=0, number=0;
     height = getTileHeight();
     width = getTileWidth();
-    /*
+
     possition.y = 0;
     possition.x = 0;
     possition.h = getTileHeight();
     possition.w = getTileWidth();
-    */
+
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
+            number = getTileGrid(i,j);
+            Tile tile=createTile(possition.x, possition.y, number);
             setTileSDLRec(tile, (j*width), (i*height), width, height);
-            number = getTileGrid(j,i);
-            tilePos=getTileSDLRec(tile);
-            //setTilePositionXY(tile, (i*height), (j*width));
-            setTileNumber(tile, number);
+            possition=getTileSDLRec(tile);
+            if(number==0x03 || number==0x04 || number==0x08||number==0x09){
+                setTileCollision(tile, 1);
+            }else{
+                setTileCollision(tile, 0);
+            }
             tiles[i][j]=tile;
-            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i,j)],&tilePos , 0, NULL, SDL_FLIP_NONE);
+
+            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i,j)],&possition , 0, NULL, SDL_FLIP_NONE);
         }
     }
 }
