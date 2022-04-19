@@ -16,8 +16,10 @@ struct tile{
     int worldTileWidth;
     int worldTileHeight;
     int tileCollision;
+    int tilePortal;
     SDL_Rect tilePosition;
 };
+
 
 PUBLIC Tile createTile(int x, int y, int num){
     Tile t = malloc(sizeof(struct tile));
@@ -90,4 +92,12 @@ PUBLIC void setTileCollision(Tile t, int collision){
 
 PUBLIC int getTileCollision(Tile t){
     return t->tileCollision;
+}
+
+PUBLIC void setTilePortal(Tile t, int portal){
+    t->tilePortal = portal;
+}
+
+PUBLIC int getTilePortal(Tile t){
+    return t->tilePortal; 
 }

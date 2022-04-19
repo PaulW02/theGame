@@ -25,5 +25,7 @@ void setTileSDLRec(Tile t, int x, int y, int w, int h);
 SDL_Rect getTileSDLRec(Tile t);
 void setTileCollision(Tile t, int collision);
 int getTileCollision(Tile t);
+void setTilePortal(Tile t, int portal);
+int getTilePortal(Tile t);
 
 #endif /* tile_h */

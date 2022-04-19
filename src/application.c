@@ -54,8 +54,9 @@ PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]);
 PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip);
-PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s);
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip);
 PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
+PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition);
 
 
 PUBLIC Application createApplication(){
@@ -320,9 +321,11 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
-        if(soldierWallCollision(tiles, soldier)){
-            stepBack(soldier, &playerPosition, frame, flip);
-        }
+
+        int checkPortalType;
+
+        soldierWallCollision(tiles, soldier, &playerPosition, frame, flip);
+        
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
         SDL_RenderCopyEx(gRenderer, mSoldier1, &gSpriteClips[secondFrame],&playerPosition1 , 0, NULL, secondFlip);
@@ -426,13 +429,31 @@ PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip){
     }
 }
 
-PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s){
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip){
     int leftA, leftB;
     int rightA, rightB;
     int topA, topB;
     int bottomA, bottomB;
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
+            if(getTilePortal(tiles[i][j])==1){
+                //Rect Player
+                leftA = (getSoldierPositionX(s)+6);
+                rightA = (getSoldierPositionX(s) + (getSoldierWidth()-8));
+                topA = (getSoldierPositionY(s)+6);
+                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-8));
+
+                //Rect Tile
+                leftB = getTilePositionX(tiles[i][j]);
+                rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
+                topB = getTilePositionY(tiles[i][j]);
+                bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
+
+                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
+                }else{
+                    teleportThingy(s,tiles, i, j, playerPosition);
+                }    
+            }
             if(getTileCollision(tiles[i][j])==1){
                 
                 //Rect Player
@@ -449,7 +470,7 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s){
 
                 if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
                 }else{
-                    return true;
+                    stepBack(s, playerPosition, frame, flip);
                 }
             }   
         }
@@ -588,8 +609,12 @@ PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_
             possition=getTileSDLRec(tile);
             if(number==0x03 || number==0x04 || number==0x08||number==0x09){
                 setTileCollision(tile, 1);
-            }else{
+            }else if(number == 0x0d || number==0x0a){
+                setTilePortal(tile, 1);
+            }
+            else{
                 setTileCollision(tile, 0);
+                setTilePortal(tile, 0);
             }
             tiles[i][j]=tile;
 
@@ -597,6 +622,42 @@ PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_
         }
     }
 }
+
+PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition){
+   int newYPos, newXPos;
+   
+   if(getTileNumber(tiles[i][j])==0x0d){
+       if((j==2)&&(i==12)){
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[25][26])));
+            setSoldierPositionY(s, newYPos);
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[25][26])));
+            setSoldierPositionX(s, newXPos);
+        }
+        else if((j==26)&&(i==24)){
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[13][1])));
+            setSoldierPositionY(s, newYPos);
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[13][1])));
+            setSoldierPositionX(s, newXPos);
+        }        
+       
+   }
+   else if(getTileNumber(tiles[i][j])==0x0a){
+       if((j==24)&&(i==14)){   
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[19][8])));
+            setSoldierPositionY(s, newYPos);
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[19][8])));
+            setSoldierPositionX(s, newXPos);
+        }
+        else if((j==9)&&(i==21)){
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[12][24])));
+            setSoldierPositionY(s, newYPos);
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[12][24])));
+            setSoldierPositionX(s, newXPos);
+        }        
+       
+   }  
+}
+
 
 
 
