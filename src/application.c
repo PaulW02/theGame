@@ -356,7 +356,7 @@ PRIVATE void update(Application theApp, double delta_time){
 */
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet)
 {
-    SDL_Surface* bulletSurface = IMG_Load("resources/BULLETS.png");
+    SDL_Surface* bulletSurface = IMG_Load("resources/THEBULLET.png");
     *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
 
     setBulletSDLPos(*bullet, 0,0,10,5);
