@@ -74,7 +74,6 @@ PUBLIC void applicationUpdate(Application theApp){
     playerPosition.x = getSoldierPositionX(soldier);
     playerPosition.h = 32;
     playerPosition.w = 32;
-
     
 
     Bullet b = NULL;
@@ -157,7 +156,7 @@ PUBLIC void applicationUpdate(Application theApp){
                         break;
                     case SDLK_SPACE:
                         shotFired = true;
-                        Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
+                        Bullet b = createBullet(playerPosition.x, playerPosition.y, range, power,speed);
                         setBulletFrame(b, frame);
                         setBulletPositionX(b, playerPosition.x);
                         setBulletPositionY(b, playerPosition.y+14);
@@ -348,6 +347,10 @@ PRIVATE void weaponChoiceHandler(Soldier soldier)
     Weapon spear = createWeapon(5,6,7);
     Weapon rodBlue = createWeapon(5,6,7);
     Weapon rodRed = createWeapon(5,6,7);
+
+    setWeaponRange(weapon,range);
+    
+    
 
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {

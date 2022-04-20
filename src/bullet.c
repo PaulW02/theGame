@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "bullet.h"
+#include "weapon.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
@@ -14,18 +15,23 @@ struct bullet{
     int xPos;
     int yPos;
     int speed;
+    int power;
+    int range;
     SDL_Rect bulletPosition;
     SDL_Rect bulletSDL;
     int bulletFrame;
     SDL_RendererFlip bulletflip;
     int bulletAngle;
+    Weapon weapon;
 };
 
-PUBLIC Bullet createBullet(int x, int y, int speed){
+PUBLIC Bullet createBullet(int x, int y, int range, int power, int speed){
     Bullet b = malloc(sizeof(struct bullet));
     b->xPos = x;
     b->yPos = y;
-    b->speed = speed;
+    b->range = getWeaponRange(createweapon(range));
+    b->power = getWeaponPower(createweapon(power));
+    b->speed = getWeaponSpeed(createweapon(speed));
     return b;
 }
 
@@ -38,7 +44,7 @@ PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
     case 1:
         b->y += 2;
         break;
-    case 2:
+    case 10:
         if(flip == SDL_FLIP_HORIZONTAL){
            b->x -= 2;
         }
