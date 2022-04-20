@@ -53,29 +53,30 @@ PRIVATE void StartPage(Menu m)
     SDL_Rect titleRect;
     SDL_QueryTexture(titleTex,NULL,NULL,&titleRect.w,&titleRect.h);
     titleRect.x=(WINDOW_WIDTH-titleRect.w)/2;
-    titleRect.y=100;
+    titleRect.y=WINDOW_HEIGHT;
 
-    /*
-    while(titleRect.y <= 100)
+    
+    while(titleRect.y >= 100)
     {
         SDL_RenderClear(m->gRenderer);
         
         //Inte klart
-        //SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
+        SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
+        SDL_RenderPresent(m->gRenderer);
+
+        titleRect.y-=1;
 
 
         //Time for a frame
         SDL_Delay(1/6000);
     }
-    */
-  
-    SDL_RenderClear(m->gRenderer);
-    SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
     
-    SDL_RenderPresent(m->gRenderer);
+   
+    //THE GAME appears
+    //SDL_RenderClear(m->gRenderer);
+    //SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
 
     //Press any button appears
-    
     renderImage(m,"pressAnyButton.png",300,2);
     SDL_RenderPresent(m->gRenderer);
     
