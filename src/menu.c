@@ -53,8 +53,9 @@ PRIVATE void StartPage(Menu m)
     SDL_Rect titleRect;
     SDL_QueryTexture(titleTex,NULL,NULL,&titleRect.w,&titleRect.h);
     titleRect.x=(WINDOW_WIDTH-titleRect.w)/2;
-    titleRect.y=WINDOW_HEIGHT;
+    titleRect.y=100;
 
+    /*
     while(titleRect.y <= 100)
     {
         SDL_RenderClear(m->gRenderer);
@@ -66,13 +67,19 @@ PRIVATE void StartPage(Menu m)
         //Time for a frame
         SDL_Delay(1/6000);
     }
-    
+    */
+  
+    SDL_RenderClear(m->gRenderer);
     SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
     
     SDL_RenderPresent(m->gRenderer);
 
+    //Press any button appears
+    
     renderImage(m,"pressAnyButton.png",300,2);
     SDL_RenderPresent(m->gRenderer);
+    
+
     SDL_Delay(5000);
 
     free(m);
