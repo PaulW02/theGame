@@ -21,7 +21,7 @@ struct menu{
 
 //Function declarations
 PRIVATE void StartPage(Menu m);
-PRIVATE void renderImage(Menu m, char *imageName, int posY);
+PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier);
 
 
 
@@ -45,20 +45,41 @@ PUBLIC void MenuApplication(Menu m)
 PRIVATE void StartPage(Menu m)
 {
 
-    //Clears the memory
-    SDL_RenderClear(m->gRenderer);
+    SDL_Surface* titleSurface = IMG_Load("resources/menu/theGame.png");
+
+    SDL_Texture* titleTex = SDL_CreateTextureFromSurface(m->gRenderer,titleSurface);
+    SDL_FreeSurface(titleSurface);
+
+    SDL_Rect titleRect;
+    SDL_QueryTexture(titleTex,NULL,NULL,&titleRect.w,&titleRect.h);
+    titleRect.x=(WINDOW_WIDTH-titleRect.w)/2;
+    titleRect.y=WINDOW_HEIGHT;
+
+    while(titleRect.y <= 100)
+    {
+        SDL_RenderClear(m->gRenderer);
         
-    renderImage(m,"theGame.png",100);
-    renderImage(m,"pressAnyButton.png",200);
+        //Inte klart
+        //SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
+
+
+        //Time for a frame
+        SDL_Delay(1/6000);
+    }
+    
+    SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
+    
     SDL_RenderPresent(m->gRenderer);
 
+    renderImage(m,"pressAnyButton.png",300,2);
+    SDL_RenderPresent(m->gRenderer);
     SDL_Delay(5000);
 
     free(m);
 }
 
 
-PRIVATE void renderImage(Menu m, char *imageName, int posY)
+PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier)
 {
     char path[42] = "resources/menu/";
     strcat(path,imageName);
@@ -68,9 +89,17 @@ PRIVATE void renderImage(Menu m, char *imageName, int posY)
     SDL_FreeSurface(s);
 
     SDL_Rect dest;
+
     SDL_QueryTexture(tex, NULL,NULL,&dest.w,&dest.h);
+    
+    //Scales the image up or down
+    dest.w/=scaleModifier;
+    dest.h/=scaleModifier;
+
+    //Defines the position of the images top-left corner
     dest.x=(WINDOW_WIDTH-dest.w)/2;
     dest.y=posY;
+
 
     SDL_RenderCopy(m->gRenderer,tex,NULL,&dest);
 
