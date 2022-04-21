@@ -6,7 +6,7 @@ typedef struct menu *Menu;
 
 
 //Funcitons
-Menu createMenu(SDL_Renderer *gRenderer);
-void MenuApplication(Menu m);
+Menu createMenu(SDL_Renderer *gRenderer, SDL_Window *window, SDL_Surface *window_surface);
+int menuApplication(Menu m);
 
 #endif

@@ -4,6 +4,7 @@
 #include "application.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 
 #define PUBLIC /* empty */
@@ -11,38 +12,49 @@
 
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512
+#define SCROLL_SPEED 5
 
 
 struct menu{
     SDL_Renderer *gRenderer;
+    SDL_Window  *window;
+    SDL_Surface *window_surface;
     char ipAdress[16];
     //Implement type of gamemode, ex 2v2 or free for all
 };
 
 //Function declarations
-PRIVATE void StartPage(Menu m);
+PUBLIC int menuApplication(Menu m);
+PUBLIC void destroyMenu(Menu m);
 PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier);
+PRIVATE int startPage(Menu m);
 
-
-
-PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
+PUBLIC Menu createMenu(SDL_Renderer *gRenderer, SDL_Window *window, SDL_Surface *window_surface)
 {
     Menu m = malloc(sizeof(struct menu));
     m->gRenderer = gRenderer;
+    m->window=window;
+    m->window_surface=window_surface;
     //strcpy(m->ipAdress,"123.123.123.123"); Ex
     return m;
 }
 
-PUBLIC void MenuApplication(Menu m)
-{
-    PRIVATE int page = 0;
-
-    //printf("You made it here!\n");
-    //getchar();
-    StartPage(m);
+PUBLIC int menuApplication(Menu m)
+{      
+    return startPage(m);
 }
 
-PRIVATE void StartPage(Menu m)
+//Isn't implemented yet
+PUBLIC void destroyMenu(Menu m)
+{
+    SDL_FreeSurface(m->window_surface);
+    SDL_DestroyWindow(m->window);
+    SDL_DestroyRenderer(m->gRenderer);
+    free(m);
+    SDL_Quit();
+}
+
+PRIVATE int startPage(Menu m)
 {
 
     SDL_Surface* titleSurface = IMG_Load("resources/menu/theGame.png");
@@ -56,34 +68,54 @@ PRIVATE void StartPage(Menu m)
     titleRect.y=WINDOW_HEIGHT;
 
     
-    while(titleRect.y >= 100)
+    bool windowCloseRequest = false, titleAppearing = true, pressAnyButtonVisible = false;
+
+    while(!windowCloseRequest)
     {
-        SDL_RenderClear(m->gRenderer);
-        
-        //Inte klart
-        SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
-        SDL_RenderPresent(m->gRenderer);
+        SDL_Event event;
+        //Returns 1 if there was an event
+        while (SDL_PollEvent(&event))
+        {
+            switch(event.type)
+            {
+                case SDL_QUIT:
+                    windowCloseRequest=true;
+                    break;
+                
+                case SDL_KEYDOWN:
+                    return 0;
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+        if(titleAppearing)
+        {
+            //Animation happends here
+            SDL_RenderClear(m->gRenderer);
+            SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
+            SDL_RenderPresent(m->gRenderer);
 
-        titleRect.y-=1;
+            //Moves the game title upwards
+            titleRect.y-=SCROLL_SPEED;
+            
+            //Checks if the title has reached its goal
+            if(titleRect.y<=100) titleAppearing=false;
 
-
-        //Time for a frame
-        SDL_Delay(1/6000);
+            //Time for a frame
+            SDL_Delay(1000/60);
+        }
+        else if(!titleAppearing && !pressAnyButtonVisible)
+        {
+            renderImage(m,"pressAnyButton.png",300,2);
+            SDL_RenderPresent(m->gRenderer);
+            pressAnyButtonVisible=true;
+        }
     }
-    
-   
-    //THE GAME appears
-    //SDL_RenderClear(m->gRenderer);
-    //SDL_RenderCopy(m->gRenderer,titleTex,NULL,&titleRect);
-
-    //Press any button appears
-    renderImage(m,"pressAnyButton.png",300,2);
-    SDL_RenderPresent(m->gRenderer);
-    
-
-    SDL_Delay(5000);
-
     free(m);
+    return -1;
+
 }
 
 
