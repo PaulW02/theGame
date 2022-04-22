@@ -17,9 +17,8 @@
 
 struct menu{
     SDL_Renderer *gRenderer;
-    SDL_Window  *window;
-    SDL_Surface *window_surface;
     char ipAdress[16];
+    int gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
 };
 
@@ -29,29 +28,32 @@ PUBLIC void destroyMenu(Menu m);
 PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier);
 PRIVATE int startPage(Menu m);
 
-PUBLIC Menu createMenu(SDL_Renderer *gRenderer, SDL_Window *window, SDL_Surface *window_surface)
+PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 {
     Menu m = malloc(sizeof(struct menu));
     m->gRenderer = gRenderer;
-    m->window=window;
-    m->window_surface=window_surface;
-    //strcpy(m->ipAdress,"123.123.123.123"); Ex
+    m->gameModeType = 0;
+    strcpy(m->ipAdress,"123.123.123.123");
     return m;
 }
 
 PUBLIC int menuApplication(Menu m)
 {      
-    return startPage(m);
+    int result = 0;
+    
+    result = startPage(m);
+    
+    
+    
+    if(result==-1) return result;
+
 }
 
 //Isn't implemented yet
 PUBLIC void destroyMenu(Menu m)
 {
-    SDL_FreeSurface(m->window_surface);
-    SDL_DestroyWindow(m->window);
     SDL_DestroyRenderer(m->gRenderer);
     free(m);
-    SDL_Quit();
 }
 
 PRIVATE int startPage(Menu m)
@@ -113,11 +115,10 @@ PRIVATE int startPage(Menu m)
             pressAnyButtonVisible=true;
         }
     }
-    free(m);
+    destroyMenu(m);
     return -1;
 
 }
-
 
 PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier)
 {
@@ -144,4 +145,9 @@ PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier)
     SDL_RenderCopy(m->gRenderer,tex,NULL,&dest);
 
     return;
+}
+
+PUBLIC char* getIpAdress(Menu m)
+{
+    return m->ipAdress;
 }

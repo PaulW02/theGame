@@ -6,7 +6,8 @@ typedef struct menu *Menu;
 
 
 //Funcitons
-Menu createMenu(SDL_Renderer *gRenderer, SDL_Window *window, SDL_Surface *window_surface);
+Menu createMenu(SDL_Renderer *gRenderer);
 int menuApplication(Menu m);
+char* getIpAdress(Menu m);
 
 #endif

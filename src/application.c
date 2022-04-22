@@ -96,7 +96,7 @@ PUBLIC void applicationUpdate(Application theApp){
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     //Menu
-    Menu m = createMenu(gRenderer,theApp->window,theApp->window_surface);
+    Menu m = createMenu(gRenderer);
     if(menuApplication(m) == -1) return;
 
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
