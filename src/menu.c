@@ -25,8 +25,9 @@ struct menu{
 //Function declarations
 PUBLIC int menuApplication(Menu m);
 PUBLIC void destroyMenu(Menu m);
-PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier);
+PRIVATE void renderImage(Menu m, char *imageName, int posX, int posY, int scaleModifier);
 PRIVATE int startPage(Menu m);
+PRIVATE int mainMenu(Menu m);
 
 PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 {
@@ -42,9 +43,10 @@ PUBLIC int menuApplication(Menu m)
     int result = 0;
     
     result = startPage(m);
-    
-    
-    
+    result = mainMenu(m);
+
+
+
     if(result==-1) return result;
 
 }
@@ -54,6 +56,11 @@ PUBLIC void destroyMenu(Menu m)
 {
     SDL_DestroyRenderer(m->gRenderer);
     free(m);
+}
+
+PUBLIC char* getIpAdress(Menu m)
+{
+    return m->ipAdress;
 }
 
 PRIVATE int startPage(Menu m)
@@ -110,7 +117,7 @@ PRIVATE int startPage(Menu m)
         }
         else if(!titleAppearing && !pressAnyButtonVisible)
         {
-            renderImage(m,"pressAnyButton.png",300,2);
+            renderImage(m,"pressAnyButton.png",-1,300,2);
             SDL_RenderPresent(m->gRenderer);
             pressAnyButtonVisible=true;
         }
@@ -120,7 +127,7 @@ PRIVATE int startPage(Menu m)
 
 }
 
-PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier)
+PRIVATE void renderImage(Menu m, char *imageName,int posX,int posY, int scaleModifier)
 {
     char path[42] = "resources/menu/";
     strcat(path,imageName);
@@ -138,16 +145,22 @@ PRIVATE void renderImage(Menu m, char *imageName, int posY, int scaleModifier)
     dest.h/=scaleModifier;
 
     //Defines the position of the images top-left corner
-    dest.x=(WINDOW_WIDTH-dest.w)/2;
+    if(posX==-1) dest.x=(WINDOW_WIDTH-dest.w)/2;
+    else dest.x=posX;  
+    
     dest.y=posY;
-
 
     SDL_RenderCopy(m->gRenderer,tex,NULL,&dest);
 
     return;
 }
 
-PUBLIC char* getIpAdress(Menu m)
+PRIVATE int mainMenu(Menu m)
 {
-    return m->ipAdress;
+    //Typsnitt: Showcard Gothic, Storlek 48
+    
+    SDL_RenderClear(m->gRenderer);
+    renderImage(m,"theGame.png",-1,50,1);
+    SDL_RenderPresent(m->gRenderer);
+    SDL_Delay(5000);
 }
