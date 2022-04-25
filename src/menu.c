@@ -13,10 +13,15 @@
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512
 #define SCROLL_SPEED 5
+#define TITLECARD 1
+#define MAINMENU 2
+#define CLOSEREQUSTED -1
+
 
 
 struct menu{
     SDL_Renderer *gRenderer;
+    SDL_Event event;
     char ipAdress[16];
     int gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
@@ -32,22 +37,41 @@ PRIVATE int mainMenu(Menu m);
 PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 {
     Menu m = malloc(sizeof(struct menu));
+    SDL_Event windowEvent;
     m->gRenderer = gRenderer;
     m->gameModeType = 0;
+    m->event = windowEvent;
     strcpy(m->ipAdress,"123.123.123.123");
     return m;
 }
 
 PUBLIC int menuApplication(Menu m)
 {      
-    int result = 0;
-    
-    result = startPage(m);
-    result = mainMenu(m);
+    int result = 1;
+    bool closeRequested = false;
+    while(!closeRequested)
+    {
+        switch (result)
+        {
+        case CLOSEREQUSTED:
+            destroyMenu(m);
+            closeRequested=true;
+            break;
 
-
-
-    if(result==-1) return result;
+        case TITLECARD:
+            result = startPage(m);
+            break;
+        
+        case MAINMENU:
+            result = mainMenu(m);
+            break;
+        
+        default:
+            return 0;
+            break;
+        }
+    }
+    return result;
 
 }
 
@@ -81,18 +105,17 @@ PRIVATE int startPage(Menu m)
 
     while(!windowCloseRequest)
     {
-        SDL_Event event;
         //Returns 1 if there was an event
-        while (SDL_PollEvent(&event))
+        while (SDL_PollEvent(&m->event))
         {
-            switch(event.type)
+            switch(m->event.type)
             {
                 case SDL_QUIT:
                     windowCloseRequest=true;
                     break;
                 
                 case SDL_KEYDOWN:
-                    return 0;
+                    return MAINMENU;
                     break;
                 
                 default:
@@ -122,8 +145,7 @@ PRIVATE int startPage(Menu m)
             pressAnyButtonVisible=true;
         }
     }
-    destroyMenu(m);
-    return -1;
+    return CLOSEREQUSTED;
 
 }
 
@@ -158,9 +180,37 @@ PRIVATE void renderImage(Menu m, char *imageName,int posX,int posY, int scaleMod
 PRIVATE int mainMenu(Menu m)
 {
     //Typsnitt: Showcard Gothic, Storlek 48
+
+    bool windowCloseRequested = false, userInterfaceAppeard = false;
     
-    SDL_RenderClear(m->gRenderer);
-    renderImage(m,"theGame.png",-1,50,1);
-    SDL_RenderPresent(m->gRenderer);
-    SDL_Delay(5000);
+    while(!windowCloseRequested)
+    {
+        while(SDL_PollEvent(&m->event))
+        {
+            switch (m->event.type)
+            {
+            case SDL_QUIT:
+                windowCloseRequested = true;
+                break;
+            
+            case SDL_KEYDOWN:
+                return 10;
+                break;
+
+            default:
+                break;
+            }
+        }
+        
+        if(!userInterfaceAppeard)
+        {
+            SDL_RenderClear(m->gRenderer);
+            renderImage(m,"theGame.png",-1,20,1);
+            renderImage(m,"onlineOption.png",-1,250,1);
+            renderImage(m,"howToPlay.png",-1,350,1);
+            SDL_RenderPresent(m->gRenderer);
+            userInterfaceAppeard=true;
+        }
+    }
+    return CLOSEREQUSTED;
 }
