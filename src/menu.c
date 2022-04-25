@@ -206,8 +206,14 @@ PRIVATE int mainMenu(Menu m)
         {
             SDL_RenderClear(m->gRenderer);
             renderImage(m,"theGame.png",-1,20,1);
-            renderImage(m,"onlineOption.png",-1,250,1);
-            renderImage(m,"howToPlay.png",-1,350,1);
+    //        renderImage(m,"onlineOption.png",-1,225,1);
+  //          renderImage(m,"howToPlay.png",-1,325,1);
+//            renderImage(m,"co_op.png",-1,425,1);
+
+            renderImage(m,"onlineOptionGray.png",-1,225,1);
+            renderImage(m,"howToPlayGray.png",-1,325,1);
+            renderImage(m,"co_opGray.png",-1,425,1);
+
             SDL_RenderPresent(m->gRenderer);
             userInterfaceAppeard=true;
         }
