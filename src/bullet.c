@@ -25,45 +25,42 @@ struct bullet{
     Weapon weapon;
 };
 
-PUBLIC Bullet createBullet(int x, int y, int range, int power, int speed){
+PUBLIC Bullet createBullet(int x, int y){
     Bullet b = malloc(sizeof(struct bullet));
     b->xPos = x;
     b->yPos = y;
-    b->range = getWeaponRange(createweapon(range));
-    b->power = getWeaponPower(createweapon(power));
-    b->speed = getWeaponSpeed(createweapon(speed));
     return b;
 }
 
-PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
+PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip, int speed){
     switch (frame)
     {
     case 0:
-        b->y += 2;
+        b->y += speed;
         break;
     case 1:
-        b->y += 2;
+        b->y += speed;
         break;
-    case 10:
+    case 2:
         if(flip == SDL_FLIP_HORIZONTAL){
-           b->x -= 2;
+           b->x -= speed;
         }
         if(flip == SDL_FLIP_NONE){
-            b->x += 2;
+            b->x += speed;
         }
         break;
     case 3:
         if(flip == SDL_FLIP_HORIZONTAL){
-            b->x -= 2;
+            b->x -= speed;
         }if(flip == SDL_FLIP_NONE){
-            b->x += 2;
+            b->x += speed;
         }
         break; 
     case 4:
-        b->y -= 2;
+        b->y -= speed;
         break;
     case 5:
-        b->y -= 2;
+        b->y -= speed;
         break;
     default:
         break;
