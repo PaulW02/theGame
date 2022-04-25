@@ -11,6 +11,8 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
+#define bulletVel 2
+
 struct bullet{
     int xPos;
     int yPos;

@@ -17,8 +17,8 @@
 #define PRIVATE static
 #define MAXCHAR 100
 
-PRIVATE int WIDTH = 16;
-PRIVATE int HEIGHT = 16;
+PRIVATE int WIDTH = 32;
+PRIVATE int HEIGHT = 32;
 
 struct soldier{
     int soldierXPos;
