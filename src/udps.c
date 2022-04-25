@@ -98,7 +98,7 @@ int main(int argc, char **argv)
                 portClient2 = pRecive->address.port;
             }else{
                 if (pRecive->address.port == portClient1){
-                    printf("Recived data\n");
+                    //printf("Recived data\n");
                     if(IPclient2 != 0){
                         printf("Send to Client 2\n");
                         pSent->address.host = IPclient2;	/* Set the destination host */

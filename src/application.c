@@ -157,10 +157,6 @@ PUBLIC void applicationUpdate(Application theApp){
     maxRange = getWeaponRange(getSoldierWeapon(soldier));
 
 
-    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-
-    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
-
     Tile tiles[32][32];
     struct tilesWithCollision{
         int x;
@@ -311,7 +307,7 @@ PUBLIC void applicationUpdate(Application theApp){
             
         //}      
         
-        //printf("UDP RECIEVE %d\n", SDLNet_UDP_Recv(sd, p2));
+        //printf("UDP   %d\n", SDLNet_UDP_Recv(sd, p2));
         if (SDLNet_UDP_Recv(sd, p2)){
 
             memcpy(&udpData2, (char * ) p2->data, sizeof(struct data)+1);
@@ -368,7 +364,7 @@ PUBLIC void applicationUpdate(Application theApp){
             SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletFlip);
             if(checkBulletOutOfBoundaries(b, bulletPosition) || checkBulletRangeMax(b,bulletPosition, maxRange, playerPosition))
             {
-                printf("%d RANGE\n", maxRange);
+                //printf("%d RANGE\n", maxRange);
                 free(bullets[i]);
                 amountOfBullets = deleteBullet(&amountOfBullets,bullets, i);
             }else{
@@ -677,6 +673,7 @@ PRIVATE void weaponChoiceHandler(Soldier soldier)
     }
     printf("%d", getWeaponRange(getSoldierWeapon(soldier)));
 }
+
 PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition){
    int newYPos, newXPos;
    
