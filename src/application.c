@@ -8,6 +8,7 @@
 #include "world.h"
 #include "soldier.h"
 #include "bullet.h"
+#include "weapon.h"
 #include "tile.h"
 #include <unistd.h>
 
@@ -42,7 +43,7 @@ struct data {
 typedef struct data Data;
 
 PRIVATE bool init(SDL_Renderer **gRenderer);
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[]);
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s);
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet);
 PRIVATE void update(Application theApp, double delta_time);
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[32][32]);
@@ -51,7 +52,9 @@ PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
 PRIVATE int deleteBullet(int *amountOfBullets, Bullet bullets[],int delete);
 PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
 PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
+PRIVATE int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, SDL_Rect playerPosition);
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
+PRIVATE void weaponChoiceHandler(Soldier soldier);
 PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]);
 PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip);
 PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip);
@@ -101,6 +104,9 @@ PUBLIC void applicationUpdate(Application theApp){
     playerPosition.x = getSoldierPositionX(soldier);
     playerPosition.h = 32;
     playerPosition.w = 32;
+    
+    int weaponSpeed;
+    int maxRange;
     int oldX, oldY, soldierXPos, soldierYPos;
 
     //Second player data
@@ -145,6 +151,16 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+    setSoldierFileName(soldier,"resources/Karaktarer/BOY/BOYpistol.png");
+    weaponChoiceHandler(soldier);
+    weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldier));
+    maxRange = getWeaponRange(getSoldierWeapon(soldier));
+
+
+    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+
+    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
+
     Tile tiles[32][32];
     struct tilesWithCollision{
         int x;
@@ -189,8 +205,8 @@ PUBLIC void applicationUpdate(Application theApp){
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
-    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
-    loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles);
+    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
+    loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles, soldier);
     bool keep_window_open = true;
     while(keep_window_open)
     {
@@ -244,7 +260,7 @@ PUBLIC void applicationUpdate(Application theApp){
                         break;
                     case SDLK_SPACE:
                         shotFired = true;
-                        Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
+                        Bullet b = createBullet(playerPosition.x, playerPosition.y);
                         setBulletFrame(b, frame);
                         setBulletPositionX(b, playerPosition.x);
                         setBulletPositionY(b, playerPosition.y+14);
@@ -304,7 +320,7 @@ PUBLIC void applicationUpdate(Application theApp){
             recvAmountOfBullets = udpData2.amountOfBullets;
             for (int i = 0; i < recvAmountOfBullets; i++)
             {
-                Bullet recvB = createBullet(udpData2.bulletPosition[i].x, udpData2.bulletPosition[i].y, 5);
+                Bullet recvB = createBullet(udpData2.bulletPosition[i].x, udpData2.bulletPosition[i].y);
                 recvBullets[i] = recvB;
                 setBulletPositionX(recvBullets[i], udpData2.bulletPosition[i].x);
                 setBulletPositionY(recvBullets[i], udpData2.bulletPosition[i].y);
@@ -348,15 +364,11 @@ PUBLIC void applicationUpdate(Application theApp){
             bulletFlip = getBulletFlip(bullets[i]);
             
             bulletAngle = getBulletAngle(bullets[i]);
-            bulletXPos = getBulletPositionX(bullets[i]);
-            bulletYPos = getBulletPositionY(bullets[i]);
-
-            move(&bulletPosition, bulletFrame, bulletFlip);
-            
+            move(&bulletPosition, bulletFrame, bulletFlip, weaponSpeed);
             SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletFlip);
-
-            if(checkBulletOutOfBoundaries(b, bulletPosition))
+            if(checkBulletOutOfBoundaries(b, bulletPosition) || checkBulletRangeMax(b,bulletPosition, maxRange, playerPosition))
             {
+                printf("%d RANGE\n", maxRange);
                 free(bullets[i]);
                 amountOfBullets = deleteBullet(&amountOfBullets,bullets, i);
             }else{
@@ -519,6 +531,15 @@ PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition)
     }
 }
 
+PRIVATE int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, SDL_Rect playerPosition)
+{
+    if(bulletPosition.x == playerPosition.x+maxRange || bulletPosition.y == playerPosition.y+maxRange){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
 PRIVATE void update(Application theApp, double delta_time){
     //SDL_UpdateWindowSurface(theApp->window);
 }
@@ -537,9 +558,9 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
     setBulletSDLPos(*bullet, 0,0,10,5);
 }
 
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s)
 {
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/Karaktarer/SKELETON/SKELETONrodBLUE.png");
+    SDL_Surface* gSpacemanSurface = IMG_Load(getSoldierFileName(s));
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
      
@@ -623,6 +644,39 @@ PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_
     }
 }
 
+PRIVATE void weaponChoiceHandler(Soldier soldier)
+{
+
+    Weapon pistol = createWeapon(200,10,6);
+    Weapon bow = createWeapon(5,6,7);
+    Weapon spear = createWeapon(5,6,7);
+    Weapon rodBlue = createWeapon(5,6,7);
+    Weapon rodRed = createWeapon(5,6,7);
+    
+    
+
+    if (strstr(getSoldierFileName(soldier),"pistol"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    if (strstr(getSoldierFileName(soldier),"bow"))
+    {
+        setSoldierWeapon(soldier,bow);
+    }
+    if (strstr(getSoldierFileName(soldier),"spear"))
+    {
+        setSoldierWeapon(soldier,spear);
+    }
+    if (strstr(getSoldierFileName(soldier),"rodBLUE"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    if (strstr(getSoldierFileName(soldier),"rodRED"))
+    {
+        setSoldierWeapon(soldier,pistol);
+    }
+    printf("%d", getWeaponRange(getSoldierWeapon(soldier)));
+}
 PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition){
    int newYPos, newXPos;
    
