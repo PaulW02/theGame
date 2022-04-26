@@ -201,6 +201,7 @@ PUBLIC void applicationUpdate(Application theApp){
                     keep_window_open = false;
                     break;
             }
+            //moveOnInput(&theApp, soldier, flip, frame);
             else if( theApp->window_event.type == SDL_KEYDOWN ){
                 //Select surfaces based on key press
                 switch(theApp->window_event.key.keysym.sym )
@@ -369,6 +370,72 @@ PUBLIC void applicationUpdate(Application theApp){
         update(theApp, 10.0/60.0);
     }
 }
+
+/*
+void moveOnInput(Application theApp, Soldier s, int flip, int frame){
+    //Bör ens dessa finnas kvar?
+    int speedX=0, speedY=0;
+    //If key pressed
+    if(theApp->window_event.type == SDL_KEYDOWN && theApp->window_event.key.repeat == 0){
+        switch(theApp->window_event.key.repeat){
+            case SDLK_UP:
+                speedY -= getSoldierSpeed(s);
+                setSoldierSpeedY(s, speedY);
+                flip = SDL_FLIP_NONE;
+                if(frame == 4)
+                    frame = 5;
+                else
+                    frame = 4;
+                break;
+            case SDLK_DOWN:
+                speedY += getSoldierSpeed(s);
+                setSoldierSpeedY(s, speedY);
+                flip = SDL_FLIP_NONE;
+                if(frame == 0)
+                    frame = 1;
+                else
+                    frame = 0;
+                break;
+            case SDLK_LEFT:
+                speedX -= getSoldierSpeed(s);
+                setSoldierSpeedX(s, speedX);
+                if(frame == 2)
+                    frame = 3;
+                else
+                    frame = 2;            
+                break;
+            case SDLK_RIGHT:
+                speedX += getSoldierSpeed(s);
+                setSoldierSpeedX(s, speedX);
+                flip = SDL_FLIP_NONE;
+                if(frame == 2)
+                    frame = 3;
+                else
+                    frame = 2;                
+                break;
+        }
+    }else if (theApp->window_event.type == SDL_KEYUP && theApp->window_event.key.repeat == 0){
+        switch(theApp->window_event.key.repeat){
+            case SDLK_UP:
+                speedY += getSoldierSpeed(s);
+                setSoldierSpeedY(s, speedY);
+                break;
+            case SDLK_DOWN:
+                speedY -= getSoldierSpeed(s);
+                setSoldierSpeedY(s, speedY);
+                break;
+            case SDLK_LEFT:
+                speedX += getSoldierSpeed(s);
+                setSoldierSpeedX(s, speedX);
+                break;
+            case SDLK_RIGHT:
+                speedX -= getSoldierSpeed(s);
+                setSoldierSpeedX(s, speedX);
+                break;
+        }
+    }
+}
+*/
 
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
 {

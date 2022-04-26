@@ -22,6 +22,8 @@ struct soldier{
     int soldierYPos;
     int soldierFrame;
     int speed;
+    int speedX;
+    int speedY;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -30,6 +32,8 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->soldierXPos = x;
     s->soldierFrame = 0;
     s->speed = 1;
+    s->speedX = 1;
+    s->speedY = 1;
     return s;
 }
 
@@ -57,6 +61,29 @@ PUBLIC int getSoldierPositionY(Soldier s){
     return s->soldierYPos;
 }
 
+PUBLIC void setSoldierSpeed(Soldier s, int velocity){
+    s->speed = velocity;
+}
+
+PUBLIC int getSoldierSpeed(Soldier s){
+    return s->speedX;
+}
+
+PUBLIC void setSoldierSpeedX(Soldier s, int velocityX){
+    s->speedX = velocityX;
+}
+
+PUBLIC int getSoldierSpeedX(Soldier s){
+    return s->speedX;
+}
+
+PUBLIC void setSoldierSpeedY(Soldier s, int velocityY){
+    s->speedY = velocityY;
+}
+
+PUBLIC int getSoldierSpeedY(Soldier s){
+    return s->speedY;
+}
 
 PUBLIC void tick(int direction){
     
