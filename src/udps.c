@@ -103,13 +103,10 @@ int main(int argc, char **argv)
                 for (int j = 0; j < MAX_PLAYERS; j++){
                     if (pRecive->address.port == clients[i].portClient){
                         if(clients[j].IPclient != 0 && j != i){
-                            printf("Recived data\n");
+                            //printf("Recived data\n");
                             printf("Send to Client %d\n", j+1);
                             pSent->address.host = clients[j].IPclient;	/* Set the destination host */
                             pSent->address.port = clients[j].portClient;
-                            //sscanf((char * )pRecive->data, "%d %d\n", &a, &b);
-                            //printf("%d %d\n", a, b);
-                            //sprintf((char *)pSent->data, "%d %d\n", a,  b);
                             int connParams[5];
                             sscanf((char * )pRecive->data, "%d %d %d %d %d\n", &connParams[0], &connParams[1], &connParams[2], &connParams[3], &connParams[4]);
                             playerId = i;
@@ -146,7 +143,6 @@ PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]){
     {
         if(pRecieve->address.port != clients[elem].portClient && elem != i){
             counter++;
-            printf("%d counter\n", counter);
         }
     }
     return counter;

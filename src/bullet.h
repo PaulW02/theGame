@@ -7,8 +7,8 @@
 
 typedef struct bullet *Bullet;
 
-Bullet createBullet(int x, int y, int speed);
-void move(SDL_Rect *b, int frame, SDL_RendererFlip flip);
+Bullet createBullet(int x, int y);
+void move(SDL_Rect *b, int frame, SDL_RendererFlip flip, int speed);
 void setBulletPositionX(Bullet b, int positionX);
 int getBulletPositionX(Bullet b);
 void setBulletPositionY(Bullet b, int positionY);

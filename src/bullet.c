@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "bullet.h"
+#include "weapon.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
@@ -16,50 +17,52 @@ struct bullet{
     int xPos;
     int yPos;
     int speed;
+    int power;
+    int range;
     SDL_Rect bulletPosition;
     SDL_Rect bulletSDL;
     int bulletFrame;
     SDL_RendererFlip bulletflip;
     int bulletAngle;
+    Weapon weapon;
 };
 
-PUBLIC Bullet createBullet(int x, int y, int speed){
+PUBLIC Bullet createBullet(int x, int y){
     Bullet b = malloc(sizeof(struct bullet));
     b->xPos = x;
     b->yPos = y;
-    b->speed = speed;
     return b;
 }
 
-PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
+PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip, int speed){
     switch (frame)
     {
     case 0:
-        b->y += bulletVel;
+        b->y += speed;
         break;
     case 1:
-        b->y += bulletVel;
+        b->y += speed;
         break;
     case 2:
         if(flip == SDL_FLIP_HORIZONTAL){
-           b->x -= bulletVel;
+           b->x -= speed;
         }
         if(flip == SDL_FLIP_NONE){
-            b->x += bulletVel;
+            b->x += speed;
         }
         break;
     case 3:
         if(flip == SDL_FLIP_HORIZONTAL){
-            b->x -= bulletVel;
+            b->x -= speed;
         }if(flip == SDL_FLIP_NONE){
-            b->x += bulletVel;
+            b->x += speed;
         }
         break; 
     case 4:
-        b->y -= bulletVel;
+        b->y -= speed;
         break;
     case 5:
-        b->y -= bulletVel;
+        b->y -= speed;
         break;
     default:
         break;

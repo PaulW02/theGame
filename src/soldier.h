@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "weapon.h"
 
 typedef struct soldier *Soldier;
 
@@ -31,6 +32,10 @@ void setSoldierFrame(Soldier s, int frame);
 int getSoldierFrame(Soldier s);
 void setSoldierFlip(Soldier s, SDL_RendererFlip flip);
 SDL_RendererFlip getSoldierFlip(Soldier s);
+void setSoldierWeapon(Soldier s, Weapon weapon);
+Weapon getSoldierWeapon(Soldier s);
+void setSoldierFileName(Soldier s, char soldierFileName[]);
+const char* getSoldierFileName(Soldier s);
 
 #endif /* spaceman_h */
 
