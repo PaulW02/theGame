@@ -11,51 +11,37 @@ exit
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_net.h"
+#include "soldier.h"
 //#include "bullet.h"
 
+#define MAX_PLAYERS 4
+#define MAX_BULLETS 10
 
-struct bullet{
-    int xPos;
-    int yPos;
-    int speed;
-    SDL_Rect bulletPosition;
-    SDL_Rect bulletSDL;
-    int bulletFrame;
-    SDL_RendererFlip bulletflip;
-    int bulletAngle;
+#define PUBLIC
+#define PRIVATE static
+
+struct client {
+    Uint32 IPclient;
+    Uint32 portClient;
 };
-typedef struct bullet LocalBullet;
+typedef struct client Client;
 
+PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]);
 
-struct data {
-    int playerX;
-    int playerY;
-    int frame;
-    SDL_RendererFlip flip;
-    //Bullet bullets[10];
-    SDL_Rect bulletPosition[10];
-    SDL_Rect bulletSDL[10];
-    int bulletFrame[10];
-    SDL_RendererFlip bulletFlip[10];
-    int bulletAngle[10];
-    int amountOfBullets;
-};
-typedef struct data Data;
-
-
- 
 int main(int argc, char **argv)
 {
 	UDPsocket sd;       /* Socket descriptor */
 	UDPpacket *pRecive;       /* Pointer to packet memory */
 	UDPpacket *pSent;
-    Uint32 IPclient1=0; 
-    Uint32 IPclient2=0;
-    Uint32 portClient1=0; 
-    Uint32 portClient2=0;
-    int quit, a, b;
-    Data udpData;
- 
+    int quit;
+    
+    Client clients[MAX_PLAYERS];
+
+    Soldier soldiers[MAX_PLAYERS];
+
+    int playerId = 0, checkClientBool = 0;
+    
+
 	/* Initialize SDL_net */
 	if (SDLNet_Init() < 0)
 	{
@@ -76,55 +62,65 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
+
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        clients[i].IPclient = 0;
+        clients[i].portClient = 0;
+        soldiers[i] = createSoldier(0,0);
+        setSoldierId(soldiers[i], i);
+        setSoldierPositionX(soldiers[i], 0);
+        setSoldierPositionY(soldiers[i], 0);
+        setSoldierFrame(soldiers[i], 0);
+        setSoldierFlip(soldiers[i], 0);
+    }
  
 	/* Main loop */
 	quit = 0;
 	while (!quit)
 	{
-        //printf("TEST\n");
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
 		if (SDLNet_UDP_Recv(sd, pRecive))
 		{
 			//printf("UDP Packet incoming\n");
 			//printf("\tData:    %s\n", (char *)pRecive->data);
 			//printf("\tAddress: %x %x\n", pRecive->address.host, pRecive->address.port);
-            if(IPclient1 == 0 && portClient1 == 0){
-                printf("Client 1\n");
-                IPclient1 = pRecive->address.host;
-                portClient1 = pRecive->address.port;
-            }else if(pRecive->address.port != portClient1  && IPclient2 == 0){
-                printf("Client 2\n");
-                IPclient2 = pRecive->address.host;
-                portClient2 = pRecive->address.port;
-            }else{
-                if (pRecive->address.port == portClient1){
-                    //printf("Recived data\n");
-                    if(IPclient2 != 0){
-                        printf("Send to Client 2\n");
-                        pSent->address.host = IPclient2;	/* Set the destination host */
-		                pSent->address.port = portClient2;
-                        //sscanf((char * )pRecive->data, "%d %d\n", &a, &b);
-                        //printf("%d %d\n", a, b);
-                        //sprintf((char *)pSent->data, "%d %d\n", a,  b);
-                        memcpy(&udpData, (char * ) pRecive->data, sizeof(struct data));               
-						memcpy((char *)pSent->data, &udpData , sizeof(struct data)+1);
-                        pSent->len = sizeof(struct data)+1;
-                        SDLNet_UDP_Send(sd, -1, pSent);
-                    }
-                } else if (pRecive->address.port == portClient2){
-                    printf("Send to Client 1\n");    
-                    pSent->address.host = IPclient1;	/* Set the destination host */
-		            pSent->address.port = portClient1;
-                    //sscanf((char * )pRecive->data, "%d %d\n", &a, &b);
-                    //printf("%d %d\n", a, b);
-                    //sprintf((char *)pSent->data, "%d %d\n", a, b);
-                    memcpy(&udpData, (char * ) pRecive->data, sizeof(struct data));
-                    printf("UDP Packet data %d %d\n", udpData.playerX, udpData.playerY);
-                    memcpy((char *)pSent->data, &udpData , sizeof(struct data)+1);
-                    pSent->len = sizeof(struct data)+1;
-                    SDLNet_UDP_Send(sd, -1, pSent);
-                }
+            
+            for (int i = 0; i < MAX_PLAYERS; i++){
+                //printf("%d TEST \n", checkClient(pRecive, i, clients));
+                checkClientBool = checkClient(pRecive, i, clients);
+                //for (int j = 0; j < MAX_PLAYERS; j++){
                 
+                    if (checkClientBool == (MAX_PLAYERS-1) && clients[i].IPclient == 0)
+                    {
+                        printf("Client %d", i+1);
+                        clients[i].IPclient = pRecive->address.host;
+                        clients[i].portClient = pRecive->address.port;
+                    }
+                //}
+            }
+            for (int i = 0; i < MAX_PLAYERS; i++){        
+                for (int j = 0; j < MAX_PLAYERS; j++){
+                    if (pRecive->address.port == clients[i].portClient){
+                        if(clients[j].IPclient != 0 && j != i){
+                            //printf("Recived data\n");
+                            printf("Send to Client %d\n", j+1);
+                            pSent->address.host = clients[j].IPclient;	/* Set the destination host */
+                            pSent->address.port = clients[j].portClient;
+                            int connParams[5];
+                            sscanf((char * )pRecive->data, "%d %d %d %d %d\n", &connParams[0], &connParams[1], &connParams[2], &connParams[3], &connParams[4]);
+                            playerId = i;
+                            setSoldierId(soldiers[playerId], playerId);
+                            setSoldierPositionX(soldiers[playerId], connParams[1]);
+                            setSoldierPositionY(soldiers[playerId], connParams[2]);
+                            setSoldierFrame(soldiers[playerId], connParams[3]);
+                            setSoldierFlip(soldiers[playerId], connParams[4]);
+                            sprintf((char *)pSent->data, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", j, getSoldierId(soldiers[0]), getSoldierPositionX(soldiers[0]), getSoldierPositionY(soldiers[0]), getSoldierFrame(soldiers[0]), getSoldierFlip(soldiers[0]), getSoldierId(soldiers[1]), getSoldierPositionX(soldiers[1]), getSoldierPositionY(soldiers[1]), getSoldierFrame(soldiers[1]), getSoldierFlip(soldiers[1]), getSoldierId(soldiers[2]), getSoldierPositionX(soldiers[2]), getSoldierPositionY(soldiers[2]), getSoldierFrame(soldiers[2]), getSoldierFlip(soldiers[2]), getSoldierId(soldiers[3]), getSoldierPositionX(soldiers[3]), getSoldierPositionY(soldiers[3]), getSoldierFrame(soldiers[3]), getSoldierFlip(soldiers[3]));
+                            pSent->len = strlen((char *)pSent->data) + 1;
+                            SDLNet_UDP_Send(sd, -1, pSent);
+                        }
+                    }
+                }
             }
             
 
@@ -140,3 +136,14 @@ int main(int argc, char **argv)
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
 } 
+
+PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]){
+    int counter = 0;
+    for (int elem = 0; elem < MAX_PLAYERS; elem++)
+    {
+        if(pRecieve->address.port != clients[elem].portClient && elem != i){
+            counter++;
+        }
+    }
+    return counter;
+}
