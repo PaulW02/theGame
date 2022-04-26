@@ -254,7 +254,7 @@ PUBLIC void applicationUpdate(Application theApp){
 // Handles all key events
 PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldier soldier, SDL_Rect *playerPosition, Bullet bullets[MAX_BULLETS], int *frame, SDL_RendererFlip *flip, int *bulletAngle, int *amountOfBullets, int *shotFired){
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-    if(keystate[SDL_SCANCODE_UP]){
+    if(keystate[SDL_SCANCODE_UP]||keystate[SDL_SCANCODE_W]){
         // should be in game logic
         //playerPosition->y -= 2;
         setSoldierPositionY(soldier, getSoldierPositionY(soldier)-2);
@@ -267,7 +267,7 @@ PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldie
             //setSoldierFrame(soldier, *frame);
         }
     }
-    if(keystate[SDL_SCANCODE_DOWN]){
+    if(keystate[SDL_SCANCODE_DOWN]||keystate[SDL_SCANCODE_S]){
         //playerPosition->y += 2;
         setSoldierPositionY(soldier, getSoldierPositionY(soldier)+2);
         *flip = SDL_FLIP_NONE;
@@ -277,7 +277,7 @@ PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldie
             *frame = 0;
         }
     }
-    if(keystate[SDL_SCANCODE_LEFT]){
+    if(keystate[SDL_SCANCODE_LEFT]||keystate[SDL_SCANCODE_A]){
         //playerPosition->x -= 2;
         setSoldierPositionX(soldier, getSoldierPositionX(soldier)-2);
         *flip = SDL_FLIP_HORIZONTAL;
@@ -287,7 +287,7 @@ PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldie
             *frame = 2;
         }
     }
-    if(keystate[SDL_SCANCODE_RIGHT]){
+    if(keystate[SDL_SCANCODE_RIGHT]||keystate[SDL_SCANCODE_D]){
         //playerPosition->x += 2;
         setSoldierPositionX(soldier, getSoldierPositionX(soldier)+2);
         *flip = SDL_FLIP_NONE;
