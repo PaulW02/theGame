@@ -9,5 +9,6 @@ typedef struct menu *Menu;
 Menu createMenu(SDL_Renderer *gRenderer);
 int menuApplication(Menu m);
 char* getIpAdress(Menu m);
+char getGameType(Menu m);
 
 #endif

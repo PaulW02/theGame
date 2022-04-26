@@ -16,14 +16,15 @@
 #define TITLECARD 1
 #define MAINMENU 2
 #define CLOSEREQUSTED -1
-
+#define HOWTOPLAYMENU 3
+#define ONLINEMENU 4
 
 
 struct menu{
     SDL_Renderer *gRenderer;
     SDL_Event event;
     char ipAdress[16];
-    int gameModeType; //2v2, 
+    char gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
 };
 
@@ -33,13 +34,19 @@ PUBLIC void destroyMenu(Menu m);
 PRIVATE void renderImage(Menu m, char *imageName, int posX, int posY, int scaleModifier);
 PRIVATE int startPage(Menu m);
 PRIVATE int mainMenu(Menu m);
+PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
+PRIVATE void resetMainMenu(Menu m);
+PRIVATE int howToPlayMenu(Menu m);
+PRIVATE int onlineMenuConfig(Menu m);
+
+
 
 PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 {
     Menu m = malloc(sizeof(struct menu));
     SDL_Event windowEvent;
     m->gRenderer = gRenderer;
-    m->gameModeType = 0;
+    m->gameModeType = '\n';
     m->event = windowEvent;
     strcpy(m->ipAdress,"123.123.123.123");
     return m;
@@ -65,7 +72,15 @@ PUBLIC int menuApplication(Menu m)
         case MAINMENU:
             result = mainMenu(m);
             break;
+
+        case HOWTOPLAYMENU:
+            result = howToPlayMenu(m);
+            break;
         
+        case ONLINEMENU:
+            result = onlineMenuConfig(m);
+            break;
+
         default:
             return 0;
             break;
@@ -85,6 +100,11 @@ PUBLIC void destroyMenu(Menu m)
 PUBLIC char* getIpAdress(Menu m)
 {
     return m->ipAdress;
+}
+
+PUBLIC char getGameType(Menu m)
+{
+    return m->gameModeType;
 }
 
 PRIVATE int startPage(Menu m)
@@ -173,7 +193,7 @@ PRIVATE void renderImage(Menu m, char *imageName,int posX,int posY, int scaleMod
     dest.y=posY;
 
     SDL_RenderCopy(m->gRenderer,tex,NULL,&dest);
-
+    SDL_DestroyTexture(tex);
     return;
 }
 
@@ -182,6 +202,7 @@ PRIVATE int mainMenu(Menu m)
     //Typsnitt: Showcard Gothic, Storlek 48
 
     bool windowCloseRequested = false, userInterfaceAppeard = false;
+    int menuChoice = 0, button;
     
     while(!windowCloseRequested)
     {
@@ -194,7 +215,7 @@ PRIVATE int mainMenu(Menu m)
                 break;
             
             case SDL_KEYDOWN:
-                return 10;
+                return 0;
                 break;
 
             default:
@@ -206,17 +227,152 @@ PRIVATE int mainMenu(Menu m)
         {
             SDL_RenderClear(m->gRenderer);
             renderImage(m,"theGame.png",-1,20,1);
-    //        renderImage(m,"onlineOption.png",-1,225,1);
-  //          renderImage(m,"howToPlay.png",-1,325,1);
-//            renderImage(m,"co_op.png",-1,425,1);
-
-            renderImage(m,"onlineOptionGray.png",-1,225,1);
-            renderImage(m,"howToPlayGray.png",-1,325,1);
-            renderImage(m,"co_opGray.png",-1,425,1);
-
+            resetMainMenu(m);
             SDL_RenderPresent(m->gRenderer);
             userInterfaceAppeard=true;
         }
+        
+        //Checks which option the mouse is hovering on.
+        if(checkImageBoxForCursor("onlineOption.png",-1,225,&button)) menuChoice=0;
+        if(checkImageBoxForCursor("howToPlay.png",-1,325,&button)) menuChoice=1;
+        if(checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
+
+        switch (menuChoice)
+        {
+        case 0:
+            resetMainMenu(m);
+            renderImage(m,"onlineOptionGray.png",-1,225,1);
+            if(button)
+            {
+                m->gameModeType='O';
+                return ONLINEMENU;
+            }
+            break;
+        
+        case 1:
+            resetMainMenu(m);
+            renderImage(m,"howToPlayGray.png",-1,325,1);
+            if(button)
+            {
+                m->gameModeType='H';
+                return HOWTOPLAYMENU;
+            }
+            break;
+        
+        case 2:
+            resetMainMenu(m);
+            renderImage(m,"co_opGray.png",-1,425,1);
+            if(button)
+            {
+                m->gameModeType='C';
+                return 0;
+            }
+            break;
+
+        default:
+            break;
+        }
+        SDL_RenderPresent(m->gRenderer);
     }
     return CLOSEREQUSTED;
 }
+
+PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button)
+{
+    int cursorX, cursorY;
+    char path[42] = "resources/menu/";
+    
+    //Collecting neccesary values
+    strcat(path,imageName);
+    SDL_Surface* s = IMG_Load(path);
+
+    //PumpEvent, updates the event queue
+    SDL_PumpEvents();
+    *button = SDL_GetMouseState(&cursorX,&cursorY);
+
+    if(imagePosX==-1) imagePosX=(WINDOW_WIDTH-(s->w))/2;
+
+    
+    if(cursorX>imagePosX && cursorX<imagePosX+s->w && cursorY>imagePosY && cursorY<imagePosY+s->h)
+    {
+        return true;
+    } 
+    return false;   
+}
+
+PRIVATE void resetMainMenu(Menu m)
+{
+    renderImage(m,"onlineOption.png",-1,225,1);
+    renderImage(m,"howToPlay.png",-1,325,1);
+    renderImage(m,"co_op.png",-1,425,1);
+    return;
+}
+
+PRIVATE int howToPlayMenu(Menu m)
+{
+    bool windowCloseRequested = false, userInterfaceAppeard = false;
+    while(!windowCloseRequested)
+    {
+        while(SDL_PollEvent(&m->event))
+        {
+            switch (m->event.type)
+            {
+            case SDL_QUIT:
+                windowCloseRequested=true;
+                break;
+            case SDL_KEYDOWN:
+                if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                    return MAINMENU;
+                break;
+            
+            default:
+                break;
+            }
+        }
+        if(!userInterfaceAppeard)
+        {
+            SDL_RenderClear(m->gRenderer);
+            renderImage(m,"howToPlay.png",-1,100,1);
+            SDL_RenderPresent(m->gRenderer);
+
+            //Add text here for how the game is to be played!
+
+        }
+
+    }
+    return CLOSEREQUSTED;
+}
+
+PRIVATE int onlineMenuConfig(Menu m)
+{
+        bool windowCloseRequested = false, userInterfaceAppeard = false;
+    while(!windowCloseRequested)
+    {
+        while(SDL_PollEvent(&m->event))
+        {
+            switch (m->event.type)
+            {
+            case SDL_QUIT:
+                windowCloseRequested=true;
+                break;
+            case SDL_KEYDOWN:
+                if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                    return MAINMENU;
+                break;
+            
+            default:
+                break;
+            }
+        }
+        if(!userInterfaceAppeard)
+        {
+            SDL_RenderClear(m->gRenderer);
+            renderImage(m,"onlineOption.png",-1,50,1);
+            SDL_RenderPresent(m->gRenderer);
+
+        }
+
+    }
+    return CLOSEREQUSTED;
+}
+
