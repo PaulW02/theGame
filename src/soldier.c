@@ -31,9 +31,9 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->soldierYPos = y;
     s->soldierXPos = x;
     s->soldierFrame = 0;
-    s->speed = 1;
-    s->speedX = 1;
-    s->speedY = 1;
+    s->speed = 2;
+    s->speedX = 0;
+    s->speedY = 0;
     return s;
 }
 
@@ -66,7 +66,7 @@ PUBLIC void setSoldierSpeed(Soldier s, int velocity){
 }
 
 PUBLIC int getSoldierSpeed(Soldier s){
-    return s->speedX;
+    return s->speed;
 }
 
 PUBLIC void setSoldierSpeedX(Soldier s, int velocityX){

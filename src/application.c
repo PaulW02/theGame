@@ -58,6 +58,9 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playe
 PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
 PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition);
 
+void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe);
+void motion(Soldier s, SDL_Rect *playerPosition, int flip, int frame);
+
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -185,7 +188,6 @@ PUBLIC void applicationUpdate(Application theApp){
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-    
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
@@ -198,72 +200,71 @@ PUBLIC void applicationUpdate(Application theApp){
         {
             if(theApp->window_event.type == SDL_QUIT)
             {
-                    keep_window_open = false;
-                    break;
+                keep_window_open = false;
+                break;
             }
-            //moveOnInput(&theApp, soldier, flip, frame);
-            else if( theApp->window_event.type == SDL_KEYDOWN ){
-                //Select surfaces based on key press
-                switch(theApp->window_event.key.keysym.sym )
-                {
-                    case SDLK_UP:
-                        // should be in game logic
-                        playerPosition.y -= 2;
-                        setSoldierPositionY(soldier, playerPosition.y);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 4)
-                            frame = 5;
-                        else
-                            frame = 4;
-                        break;
-                    case SDLK_DOWN:
-                        playerPosition.y += 2;
-                        setSoldierPositionY(soldier, playerPosition.y);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 0)
-                            frame = 1;
-                        else
-                            frame = 0;
-                        break;
-                    case SDLK_LEFT:
-                        playerPosition.x -= 2;
-                        setSoldierPositionX(soldier, playerPosition.x);
-                        flip = SDL_FLIP_HORIZONTAL;
-                        if(frame == 2)
-                            frame = 3;
-                        else
-                            frame = 2;
-                        break;
-                    case SDLK_RIGHT:
-                        playerPosition.x += 2;
-                        setSoldierPositionX(soldier, playerPosition.x);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 2)
-                            frame = 3;
-                        else
-                            frame = 2;
-                        break;
-                    case SDLK_SPACE:
-                        shotFired = true;
-                        Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
-                        setBulletFrame(b, frame);
-                        setBulletPositionX(b, playerPosition.x);
-                        setBulletPositionY(b, playerPosition.y+14);
-                        setBulletHeight(b, 5);
-                        setBulletWidth(b, 10);
-                        bulletAngle = checkBulletAngle(frame, &flip);
-                        setBulletFlip(b,flip);
-                        setBulletAngle(b,bulletAngle);
-                        bullets[amountOfBullets] = b;
-                        amountOfBullets++;
-                        loadBulletMedia(gRenderer, &bulletTexture, &b);
-                        loadBulletMedia(gRenderer, &recvBulletTexture, &b);
-                    default:
-                        
-                        break;
-                }
+            movementInput(theApp, soldier, &playerPosition, &flip, &frame);
+            motion(soldier, &playerPosition, flip, frame);
+            
+            /*
+            const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+            if(keystate[SDL_SCANCODE_UP]){
+                // should be in game logic
+                playerPosition.y -= 2;
+                setSoldierPositionY(soldier, playerPosition.y);
+                flip = SDL_FLIP_NONE;
+                if(frame == 4)
+                    frame = 5;
+                else
+                    frame = 4;
             }
+            if(keystate[SDL_SCANCODE_DOWN]){
+                playerPosition.y += 2;
+                setSoldierPositionY(soldier, playerPosition.y);
+                flip = SDL_FLIP_NONE;
+            if(frame == 0)
+                frame = 1;
+            else
+                frame = 0;
+            }
+        if(keystate[SDL_SCANCODE_LEFT]){
+            playerPosition.x -= 2;
+            setSoldierPositionX(soldier, playerPosition.x);
+            flip = SDL_FLIP_HORIZONTAL;
+            if(frame == 2)
+                frame = 3;
+            else
+                frame = 2;
         }
+        if(keystate[SDL_SCANCODE_RIGHT]){
+            playerPosition.x += 2;
+            setSoldierPositionX(soldier, playerPosition.x);
+            flip = SDL_FLIP_NONE;
+            if(frame == 2)
+                frame = 3;
+            else
+                frame = 2;
+        }
+        /*
+        if(keystate[SDL_SCANCODE_SPACE]){
+            shotFired = 1;
+            Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
+            setBulletFrame(b, frame);
+            setBulletPositionX(b, playerPosition.x);
+            setBulletPositionY(b, playerPosition.y+14);
+            setBulletHeight(b, 5);
+            setBulletWidth(b, 10);
+            bulletAngle = checkBulletAngle(frame, &flip);
+            setBulletFlip(b,flip);
+            setBulletAngle(b,bulletAngle);
+            setBulletSDLPos(b, 0,0,10,5);
+            bullets[amountOfBullets] = b;
+            (amountOfBullets)++;
+            printf("%d BULLETS\n", amountOfBullets);
+        }
+        */
+            
+    }
         
         soldierXPos = getSoldierPositionX(soldier);
         soldierYPos = getSoldierPositionY(soldier);
@@ -323,8 +324,6 @@ PUBLIC void applicationUpdate(Application theApp){
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         checkPlayerOutOfBoundaries(soldier, &playerPosition);
 
-        int checkPortalType;
-
         soldierWallCollision(tiles, soldier, &playerPosition, frame, flip);
         
         bulletWallCollision(tiles, bullets, &amountOfBullets);
@@ -371,51 +370,52 @@ PUBLIC void applicationUpdate(Application theApp){
     }
 }
 
-/*
-void moveOnInput(Application theApp, Soldier s, int flip, int frame){
+void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe){
     //Bör ens dessa finnas kvar?
     int speedX=0, speedY=0;
+
+    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     //If key pressed
-    if(theApp->window_event.type == SDL_KEYDOWN && theApp->window_event.key.repeat == 0){
-        switch(theApp->window_event.key.repeat){
-            case SDLK_UP:
-                speedY -= getSoldierSpeed(s);
-                setSoldierSpeedY(s, speedY);
-                flip = SDL_FLIP_NONE;
-                if(frame == 4)
-                    frame = 5;
-                else
-                    frame = 4;
-                break;
-            case SDLK_DOWN:
-                speedY += getSoldierSpeed(s);
-                setSoldierSpeedY(s, speedY);
-                flip = SDL_FLIP_NONE;
-                if(frame == 0)
-                    frame = 1;
-                else
-                    frame = 0;
-                break;
-            case SDLK_LEFT:
-                speedX -= getSoldierSpeed(s);
-                setSoldierSpeedX(s, speedX);
-                if(frame == 2)
-                    frame = 3;
-                else
-                    frame = 2;            
-                break;
-            case SDLK_RIGHT:
-                speedX += getSoldierSpeed(s);
-                setSoldierSpeedX(s, speedX);
-                flip = SDL_FLIP_NONE;
-                if(frame == 2)
-                    frame = 3;
-                else
-                    frame = 2;                
-                break;
-        }
-    }else if (theApp->window_event.type == SDL_KEYUP && theApp->window_event.key.repeat == 0){
-        switch(theApp->window_event.key.repeat){
+    if(keystate[SDL_SCANCODE_UP]){
+        speedY -= getSoldierSpeed(s);
+        setSoldierSpeedY(s, speedY);
+        (*pflip) = SDL_FLIP_NONE;
+        if((*pframe) == 4)
+            (*pframe) = 5;
+        else
+            (*pframe) = 4;
+    }
+    if(keystate[SDL_SCANCODE_DOWN]){
+        speedY = getSoldierSpeed(s);
+        setSoldierSpeedY(s, speedY);
+        (*pflip) = SDL_FLIP_NONE;
+        if((*pframe) == 0)
+            (*pframe) = 1;
+        else
+            (*pframe) = 0;
+    }
+    if(keystate[SDL_SCANCODE_LEFT]){
+        speedX = (-getSoldierSpeed(s));
+        setSoldierSpeedX(s, speedX);
+printf("%d\n", getSoldierSpeedX(s));
+        (*pflip) = SDL_FLIP_HORIZONTAL;
+        if((*pframe) == 2)
+            (*pframe) = 3;
+        else
+            (*pframe) = 2;            
+    }
+    if(keystate[SDL_SCANCODE_RIGHT]){
+        speedX += getSoldierSpeed(s);
+        setSoldierSpeedX(s, speedX);
+        (*pflip) = SDL_FLIP_NONE;
+        if((*pframe) == 2)
+            (*pframe) = 3;
+        else
+            (*pframe) = 2;                
+    }
+
+    if(theApp->window_event.type == SDL_KEYUP && theApp->window_event.key.repeat == 0){
+        switch(theApp->window_event.key.keysym.sym){
             case SDLK_UP:
                 speedY += getSoldierSpeed(s);
                 setSoldierSpeedY(s, speedY);
@@ -435,7 +435,28 @@ void moveOnInput(Application theApp, Soldier s, int flip, int frame){
         }
     }
 }
-*/
+
+void motion(Soldier s, SDL_Rect *playerPosition,int flip, int frame){
+    int newYPos, newXPos;
+
+    printf("%d", frame);
+    if (frame == 0 || frame == 1){
+        newYPos=(playerPosition->y+=(2*getSoldierSpeedY(s)));
+        setSoldierPositionY(s, newYPos);
+    }
+    if ((flip==0) && (frame == 2 || frame == 3)){
+        newXPos=(playerPosition->x+=(2*getSoldierSpeedX(s)));
+        setSoldierPositionX(s, newXPos);
+    }
+    if ((flip==1) && (frame == 2 || frame == 3)){
+        newXPos=(playerPosition->x-=(2*getSoldierSpeedX(s)));
+        setSoldierPositionX(s, newXPos);
+    }
+    if (frame == 4 || frame == 5){
+        newYPos=(playerPosition->y-=(2*getSoldierSpeedY(s)));
+        setSoldierPositionY(s, newYPos);
+    }
+}
 
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
 {
@@ -501,6 +522,8 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playe
     int rightA, rightB;
     int topA, topB;
     int bottomA, bottomB;
+    
+    //För portaler
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
             if(getTilePortal(tiles[i][j])==1){
@@ -521,6 +544,8 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playe
                     teleportThingy(s,tiles, i, j, playerPosition);
                 }    
             }
+
+            //För väggar
             if(getTileCollision(tiles[i][j])==1){
                 
                 //Rect Player
