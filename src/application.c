@@ -402,16 +402,16 @@ void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_
     if(theApp->window_event.type == SDL_KEYUP){
         switch(theApp->window_event.key.keysym.scancode){
             case SDL_SCANCODE_UP:
-                setSoldierSpeedY(s, speedY + getSoldierSpeed(s));
+                setSoldierSpeedY(s, getSoldierSpeedY(s) + getSoldierSpeed(s));
                 break;
             case SDL_SCANCODE_DOWN:
-                setSoldierSpeedY(s, speedY - getSoldierSpeed(s));
+                setSoldierSpeedY(s, getSoldierSpeedY(s) - getSoldierSpeed(s));
                 break;
             case SDL_SCANCODE_LEFT:
-                setSoldierSpeedX(s, speedX + getSoldierSpeed(s));
+                setSoldierSpeedX(s, getSoldierSpeedX(s) + getSoldierSpeed(s));
                 break;
             case SDL_SCANCODE_RIGHT:
-                setSoldierSpeedX(s, speedX - getSoldierSpeed(s));
+                setSoldierSpeedX(s, getSoldierSpeedX(s) - getSoldierSpeed(s));
                 break;
         }
     }
