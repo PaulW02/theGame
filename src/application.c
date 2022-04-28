@@ -58,8 +58,8 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playe
 PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
 PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition);
 
-void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe);
-void motion(Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe);
+PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe, bool *shotFired, Bullet b, Bullet bullets[], int *amountOfBullets);
+PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe);
 
 
 PUBLIC Application createApplication(){
@@ -203,7 +203,7 @@ PUBLIC void applicationUpdate(Application theApp){
                 keep_window_open = false;
                 break;
             }
-            movementInput(theApp, soldier, &playerPosition, &flip, &frame);
+            movementInput(theApp, soldier, &playerPosition, &flip, &frame, &shotFired, b, bullets, &amountOfBullets);
             
             /*
             const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -243,23 +243,6 @@ PUBLIC void applicationUpdate(Application theApp){
                 frame = 3;
             else
                 frame = 2;
-        }
-        /*
-        if(keystate[SDL_SCANCODE_SPACE]){
-            shotFired = 1;
-            Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
-            setBulletFrame(b, frame);
-            setBulletPositionX(b, playerPosition.x);
-            setBulletPositionY(b, playerPosition.y+14);
-            setBulletHeight(b, 5);
-            setBulletWidth(b, 10);
-            bulletAngle = checkBulletAngle(frame, &flip);
-            setBulletFlip(b,flip);
-            setBulletAngle(b,bulletAngle);
-            setBulletSDLPos(b, 0,0,10,5);
-            bullets[amountOfBullets] = b;
-            (amountOfBullets)++;
-            printf("%d BULLETS\n", amountOfBullets);
         }
         */
             
@@ -336,7 +319,7 @@ PUBLIC void applicationUpdate(Application theApp){
             recvBulletPosition = getBulletPositionSDL(recvBullets[i]);
             recvBulletAngle = getBulletAngle(recvBullets[i]);
             recvBulletFlip = getBulletFlip(recvBullets[i]);
-            SDL_RenderCopyEx(gRenderer, recvBulletTexture, &bullet,&recvBulletPosition, bulletAngle, NULL, recvBulletFlip);
+            SDL_RenderCopyEx(gRenderer, recvBulletTexture, &bullet, &recvBulletPosition, bulletAngle, NULL, recvBulletFlip);
             if(checkBulletOutOfBoundaries(recvBullets[i], recvBulletPosition)){
                 free(recvBullets[i]);
                 recvAmountOfBullets = deleteBullet(&recvAmountOfBullets,recvBullets, i);
@@ -344,6 +327,7 @@ PUBLIC void applicationUpdate(Application theApp){
         }
 
         for (int i = 0; i < amountOfBullets; i++){
+            printf("hello2");
             bulletPosition = getBulletPositionSDL(bullets[i]);
             
             bulletFrame = getBulletFrame(bullets[i]);
@@ -373,9 +357,9 @@ PUBLIC void applicationUpdate(Application theApp){
     }
 }
 
-void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe){
+PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe, bool *shotFired, Bullet b, Bullet bullets[], int *amountOfBullets){
     //Bör ens dessa finnas kvar?
-    int speedX=0, speedY=0;
+    int speedX=0, speedY=0, bulletAngle;
     
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     //Vilket keystate
@@ -397,6 +381,23 @@ void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_
             speedX += getSoldierSpeed(s);
             setSoldierSpeedX(s, speedX);
         }
+            if(keystate[SDL_SCANCODE_SPACE]){
+            *shotFired = 1;
+            b = createBullet((playerPosition->x), (playerPosition->y), 5);
+            setBulletFrame(b, (*pframe));
+            setBulletPositionX(b, playerPosition->x);
+            setBulletPositionY(b, playerPosition->y+14);
+            setBulletHeight(b, 5);
+            setBulletWidth(b, 10);
+            bulletAngle = checkBulletAngle((*pframe), &(*pflip));
+            setBulletFlip(b,(*pflip));
+            setBulletAngle(b,bulletAngle);
+            
+            setBulletSDLPos(b, 0,0,10,5);
+            bullets[(*amountOfBullets)] = b;
+            (*amountOfBullets)++;
+            printf("%d BULLETS\n", *amountOfBullets);
+        }
     }
 
     if(theApp->window_event.type == SDL_KEYUP){
@@ -417,7 +418,7 @@ void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, SDL_
     }
 }
 
-void motion(Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe){
+PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip, int *pframe){
     int newYPos, newXPos;
 
 
