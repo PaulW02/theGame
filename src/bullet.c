@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "bullet.h"
+#include "weapon.h"
+#include "soldier.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
@@ -11,55 +13,61 @@
 #define PRIVATE static
 
 #define bulletVel 2
+#define BULLET_WIDTH 10
+#define BULLET_HEIGHT 5
 
 struct bullet{
-    int xPos;
-    int yPos;
     int speed;
+    int power;
+    int range;
     SDL_Rect bulletPosition;
     SDL_Rect bulletSDL;
     int bulletFrame;
-    SDL_RendererFlip bulletflip;
     int bulletAngle;
+    Weapon weapon;
+    Soldier soldier;
 };
 
-PUBLIC Bullet createBullet(int x, int y, int speed){
+PUBLIC Bullet createBullet(int x, int y, Soldier soldier){
     Bullet b = malloc(sizeof(struct bullet));
-    b->xPos = x;
-    b->yPos = y;
-    b->speed = speed;
+    b->bulletPosition.x = x;
+    b->bulletPosition.y = y;
+    b->soldier = soldier;
+    b->bulletPosition.w = BULLET_WIDTH;
+    b->bulletPosition.h = BULLET_HEIGHT;
+    b->bulletSDL.x = 0;
+    b->bulletSDL.y = 0;
+    b->bulletSDL.w = 10;
+    b->bulletSDL.h = 5;
     return b;
 }
 
-PUBLIC void move(SDL_Rect *b, int frame, SDL_RendererFlip flip){
+PUBLIC void move(SDL_Rect *b, int frame, int speed){
     switch (frame)
     {
     case 0:
-        b->y += bulletVel;
+        b->y += speed;
         break;
     case 1:
-        b->y += bulletVel;
+        b->y += speed;
         break;
     case 2:
-        if(flip == SDL_FLIP_HORIZONTAL){
-           b->x -= bulletVel;
-        }
-        if(flip == SDL_FLIP_NONE){
-            b->x += bulletVel;
-        }
+        b->x += speed;
         break;
     case 3:
-        if(flip == SDL_FLIP_HORIZONTAL){
-            b->x -= bulletVel;
-        }if(flip == SDL_FLIP_NONE){
-            b->x += bulletVel;
-        }
+        b->x += speed;
         break; 
     case 4:
-        b->y -= bulletVel;
+        b->y -= speed;
         break;
     case 5:
-        b->y -= bulletVel;
+        b->y -= speed;
+        break;
+    case 6:
+        b->x -= speed;
+        break;
+    case 7:
+        b->x -= speed;
         break;
     default:
         break;
@@ -83,28 +91,16 @@ PUBLIC int getBulletPositionY(Bullet b){
     return b->bulletPosition.y;
 }
 
-PUBLIC void setBulletHeight(Bullet b, int height){
-    b->bulletPosition.h = height;
+PUBLIC Soldier getBulletSoldier(Bullet b){
+    return b->soldier;
 }
 
 PUBLIC int getBulletHeight(Bullet b){
     return b->bulletPosition.h;
 }
 
-PUBLIC void setBulletWidth(Bullet b, int width){
-    b->bulletPosition.w = width;
-}
-
 PUBLIC int getBulletWidth(Bullet b){
     return b->bulletPosition.w;
-}
-
-PUBLIC void setBulletSDLPos(Bullet b, int x, int y, int w, int h){
-    b->bulletSDL.x = x;
-    b->bulletSDL.y = y;
-    b->bulletSDL.w = w;
-    b->bulletSDL.h = h;
-    
 }
 
 PUBLIC SDL_Rect getBulletSDL(Bullet b){
@@ -121,14 +117,6 @@ PUBLIC void setBulletFrame(Bullet b, int frame){
 
 PUBLIC int getBulletFrame(Bullet b){
     return b->bulletFrame;
-}
-
-PUBLIC void setBulletFlip(Bullet b, SDL_RendererFlip flip){
-    b->bulletflip = flip;
-}
-
-PUBLIC SDL_RendererFlip getBulletFlip(Bullet b){
-    return b->bulletflip;
 }
 
 PUBLIC void setBulletAngle(Bullet b, int bulletAngle){

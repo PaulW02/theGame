@@ -3,6 +3,7 @@
         "sdl_image.h": "c",
         "sdl.h": "c",
         "bullet.h": "c",
-        "sdl_net.h": "c"
+        "sdl_net.h": "c",
+        "application.h": "c"
     }
 }
