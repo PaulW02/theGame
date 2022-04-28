@@ -24,16 +24,16 @@ struct soldier{
     int id;
     SDL_Rect position;
     int frame;
-    SDL_RendererFlip flip;
     int speed;
     Weapon weapon;
+    int shotFired;
     char soldierFileName[MAXCHAR];
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
     Soldier s = malloc(sizeof(struct soldier));
+    s->position.x = x; 
     s->position.y = y;
-    s->position.x = x;
     s->frame = 0;
     s->speed = 1;
     return s;
@@ -100,6 +100,14 @@ PUBLIC Weapon getSoldierWeapon(Soldier s)
     return  s->weapon;
 }
 
+PUBLIC void setSoldierShotFired(Soldier s, int shotFired){
+    s->shotFired = shotFired;
+}
+
+PUBLIC int getSoldierShotFired(Soldier s){
+    return s->shotFired;
+}
+
 PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
 {
     strcpy(s->soldierFileName,soldierFileName);
@@ -108,14 +116,5 @@ PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
 PUBLIC const char* getSoldierFileName(Soldier s)
 {
     return  s->soldierFileName;
-}
-
-
-PUBLIC void setSoldierFlip(Soldier s, SDL_RendererFlip flip){
-    s->flip = flip;
-}
-
-PUBLIC SDL_RendererFlip getSoldierFlip(Soldier s){
-    return s->flip;
 }
 
