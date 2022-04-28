@@ -30,10 +30,10 @@ int getSoldierPositionY(Soldier s);
 Soldier createSoldier(int x, int y);
 void setSoldierFrame(Soldier s, int frame);
 int getSoldierFrame(Soldier s);
-void setSoldierFlip(Soldier s, SDL_RendererFlip flip);
-SDL_RendererFlip getSoldierFlip(Soldier s);
 void setSoldierWeapon(Soldier s, Weapon weapon);
 Weapon getSoldierWeapon(Soldier s);
+void setSoldierShotFired(Soldier s, int shotFired);
+int getSoldierShotFired(Soldier s);
 void setSoldierFileName(Soldier s, char soldierFileName[]);
 const char* getSoldierFileName(Soldier s);
 
