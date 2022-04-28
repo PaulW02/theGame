@@ -1,5 +1,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -62,6 +63,8 @@ PUBLIC Application createApplication(){
         printf("Failed to initialize the SDL2 library\n");
     }
 
+    SDL_Init(SDL_INIT_AUDIO);
+    
     s->window= SDL_CreateWindow("SDL2",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
     if(!s->window)
@@ -127,6 +130,13 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,2 ,2048 );
+    Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
+    Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
+    Mix_PlayMusic(backgroundSound,-1);
+    Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
+
     setSoldierFileName(soldiers[playerId],"resources/Karaktarer/BOY/BOYpistol.png");
     weaponChoiceHandler(soldiers[playerId]);
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
@@ -221,6 +231,7 @@ PUBLIC void applicationUpdate(Application theApp){
 // Handles all key events
 PRIVATE void eventKeyHandler(Soldier soldier, Bullet bullets[MAX_BULLETS], int *frame){
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
     if(keystate[SDL_SCANCODE_UP]||keystate[SDL_SCANCODE_W]){
         setSoldierPositionY(soldier, getSoldierPositionY(soldier)-2);
         if(*frame == 4){
@@ -594,6 +605,8 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
+    //Mix_FreeMusic(theApp->backgroundSound);//
+    Mix_CloseAudio();
 }
 
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){
@@ -640,8 +653,6 @@ PRIVATE void weaponChoiceHandler(Soldier soldier)
     Weapon rodBlue = createWeapon(5,6,7);
     Weapon rodRed = createWeapon(5,6,7);
     
-    
-
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
         setSoldierWeapon(soldier,pistol);
