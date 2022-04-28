@@ -161,6 +161,7 @@ PUBLIC void applicationUpdate(Application theApp){
     Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
     Mix_PlayMusic(backgroundSound,-1);
     Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
+
     setSoldierFileName(soldiers[playerId],"resources/Karaktarer/BOY/BOYpistol.png");
     weaponChoiceHandler(soldiers[playerId]);
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
@@ -263,6 +264,7 @@ PUBLIC void applicationUpdate(Application theApp){
 // Handles all key events
 PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldier soldier, SDL_Rect *playerPosition, Bullet bullets[MAX_BULLETS], int *frame, SDL_RendererFlip *flip, int *bulletAngle, int *amountOfBullets, int *shotFired){
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
     if(keystate[SDL_SCANCODE_UP]||keystate[SDL_SCANCODE_W]){
         // should be in game logic
         //playerPosition->y -= 2;
@@ -308,6 +310,7 @@ PRIVATE void eventKeyHandler(Application theApp, SDL_Renderer *gRenderer, Soldie
     }
     if(keystate[SDL_SCANCODE_SPACE]){
         *shotFired = 1;
+        Mix_PlayChannel(-1,shotEffect,0);
         Bullet b = createBullet(getSoldierPositionX(soldier), getSoldierPositionY(soldier)+14);
         setBulletFrame(b, *frame);
         setBulletPositionX(b, getSoldierPositionX(soldier));
