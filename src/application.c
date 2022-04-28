@@ -12,6 +12,7 @@
 #include "weapon.h"
 #include "tile.h"
 #include <unistd.h>
+#include <pthread.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -54,6 +55,7 @@ PRIVATE void teleportThingy(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
 PRIVATE void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *amountOfBullets, int *bulletsActive);
 PRIVATE int checkShotFired(Soldier soldiers[]);
 
+PUBLIC void *networkHandler(void *networkParam);
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -150,6 +152,11 @@ PUBLIC void applicationUpdate(Application theApp){
 	UDPpacket *p;
     UDPpacket *p2;
 
+    struct networkParamsStruct{
+        Soldier soldiers[MAX_PLAYERS];
+    };
+    typedef struct networkParamsStruct NetworkParamsStruct;
+
 
     if (SDLNet_Init() < 0)
 	{
@@ -183,6 +190,12 @@ PUBLIC void applicationUpdate(Application theApp){
     loadBulletMedia(gRenderer, &bulletTexture);
     
     bool keep_window_open = true;
+
+    pthread_t network;
+
+    NetworkParamsStruct networkParam;
+    pthread_create(&network, NULL, networkHandler, &networkParam);
+
     while(keep_window_open)
     {
         while(SDL_PollEvent(&theApp->window_event) > 0)
@@ -708,6 +721,10 @@ PRIVATE void teleportThingy(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
         }        
        
    }  
+}
+
+PUBLIC void *networkHandler(void *networkParam){
+    NetworkParamsStruct *networkParams = (NetworkParamsStruct *) networkParam;
 }
 
 
