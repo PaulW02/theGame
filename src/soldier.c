@@ -25,6 +25,8 @@ struct soldier{
     SDL_Rect position;
     int frame;
     int speed;
+    int speedX;
+    int speedY;
     Weapon weapon;
     int shotFired;
     char soldierFileName[MAXCHAR];
@@ -32,10 +34,12 @@ struct soldier{
 
 PUBLIC Soldier createSoldier(int x, int y){
     Soldier s = malloc(sizeof(struct soldier));
+    s->speed = 2;
+    s->speedX = 0;
+    s->speedY = 0;
     s->position.x = x; 
     s->position.y = y;
     s->frame = 0;
-    s->speed = 1;
     return s;
 }
 
@@ -80,6 +84,30 @@ PUBLIC void setSoldierPositionY(Soldier s, int y){
 
 PUBLIC int getSoldierPositionY(Soldier s){
     return s->position.y;
+}
+
+PUBLIC void setSoldierSpeed(Soldier s, int velocity){
+    s->speed = velocity;
+}
+
+PUBLIC int getSoldierSpeed(Soldier s){
+    return s->speed;
+}
+
+PUBLIC void setSoldierSpeedX(Soldier s, int velocityX){
+    s->speedX = velocityX;
+}
+
+PUBLIC int getSoldierSpeedX(Soldier s){
+    return s->speedX;
+}
+
+PUBLIC void setSoldierSpeedY(Soldier s, int velocityY){
+    s->speedY = velocityY;
+}
+
+PUBLIC int getSoldierSpeedY(Soldier s){
+    return s->speedY;
 }
 
 PUBLIC void setSoldierFrame(Soldier s, int frame){
