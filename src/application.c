@@ -327,7 +327,7 @@ PUBLIC void applicationUpdate(Application theApp){
         }
 
         for (int i = 0; i < amountOfBullets; i++){
-            printf("hello2");
+
             bulletPosition = getBulletPositionSDL(bullets[i]);
             
             bulletFrame = getBulletFrame(bullets[i]);
@@ -457,7 +457,6 @@ PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, SDL_RendererFlip *pflip
     newXPos=(playerPosition->x+=(getSoldierSpeedX(s)));
     setSoldierPositionX(s, newXPos); 
     SDL_Delay(25);
-
 }
 
 PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
