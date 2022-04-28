@@ -1,5 +1,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -70,6 +71,8 @@ PUBLIC Application createApplication(){
         printf("Failed to initialize the SDL2 library\n");
     }
 
+    SDL_Init(SDL_INIT_AUDIO);
+    
     s->window= SDL_CreateWindow("SDL2",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
     if(!s->window)
@@ -155,7 +158,12 @@ PUBLIC void applicationUpdate(Application theApp){
     weaponChoiceHandler(soldier);
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldier));
     maxRange = getWeaponRange(getSoldierWeapon(soldier));
-
+    
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,2 ,2048 );
+    Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
+    Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
+    Mix_PlayMusic(backgroundSound,-1);
+    Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
 
     Tile tiles[32][32];
     struct tilesWithCollision{
@@ -200,7 +208,7 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-
+    
     loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
     loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles, soldier);
     bool keep_window_open = true;
@@ -255,6 +263,7 @@ PUBLIC void applicationUpdate(Application theApp){
                             frame = 2;
                         break;
                     case SDLK_SPACE:
+                        Mix_PlayChannel(-1, shotEffect, 0);
                         shotFired = true;
                         Bullet b = createBullet(playerPosition.x, playerPosition.y);
                         setBulletFrame(b, frame);
@@ -603,6 +612,8 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
+    //Mix_FreeMusic(theApp->backgroundSound);//
+    Mix_CloseAudio();
 }
 
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[32][32]){
@@ -649,8 +660,6 @@ PRIVATE void weaponChoiceHandler(Soldier soldier)
     Weapon rodBlue = createWeapon(5,6,7);
     Weapon rodRed = createWeapon(5,6,7);
     
-    
-
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
         setSoldierWeapon(soldier,pistol);
