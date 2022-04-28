@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 
+
 #define PUBLIC /* empty */
 #define PRIVATE static
 
@@ -208,19 +209,8 @@ PRIVATE int mainMenu(Menu m)
     {
         while(SDL_PollEvent(&m->event))
         {
-            switch (m->event.type)
-            {
-            case SDL_QUIT:
-                windowCloseRequested = true;
-                break;
-            
-            case SDL_KEYDOWN:
-                return 0;
-                break;
-
-            default:
-                break;
-            }
+            if(m->event.type==SDL_QUIT)
+                windowCloseRequested=true;
         }
         
         if(!userInterfaceAppeard)
@@ -345,7 +335,7 @@ PRIVATE int howToPlayMenu(Menu m)
 
 PRIVATE int onlineMenuConfig(Menu m)
 {
-        bool windowCloseRequested = false, userInterfaceAppeard = false;
+    bool windowCloseRequested = false, userInterfaceAppeard = false;
     while(!windowCloseRequested)
     {
         while(SDL_PollEvent(&m->event))
@@ -357,7 +347,14 @@ PRIVATE int onlineMenuConfig(Menu m)
                 break;
             case SDL_KEYDOWN:
                 if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                {
+                    SDL_StopTextInput();
                     return MAINMENU;
+                }
+                break;
+            
+            case SDL_TEXTINPUT:
+                printf("%s",m->event.text.text);
                 break;
             
             default:
@@ -366,13 +363,27 @@ PRIVATE int onlineMenuConfig(Menu m)
         }
         if(!userInterfaceAppeard)
         {
+            SDL_StartTextInput();
             SDL_RenderClear(m->gRenderer);
+
+            SDL_Rect ipInputRect;
+            ipInputRect.h=50;
+            ipInputRect.w=300;
+            ipInputRect.x=(WINDOW_WIDTH-ipInputRect.w)/2;
+            ipInputRect.y=200;
+            SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
+            SDL_RenderDrawRect(m->gRenderer,&ipInputRect);
+ 
+            //renderImage(m,"textInputBack.png",-1,200,1);
+
             renderImage(m,"onlineOption.png",-1,50,1);
             SDL_RenderPresent(m->gRenderer);
-
+            SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
+            userInterfaceAppeard=true;
         }
 
     }
+    SDL_StopTextInput();
     return CLOSEREQUSTED;
 }
 
