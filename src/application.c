@@ -329,9 +329,6 @@ PRIVATE void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[MAX_BULLETS
             setBulletPositionY(bullets[i], bulletPosition.y);
         }
     }
-
-
-
     
 }
 
