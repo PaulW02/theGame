@@ -30,6 +30,7 @@ struct soldier{
     Weapon weapon;
     int shotFired;
     char soldierFileName[MAXCHAR];
+    int fireRateTimer;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -40,6 +41,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->position.x = x; 
     s->position.y = y;
     s->frame = 0;
+    s->fireRateTimer = 10;
     return s;
 }
 
@@ -146,3 +148,10 @@ PUBLIC const char* getSoldierFileName(Soldier s)
     return  s->soldierFileName;
 }
 
+PUBLIC void setSoldierFireRateTimer(Soldier s, int timer){
+    s->fireRateTimer = timer;
+}
+
+PUBLIC int getSoldierFireRateTimer(Soldier s){
+    return s->fireRateTimer;
+}

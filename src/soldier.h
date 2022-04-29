@@ -42,6 +42,8 @@ void setSoldierShotFired(Soldier s, int shotFired);
 int getSoldierShotFired(Soldier s);
 void setSoldierFileName(Soldier s, char soldierFileName[]);
 const char* getSoldierFileName(Soldier s);
+void setSoldierFireRateTimer(Soldier s, int timer);
+int getSoldierFireRateTimer(Soldier s);
 
 #endif /* spaceman_h */
 

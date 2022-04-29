@@ -54,7 +54,7 @@ PRIVATE void teleportThingy(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
 PRIVATE void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *amountOfBullets, int *bulletsActive);
 PRIVATE int checkShotFired(Soldier soldiers[]);
 
-PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, int *pframe, int *shotFired, Bullet b, Bullet bullets[], int *amountOfBullets);
+PRIVATE void movementInput(Application theApp, Soldier s, int *shotFired);
 PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, int *pframe);
 
 
@@ -137,8 +137,9 @@ PUBLIC void applicationUpdate(Application theApp){
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,2 ,2048 );
     Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
     Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
-    Mix_PlayMusic(backgroundSound,-1);
-    Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
+    //Mix_PlayChannel(1, backgroundSound, 0);
+    Mix_VolumeMusic(1);
+    Mix_PlayMusic(backgroundSound, 0);
 
     setSoldierFileName(soldiers[playerId],"resources/Karaktarer/BOY/BOYpistol.png");
     weaponChoiceHandler(soldiers[playerId]);
@@ -192,12 +193,11 @@ PUBLIC void applicationUpdate(Application theApp){
             if(theApp->window_event.type == SDL_QUIT){
                 keep_window_open = false;
                 break;
-            }else if( theApp->window_event.type == SDL_KEYUP){
-                setSoldierShotFired(soldiers[playerId], 0);
             }
-            movementInput(theApp, soldiers[playerId], &playerPosition, &frame, &shotFired, b, bullets, &amountOfBullets);
+            movementInput(theApp, soldiers[playerId], &shotFired);
         }
         motion(soldiers[playerId], &playerPosition, &frame);
+        
         /*
         if(getSoldierSpeedX(soldiers[playerId])!=0 || getSoldierSpeedY(soldiers[playerId])!=0){
             motion(soldiers[playerId], &playerPosition, &frame);
@@ -206,16 +206,15 @@ PUBLIC void applicationUpdate(Application theApp){
 
 
             // Send and retrive information  
-            dataPackageHandler(soldiers, amountOfBullets, &soldierXPos, &soldierYPos, &oldX, &oldY, bullets, &playerId, bulletsActive, sd, srvadd, p, p2);  
+        dataPackageHandler(soldiers, amountOfBullets, &soldierXPos, &soldierYPos, &oldX, &oldY, bullets, &playerId, bulletsActive, sd, srvadd, p, p2);  
 
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderClear(gRenderer);
-            renderBackground(gRenderer, mTiles, gTiles, tiles);
-            createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
-
-        
-
-        
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(gRenderer);
+        renderBackground(gRenderer, mTiles, gTiles, tiles);
+        if(getSoldierFireRateTimer(soldiers[playerId])<10){
+            setSoldierFireRateTimer(soldiers[playerId], getSoldierFireRateTimer(soldiers[playerId])+1);
+        }
+        createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
             
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         for (int i = 0; i < MAX_PLAYERS; i++){
@@ -232,9 +231,9 @@ PUBLIC void applicationUpdate(Application theApp){
     }
 }
 
-PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, int *pframe, int *shotFired, Bullet b, Bullet bullets[], int *amountOfBullets){
+PRIVATE void movementInput(Application theApp, Soldier s, int *shotFired){
     //Bör ens dessa finnas kvar?
-    int speedX=0, speedY=0, bulletAngle;
+    int speedX=0, speedY=0;
     
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     //Vilket keystate
@@ -276,6 +275,9 @@ PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPositi
             case SDL_SCANCODE_RIGHT:
                 setSoldierSpeedX(s, getSoldierSpeedX(s) - getSoldierSpeed(s));
                 break;
+            case SDL_SCANCODE_SPACE:
+                setSoldierShotFired(s, 0);
+                break;
         }
     }
 }
@@ -316,7 +318,6 @@ PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, int *pframe){
 }
 
 // Handles all key events
-
 PRIVATE void eventKeyHandler(Soldier soldier, Bullet bullets[MAX_BULLETS], int *frame){
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
@@ -403,10 +404,6 @@ PRIVATE void dataPackageHandler(Soldier soldiers[], int amountOfBullets, int *so
             margin += 5;
         }
     }
-
-    
-    
-
 }
 
 // Handles bullets
@@ -439,8 +436,7 @@ PRIVATE void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *
     }
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        
-        if (getSoldierShotFired(soldiers[i]))
+        if (getSoldierShotFired(soldiers[i]) && (getSoldierFireRateTimer(soldiers[i])==10))
         {
             *bulletsActive = 1;
             Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
@@ -449,7 +445,7 @@ PRIVATE void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *
             setBulletAngle(b,bulletAngle);
             bullets[*amountOfBullets] = b;
             (*amountOfBullets)++;
-            
+            setSoldierFireRateTimer(soldiers[i], 0);
         }
         
     }
@@ -462,7 +458,6 @@ PRIVATE int checkShotFired(Soldier soldiers[]){
         {
             return 1;
         }
-        
     }
     return 0;
 }
