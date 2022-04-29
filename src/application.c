@@ -43,7 +43,7 @@ struct data {
 typedef struct data Data;
 
 PRIVATE bool init(SDL_Renderer **gRenderer);
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s);
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s, SDL_Texture **mHealthBar, SDL_Rect gSpriteClipsHealth[]);
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet);
 PRIVATE void update(Application theApp, double delta_time);
 PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[32][32]);
@@ -57,9 +57,9 @@ PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
 PRIVATE void weaponChoiceHandler(Soldier soldier);
 PRIVATE void collisionCheck(Soldier s, SDL_Rect *playerPosition, Tile tiles[32][32]);
 PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip);
-PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip);
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip, SDL_Rect *healthBarPosition);
 PRIVATE void bulletWallCollision(Tile tiles[32][32], Bullet bullets[], int *counter);
-PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition);
+PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition, SDL_Rect *healthBarPosition);
 
 
 PUBLIC Application createApplication(){
@@ -96,14 +96,21 @@ PUBLIC void applicationUpdate(Application theApp){
     Soldier soldier1 = createSoldier(20,10);
     SDL_Texture *mSoldier = NULL;
     SDL_Texture *mSoldier1 = NULL;
+    SDL_Texture *mHealthBar = NULL;
     SDL_Rect gSpriteClips[8];
+    SDL_Rect gSpriteClipsHealth[11];
     SDL_Rect playerPosition;
+    SDL_Rect healthBarPosition; // healthbar positionn above player
     SDL_Rect playerPosition1;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     playerPosition.y = getSoldierPositionY(soldier);
     playerPosition.x = getSoldierPositionX(soldier);
     playerPosition.h = 32;
     playerPosition.w = 32;
+    healthBarPosition.y = getSoldierPositionY(soldier) - 12;
+    healthBarPosition.x = getSoldierPositionX(soldier) - 4;
+    healthBarPosition.h = 8;           // kolla här också!
+    healthBarPosition.w = 36;
     
     int weaponSpeed;
     int maxRange;
@@ -140,6 +147,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_RendererFlip recvBulletFlip = SDL_FLIP_NONE;
 
     int frame = 3;
+    int health = 100;
+    int healthStatus=0;
     int amountOfBullets = 0;
     int recvAmountOfBullets = 0;
     bool shotFired = true;
@@ -201,8 +210,8 @@ PUBLIC void applicationUpdate(Application theApp){
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
-    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier);
-    loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles, soldier);
+    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles, soldier, &mHealthBar, gSpriteClipsHealth);
+    loadMedia(gRenderer, &mSoldier1, gSpriteClips, &mTiles, gTiles, soldier, &mHealthBar, gSpriteClipsHealth);
     bool keep_window_open = true;
     while(keep_window_open)
     {
@@ -221,6 +230,7 @@ PUBLIC void applicationUpdate(Application theApp){
                         // should be in game logic
                         playerPosition.y -= 2;
                         setSoldierPositionY(soldier, playerPosition.y);
+                        healthBarPosition.y = playerPosition.y - 12;
                         flip = SDL_FLIP_NONE;
                         if(frame == 4)
                             frame = 5;
@@ -230,6 +240,7 @@ PUBLIC void applicationUpdate(Application theApp){
                     case SDLK_DOWN:
                         playerPosition.y += 2;
                         setSoldierPositionY(soldier, playerPosition.y);
+                        healthBarPosition.y = playerPosition.y - 12;
                         flip = SDL_FLIP_NONE;
                         if(frame == 0)
                             frame = 1;
@@ -239,6 +250,7 @@ PUBLIC void applicationUpdate(Application theApp){
                     case SDLK_LEFT:
                         playerPosition.x -= 2;
                         setSoldierPositionX(soldier, playerPosition.x);
+                        healthBarPosition.x = playerPosition.x - 4;
                         flip = SDL_FLIP_HORIZONTAL;
                         if(frame == 2)
                             frame = 3;
@@ -248,6 +260,7 @@ PUBLIC void applicationUpdate(Application theApp){
                     case SDLK_RIGHT:
                         playerPosition.x += 2;
                         setSoldierPositionX(soldier, playerPosition.x);
+                        healthBarPosition.x = playerPosition.x - 4;
                         flip = SDL_FLIP_NONE;
                         if(frame == 2)
                             frame = 3;
@@ -336,10 +349,11 @@ PUBLIC void applicationUpdate(Application theApp){
 
         int checkPortalType;
 
-        soldierWallCollision(tiles, soldier, &playerPosition, frame, flip);
+        soldierWallCollision(tiles, soldier, &playerPosition, frame, flip, &healthBarPosition);
         
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
+        SDL_RenderCopyEx(gRenderer, mHealthBar, &gSpriteClipsHealth[healthStatus],&healthBarPosition , 0, NULL, flip);
         SDL_RenderCopyEx(gRenderer, mSoldier1, &gSpriteClips[secondFrame],&playerPosition1 , 0, NULL, secondFlip);
         for (int i = 0; i < recvAmountOfBullets; i++){
             recvBulletPosition = getBulletPositionSDL(recvBullets[i]);
@@ -437,7 +451,7 @@ PRIVATE void stepBack(Soldier s, SDL_Rect *playerPosition, int frame, int flip){
     }
 }
 
-PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip){
+PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playerPosition, int frame, int flip, SDL_Rect *healthBarPosition){
     int leftA, leftB;
     int rightA, rightB;
     int topA, topB;
@@ -459,7 +473,7 @@ PRIVATE bool soldierWallCollision(Tile tiles[32][32], Soldier s, SDL_Rect *playe
 
                 if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
                 }else{
-                    teleportThingy(s,tiles, i, j, playerPosition);
+                    teleportThingy(s,tiles, i, j, playerPosition, healthBarPosition);
                 }    
             }
             if(getTileCollision(tiles[i][j])==1){
@@ -554,8 +568,67 @@ PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTextur
     setBulletSDLPos(*bullet, 0,0,10,5);
 }
 
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s)
+PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[], Soldier s, SDL_Texture **mHealthBar, SDL_Rect gSpriteClipsHealth[])
 {
+    SDL_Surface* gHealthSurface = IMG_Load("resources/AllHealthStatuses6x6.PNG");
+    *mHealthBar = SDL_CreateTextureFromSurface(gRenderer, gHealthSurface);
+
+    gSpriteClipsHealth[ 0 ].x =0;
+    gSpriteClipsHealth[ 0 ].y =0;
+    gSpriteClipsHealth[ 0 ].w =36;
+    gSpriteClipsHealth[ 0 ].h =8;
+
+    gSpriteClipsHealth[ 1 ].x =36;
+    gSpriteClipsHealth[ 1 ].y =0;
+    gSpriteClipsHealth[ 1 ].w =36;
+    gSpriteClipsHealth[ 1 ].h =8;
+
+    gSpriteClipsHealth[ 2 ].x =72;
+    gSpriteClipsHealth[ 2 ].y =0;
+    gSpriteClipsHealth[ 2 ].w =36;
+    gSpriteClipsHealth[ 2 ].h =8;
+
+    gSpriteClipsHealth[ 3 ].x =108;
+    gSpriteClipsHealth[ 3 ].y =0;
+    gSpriteClipsHealth[ 3 ].w =36;
+    gSpriteClipsHealth[ 3 ].h =8;
+
+    gSpriteClipsHealth[ 4 ].x =144;
+    gSpriteClipsHealth[ 4 ].y =0;
+    gSpriteClipsHealth[ 4 ].w =36;
+    gSpriteClipsHealth[ 4 ].h =8;
+
+    gSpriteClipsHealth[ 5 ].x =180;
+    gSpriteClipsHealth[ 5 ].y =0;
+    gSpriteClipsHealth[ 5 ].w =36;
+    gSpriteClipsHealth[ 5 ].h =8;
+
+    gSpriteClipsHealth[ 6 ].x =216;
+    gSpriteClipsHealth[ 6 ].y =0;
+    gSpriteClipsHealth[ 6 ].w =36;
+    gSpriteClipsHealth[ 6 ].h =8;
+
+    gSpriteClipsHealth[ 7 ].x =252;
+    gSpriteClipsHealth[ 7 ].y =0;
+    gSpriteClipsHealth[ 7 ].w =36;
+    gSpriteClipsHealth[ 7 ].h =8;
+
+    gSpriteClipsHealth[ 8 ].x =288;
+    gSpriteClipsHealth[ 8 ].y =0;
+    gSpriteClipsHealth[ 8 ].w =36;
+    gSpriteClipsHealth[ 8 ].h =8;
+
+    gSpriteClipsHealth[ 9 ].x =324;
+    gSpriteClipsHealth[ 9 ].y =0;
+    gSpriteClipsHealth[ 9 ].w =36;
+    gSpriteClipsHealth[ 9 ].h =8;
+
+    gSpriteClipsHealth[ 10 ].x =360;
+    gSpriteClipsHealth[ 10 ].y =0;
+    gSpriteClipsHealth[ 10 ].w =36;
+    gSpriteClipsHealth[ 10 ].h =8;
+
+
     SDL_Surface* gSpacemanSurface = IMG_Load(getSoldierFileName(s));
     *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
     
@@ -597,7 +670,7 @@ PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rec
         gTiles[i].y = 0;
         gTiles[i].w = getTileWidth();
         gTiles[i].h = getTileHeight();
-    }
+    } 
 }
 
 PUBLIC void destoryApplication(Application theApp){
@@ -674,21 +747,25 @@ PRIVATE void weaponChoiceHandler(Soldier soldier)
     printf("%d", getWeaponRange(getSoldierWeapon(soldier)));
 }
 
-PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition){
+PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rect *playerPosition, SDL_Rect *healthBarPosition){
    int newYPos, newXPos;
    
    if(getTileNumber(tiles[i][j])==0x0d){
        if((j==2)&&(i==12)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[25][26])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[25][26])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }
         else if((j==26)&&(i==24)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[13][1])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[13][1])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }        
        
    }
@@ -696,14 +773,18 @@ PRIVATE void teleportThingy(Soldier s, Tile tiles[32][32], int i, int j, SDL_Rec
        if((j==24)&&(i==14)){   
             newYPos=(playerPosition->y=(getTilePositionY(tiles[19][8])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[19][8])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }
         else if((j==9)&&(i==21)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[12][24])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[12][24])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }        
        
    }  

@@ -25,6 +25,7 @@ struct soldier{
     int soldierYPos;
     int soldierFrame;
     int speed;
+    int health;
     Weapon weapon;
     char soldierFileName[MAXCHAR];
 };
@@ -34,7 +35,8 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->soldierYPos = y;
     s->soldierXPos = x;
     s->soldierFrame = 0;
-    s->speed = 1; 
+    s->speed = 1;
+    s->health = 100; 
     return s;
 }
 
