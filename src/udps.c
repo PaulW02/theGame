@@ -11,8 +11,7 @@ exit
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_net.h"
-#include "soldier.h"
-//#include "bullet.h"
+#include "player/soldier.h"
 
 #define MAX_PLAYERS 4
 #define MAX_BULLETS 100
@@ -109,7 +108,7 @@ int main(int argc, char **argv)
                             pSent->address.host = clients[j].IPclient;	/* Set the destination host */
                             pSent->address.port = clients[j].portClient;
                             int connParams[CONN_PARAMS_LENGTH];
-                            sscanf((char * )pRecive->data, "%d %d %d %d %d %d\n", &connParams[0], &connParams[1], &connParams[2], &connParams[3], &connParams[4], &connParams[5]);
+                            sscanf((char * )pRecive->data, "%d %d %d %d %d\n", &connParams[0], &connParams[1], &connParams[2], &connParams[3], &connParams[4]);
                             playerId = i;
                             setSoldierId(soldiers[playerId], playerId);
                             setSoldierPositionX(soldiers[playerId], connParams[1]);

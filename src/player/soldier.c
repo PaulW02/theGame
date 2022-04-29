@@ -145,4 +145,3 @@ PUBLIC const char* getSoldierFileName(Soldier s)
 {
     return  s->soldierFileName;
 }
-
