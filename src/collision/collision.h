@@ -19,5 +19,6 @@ void stepBack(Soldier s, SDL_Rect *playerPosition, int frame);
 void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int i, int j, SDL_Rect *playerPosition);
 int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 void checkPlayerOutOfBoundaries(Soldier s);
+void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets);
 
 #endif
