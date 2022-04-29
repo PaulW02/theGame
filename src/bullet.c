@@ -26,6 +26,7 @@ struct bullet{
     int bulletAngle;
     Weapon weapon;
     Soldier soldier;
+    int bulletSoldierId;
 };
 
 PUBLIC Bullet createBullet(int x, int y, Soldier soldier){
@@ -125,4 +126,12 @@ PUBLIC void setBulletAngle(Bullet b, int bulletAngle){
 
 PUBLIC int getBulletAngle(Bullet b){
     return b->bulletAngle;
+}
+
+PUBLIC void setBulletSoldierId(Bullet b, int soldierId){
+    b->bulletSoldierId = soldierId;
+}
+
+PUBLIC int getBulletSoldierId(Bullet b){
+    return b->bulletSoldierId;
 }

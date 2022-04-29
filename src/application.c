@@ -58,6 +58,8 @@ PRIVATE int checkShotFired(Soldier soldiers[]);
 PRIVATE void movementInput(Application theApp, Soldier s, SDL_Rect *playerPosition, int *pframe, int *shotFired, Bullet b, Bullet bullets[], int *amountOfBullets);
 PRIVATE void motion(Soldier s, SDL_Rect *playerPosition, int *pframe);
 
+PRIVATE void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets);
+
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -214,7 +216,8 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
-        
+
+        bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         for (int i = 0; i < MAX_PLAYERS; i++){
             playerPosition = getSoldierPosition(soldiers[i]);
@@ -437,11 +440,12 @@ PRIVATE void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *
     }
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        
+
         if (getSoldierShotFired(soldiers[i]))
         {
             *bulletsActive = 1;
             Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
+            setBulletSoldierId(b, i);
             setBulletFrame(b, getSoldierFrame(soldiers[i]));
             bulletAngle = checkBulletAngle(getBulletFrame(b));
             setBulletAngle(b,bulletAngle);
@@ -629,6 +633,36 @@ PRIVATE void update(Application theApp, double delta_time){
     //SDL_UpdateWindowSurface(theApp->window);
 }
 
+PRIVATE void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets){
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+
+    for (int i = 0; i < (*amountOfBullets); i++){
+        for (int j = 0; j < MAX_PLAYERS; j++){
+               //Rect Bullet
+            leftA = getBulletPositionX(bullets[i]);
+            rightA = (getBulletPositionX(bullets[i]) + getBulletWidth(bullets[i]));
+            topA = getBulletPositionY(bullets[i]);
+            bottomA = (getBulletPositionY(bullets[i]) + getBulletHeight(bullets[i]));
+
+                //Rect Player
+            leftB = (getSoldierPositionX(soldiers[j]));
+            rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth()));
+            topB = (getSoldierPositionY(soldiers[j]));
+            bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight()));
+
+            if( ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
+            }else{
+                if(((getBulletSoldierId(bullets[i])) != (j))){
+                    deleteBullet(amountOfBullets, bullets, i);
+
+                }
+            }   
+        }
+    }
+}
 
 // Load media functions
 PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture)

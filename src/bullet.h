@@ -24,5 +24,7 @@ void setBulletFrame(Bullet b, int frame);
 int getBulletFrame(Bullet b);
 void setBulletAngle(Bullet b, int bulletAngle);
 int getBulletAngle(Bullet b);
+void setBulletSoldierId(Bullet b, int soldierId);
+int getBulletSoldierId(Bullet b);
 
 #endif
