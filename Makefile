@@ -20,4 +20,4 @@ clear:
 	rm -f *.o main
 
 start:
-	gcc -Iinclude -Llib -o Main src/*.c -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_mixer
+	gcc -Iinclude -Llib -o Main src/*.c -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_mixer -lSDL2_ttf

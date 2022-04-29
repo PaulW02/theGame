@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include "SDL2/SDL_ttf.h"
 
 
 #define PUBLIC /* empty */
@@ -24,6 +24,7 @@
 struct menu{
     SDL_Renderer *gRenderer;
     SDL_Event event;
+    TTF_Font* font;
     char ipAdress[16];
     char gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
@@ -95,6 +96,7 @@ PUBLIC int menuApplication(Menu m)
 PUBLIC void destroyMenu(Menu m)
 {
     SDL_DestroyRenderer(m->gRenderer);
+    TTF_Quit();
     free(m);
 }
 
@@ -365,24 +367,42 @@ PRIVATE int onlineMenuConfig(Menu m)
         {
             SDL_StartTextInput();
             SDL_RenderClear(m->gRenderer);
+            
+            renderImage(m,"onlineOption.png",-1,50,1);
 
-            SDL_Rect ipInputRect;
-            ipInputRect.h=50;
-            ipInputRect.w=300;
-            ipInputRect.x=(WINDOW_WIDTH-ipInputRect.w)/2;
-            ipInputRect.y=200;
+            //Renders a rectangle white white border
+            SDL_Rect ipInputRect = {(WINDOW_WIDTH-300)/2,200,300,50}; //x,y,w,h
             SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
             SDL_RenderDrawRect(m->gRenderer,&ipInputRect);
- 
-            //renderImage(m,"textInputBack.png",-1,200,1);
 
-            renderImage(m,"onlineOption.png",-1,50,1);
+            //Initilizing TTF
+            if(TTF_Init()<0) printf("Error with init!\n");
+
+            m->font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Bold.ttf",20);
+
+            SDL_Color color = {0xFF,0xFF,0xFF}; //White
+
+            //Will need to repeat
+            //////////////////////////////////////////////////            
+            SDL_Surface* text = TTF_RenderText_Solid(m->font,"Hello World!",color);
+            if(!text) printf("Error: Failed to render\n");
+            
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
+            SDL_RenderCopy(m->gRenderer,textTexture,NULL,&ipInputRect);
+            /////////////////////////////////////////////////
+
             SDL_RenderPresent(m->gRenderer);
+           
+            //Cleans up resources
+            SDL_DestroyTexture(textTexture);
+            SDL_FreeSurface(text);
+           
             SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
             userInterfaceAppeard=true;
         }
 
     }
+    TTF_CloseFont(m->font);
     SDL_StopTextInput();
     return CLOSEREQUSTED;
 }
