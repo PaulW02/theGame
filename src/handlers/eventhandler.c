@@ -39,7 +39,11 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s, int *pframe, int 
             setSoldierSpeedX(s, speedX);
         }
         if(keystate[SDL_SCANCODE_SPACE]){
-            setSoldierShotFired(s, 1);
+            Weapon weapon = getSoldierWeapon(s);
+            if(!getWeaponReload(weapon))
+            {
+                setSoldierShotFired(s, 1);
+            }
         }
     }
     

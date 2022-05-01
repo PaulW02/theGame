@@ -23,14 +23,19 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
     { 
         if (getSoldierShotFired(soldiers[i]))
         {
-            *bulletsActive = 1;
-            Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
-            setBulletFrame(b, getSoldierFrame(soldiers[i]));
-            bulletAngle = checkBulletAngle(getBulletFrame(b));
-            setBulletAngle(b,bulletAngle);
-            bullets[*amountOfBullets] = b;
-            (*amountOfBullets)++;
-            
+            Weapon weapon = getSoldierWeapon(soldiers[i]);
+            if(!getWeaponShotCooldown(weapon))
+            {
+                setWeaponBulletTimer(weapon,0);
+                setWeaponMagazine(weapon,getWeaponMagazine(weapon)-1);
+                *bulletsActive = 1;
+                Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
+                setBulletFrame(b, getSoldierFrame(soldiers[i]));
+                bulletAngle = checkBulletAngle(getBulletFrame(b));
+                setBulletAngle(b,bulletAngle);
+                bullets[*amountOfBullets] = b;
+                (*amountOfBullets)++;
+            }
         } 
     }
 }
