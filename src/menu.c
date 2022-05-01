@@ -19,13 +19,14 @@
 #define CLOSEREQUSTED -1
 #define HOWTOPLAYMENU 3
 #define ONLINEMENU 4
+#define IPWORDLENGTH 16
 
 
 struct menu{
     SDL_Renderer *gRenderer;
     SDL_Event event;
     TTF_Font* font;
-    char ipAdress[16];
+    char ipAddress[IPWORDLENGTH];
     char gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
 };
@@ -40,6 +41,7 @@ PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePos
 PRIVATE void resetMainMenu(Menu m);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int w, int h);
 
 
 
@@ -47,10 +49,14 @@ PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 {
     Menu m = malloc(sizeof(struct menu));
     SDL_Event windowEvent;
+
+    //Initilizing TTF
+    if(TTF_Init()<0) printf("Error with init!\n");
+    m->font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",30);
     m->gRenderer = gRenderer;
-    m->gameModeType = '\n';
+    m->gameModeType = '\0';
     m->event = windowEvent;
-    strcpy(m->ipAdress,"123.123.123.123");
+    strcpy(m->ipAddress,"\0");
     return m;
 }
 
@@ -95,14 +101,15 @@ PUBLIC int menuApplication(Menu m)
 //Isn't implemented yet
 PUBLIC void destroyMenu(Menu m)
 {
+    TTF_CloseFont(m->font);
     SDL_DestroyRenderer(m->gRenderer);
     TTF_Quit();
     free(m);
 }
 
-PUBLIC char* getIpAdress(Menu m)
+PUBLIC char* getIpAddress(Menu m)
 {
-    return m->ipAdress;
+    return m->ipAddress;
 }
 
 PUBLIC char getGameType(Menu m)
@@ -338,29 +345,61 @@ PRIVATE int howToPlayMenu(Menu m)
 PRIVATE int onlineMenuConfig(Menu m)
 {
     bool windowCloseRequested = false, userInterfaceAppeard = false;
+    char ipPlaceholder[16] = "\0";
+    SDL_Color color = {0xFF,0xFF,0xFF}; //White
+
     while(!windowCloseRequested)
     {
         while(SDL_PollEvent(&m->event))
         {
             switch (m->event.type)
             {
-            case SDL_QUIT:
-                windowCloseRequested=true;
-                break;
-            case SDL_KEYDOWN:
-                if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                {
-                    SDL_StopTextInput();
-                    return MAINMENU;
-                }
-                break;
-            
-            case SDL_TEXTINPUT:
-                printf("%s",m->event.text.text);
-                break;
-            
-            default:
-                break;
+                case SDL_QUIT:
+                    windowCloseRequested=true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch(m->event.key.keysym.scancode)
+                    {
+                        case SDL_SCANCODE_ESCAPE:
+                            SDL_StopTextInput();
+                            return MAINMENU;
+                            break;
+
+                        case SDL_SCANCODE_BACKSPACE:
+                            if(strlen(ipPlaceholder)!=0)
+                            {
+                                ipPlaceholder[strlen(ipPlaceholder)-1]='\0';
+                                renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200,300,50);
+                            }
+                            break;
+                        
+                        case SDL_SCANCODE_RETURN:
+                            //printf("You pressed enter!\n");
+                            strcpy(m->ipAddress,ipPlaceholder);
+                            //printf("You copied: %s \n",m->ipAddress);
+                            SDL_StopTextInput();
+                            return 0;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+                
+                case SDL_TEXTINPUT:
+                    if(m->event.text.text[0]>=48 && m->event.text.text[0]<=57 || m->event.text.text[0]==46)
+                    {
+                        if(strlen(ipPlaceholder)<IPWORDLENGTH-1)
+                        {
+                            strncat(ipPlaceholder,m->event.text.text,1);
+                            renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200,300,50);
+                            //printf("%c",m->event.text.text[0]);
+                        }
+                    }
+                    break;
+                
+                default:
+                    break;
             }
         }
         if(!userInterfaceAppeard)
@@ -370,40 +409,43 @@ PRIVATE int onlineMenuConfig(Menu m)
             
             renderImage(m,"onlineOption.png",-1,50,1);
 
-            //Renders a rectangle white white border
+            //Renders a centered rectangle with white border
             SDL_Rect ipInputRect = {(WINDOW_WIDTH-300)/2,200,300,50}; //x,y,w,h
             SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
             SDL_RenderDrawRect(m->gRenderer,&ipInputRect);
 
-            //Initilizing TTF
-            if(TTF_Init()<0) printf("Error with init!\n");
-
-            m->font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Bold.ttf",20);
-
-            SDL_Color color = {0xFF,0xFF,0xFF}; //White
-
-            //Will need to repeat
-            //////////////////////////////////////////////////            
-            SDL_Surface* text = TTF_RenderText_Solid(m->font,"Hello World!",color);
-            if(!text) printf("Error: Failed to render\n");
-            
-            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
-            SDL_RenderCopy(m->gRenderer,textTexture,NULL,&ipInputRect);
-            /////////////////////////////////////////////////
-
             SDL_RenderPresent(m->gRenderer);
-           
-            //Cleans up resources
-            SDL_DestroyTexture(textTexture);
-            SDL_FreeSurface(text);
-           
+            //Restores the drawcolor to its original state 
             SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
             userInterfaceAppeard=true;
         }
+        SDL_RenderPresent(m->gRenderer);
 
     }
-    TTF_CloseFont(m->font);
     SDL_StopTextInput();
     return CLOSEREQUSTED;
 }
 
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int w, int h)
+{        
+    SDL_Rect ipInputBox = {x,y,w,h};
+    SDL_RenderFillRect(m->gRenderer,&ipInputBox);
+    SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
+    SDL_RenderDrawRect(m->gRenderer,&ipInputBox);
+    SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
+
+    SDL_Surface* text = TTF_RenderText_Solid(m->font,textToRender,color);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
+ 
+    SDL_Rect rect;
+    rect.x=x;
+    rect.y=y;
+    SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
+    SDL_RenderCopy(m->gRenderer,textTexture,NULL,&rect);
+            
+    //Cleans up resources
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(text);
+
+    return;
+}
