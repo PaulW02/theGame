@@ -8,6 +8,7 @@
 
 #include "../player/soldier.h"
 #include "../player/bullet.h"
+#include "../player/weapon.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -67,5 +68,15 @@ PUBLIC int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, 
         return 1;
     }else{
         return 0;
+    }
+}
+
+PUBLIC void manageFireRateAndAmmo(Soldier soldiers[])
+{
+    for(int i=0;i<MAX_PLAYERS;i++)
+    {
+        Weapon weapon = getSoldierWeapon(soldiers[i]);
+        manageFireRate(weapon);
+        manageReload(weapon);
     }
 }

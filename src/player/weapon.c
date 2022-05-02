@@ -50,6 +50,7 @@ PUBLIC void manageFireRate(Weapon w)
     }
     else if (getWeaponBulletTimer(w) < getWeaponFirerate(w))
     {
+        //printf("cooldown %d\n",getWeaponBulletTimer(w));
         setWeaponShotCooldown(w,true);
         setWeaponBulletTimer(w,getWeaponBulletTimer(w)+1);
     }

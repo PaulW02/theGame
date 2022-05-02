@@ -16,49 +16,52 @@
 PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s, int *pframe, int *amountOfBullets){
     //Bör ens dessa finnas kvar?
     int speedX=0, speedY=0;
-    
+    Weapon weapon = getSoldierWeapon(s);
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     //Vilket keystate
      
     if(appWindowEvent.type == SDL_KEYDOWN && appWindowEvent.key.repeat == 0){
         
-        if(keystate[SDL_SCANCODE_UP]){
+        if(keystate[SDL_SCANCODE_UP]||keystate[SDL_SCANCODE_W]){
             speedY -= getSoldierSpeed(s);
             setSoldierSpeedY(s, speedY);
         }
-        if(keystate[SDL_SCANCODE_DOWN]){
+        if(keystate[SDL_SCANCODE_DOWN]||keystate[SDL_SCANCODE_S]){
             speedY += getSoldierSpeed(s);
             setSoldierSpeedY(s, speedY);
         }
-        if(keystate[SDL_SCANCODE_LEFT]){
+        if(keystate[SDL_SCANCODE_LEFT]||keystate[SDL_SCANCODE_A]){
             speedX -= getSoldierSpeed(s);
             setSoldierSpeedX(s, speedX);      
         }
-        if(keystate[SDL_SCANCODE_RIGHT]){
+        if(keystate[SDL_SCANCODE_RIGHT]||keystate[SDL_SCANCODE_D]){
             speedX += getSoldierSpeed(s);
             setSoldierSpeedX(s, speedX);
         }
         if(keystate[SDL_SCANCODE_SPACE]){
-            Weapon weapon = getSoldierWeapon(s);
             if(!getWeaponReload(weapon))
             {
                 setSoldierShotFired(s, 1);
             }
         }
+        if(keystate[SDL_SCANCODE_R])
+        {
+            setWeaponReload(weapon, true);
+        }
     }
     
     if(appWindowEvent.type == SDL_KEYUP){
         switch(appWindowEvent.key.keysym.scancode){
-            case SDL_SCANCODE_UP:
+            case SDL_SCANCODE_UP: case SDL_SCANCODE_W:
                 setSoldierSpeedY(s, getSoldierSpeedY(s) + getSoldierSpeed(s));
                 break;
-            case SDL_SCANCODE_DOWN:
+            case SDL_SCANCODE_DOWN: case SDL_SCANCODE_S:
                 setSoldierSpeedY(s, getSoldierSpeedY(s) - getSoldierSpeed(s));
                 break;
-            case SDL_SCANCODE_LEFT:
+            case SDL_SCANCODE_LEFT: case SDL_SCANCODE_A:
                 setSoldierSpeedX(s, getSoldierSpeedX(s) + getSoldierSpeed(s));
                 break;
-            case SDL_SCANCODE_RIGHT:
+            case SDL_SCANCODE_RIGHT: case SDL_SCANCODE_D:
                 setSoldierSpeedX(s, getSoldierSpeedX(s) - getSoldierSpeed(s));
                 break;
         }

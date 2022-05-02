@@ -163,11 +163,7 @@ PUBLIC void applicationUpdate(Application theApp){
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
 
-        for(int i=0;i<MAX_PLAYERS;i++)
-        {
-            manageFireRate(getSoldierWeapon(soldiers[playerId]));
-            manageReload(getSoldierWeapon(soldiers[playerId]));
-        }
+        manageFireRateAndAmmo(soldiers);    //Manages firerate and reload for all soldiers
 
         bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
         

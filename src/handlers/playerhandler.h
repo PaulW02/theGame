@@ -12,5 +12,6 @@
 
 void initPlayers(Soldier soldiers[]);
 void weaponChoiceHandler(Soldier soldier);
+void manageFireRateAndAmmo(Soldier soldiers[]);
 
 #endif
