@@ -43,7 +43,7 @@ int getSoldierShotFired(Soldier s);
 void setSoldierFileName(Soldier s, char soldierFileName[]);
 const char* getSoldierFileName(Soldier s);
 
-#endif /* spaceman_h */
+#endif
 
 
 

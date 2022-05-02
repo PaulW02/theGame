@@ -23,6 +23,7 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
     { 
         if (getSoldierShotFired(soldiers[i]))
         {
+            printf("TEST1\n");
             *bulletsActive = 1;
             Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
             setBulletFrame(b, getSoldierFrame(soldiers[i]));
@@ -30,6 +31,7 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
             setBulletAngle(b,bulletAngle);
             bullets[*amountOfBullets] = b;
             (*amountOfBullets)++;
+                        printf("TEST2\n");
             
         } 
     }

@@ -113,6 +113,8 @@ PUBLIC void applicationUpdate(Application theApp){
 
     int checkPortalType;
 
+    int packetType = 0;
+
      // Background
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
@@ -155,8 +157,8 @@ PUBLIC void applicationUpdate(Application theApp){
         motion(soldiers[playerId], &frame);
 
         // Send and retrive information  
-        clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p);
-        UDPPacketReceiver(soldiers, &playerId, sd, p2);
+        clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
+        UDPPacketReceiver(soldiers, &playerId, sd, p2, packetType);
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
@@ -164,12 +166,9 @@ PUBLIC void applicationUpdate(Application theApp){
         createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
 
         bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
-        
-
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
         renderPlayers(gRenderer, soldiers, mSoldier, gSpriteClips, tiles);
-
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
     }
