@@ -17,18 +17,15 @@
 
 PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *amountOfBullets, int *bulletsActive){
     int bulletAngle;
-    if(*amountOfBullets == 0){
-        *bulletsActive = 0;
-    }
     for (int i = 0; i < MAX_PLAYERS; i++)
     { 
         if (getSoldierShotFired(soldiers[i]))
         {
-            Weapon weapon = getSoldierWeapon(soldiers[i]);
-            if(!getWeaponShotCooldown(weapon))
+            //Weapon weapon = getSoldierWeapon(soldiers[i]);
+            if(!getWeaponShotCooldown(getSoldierWeapon(soldiers[i])))
             {
-                setWeaponBulletTimer(weapon,0);
-                setWeaponMagazine(weapon,getWeaponMagazine(weapon)-1);
+                setWeaponBulletTimer(getSoldierWeapon(soldiers[i]),0);
+                setWeaponMagazine(getSoldierWeapon(soldiers[i]),getWeaponMagazine(getSoldierWeapon(soldiers[i]))-1);
                 *bulletsActive = 1;
                 Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
                 setBulletFrame(b, getSoldierFrame(soldiers[i]));

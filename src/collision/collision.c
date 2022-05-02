@@ -173,16 +173,16 @@ PUBLIC int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition)
 
 PUBLIC void checkPlayerOutOfBoundaries(Soldier s)
 {
-    if (getSoldierPositionX(s) > WINDOW_WIDTH-16){
-        setSoldierPositionX(s, WINDOW_WIDTH-16);
+    if (getSoldierPositionX(s) > WINDOW_WIDTH-32){
+        setSoldierPositionX(s, WINDOW_WIDTH-32);
     }else if(getSoldierPositionX(s) < 0){
         setSoldierPositionX(s, 0);
     }
     
-    if(getSoldierPositionY(s) > WINDOW_HEIGHT-16){
-        setSoldierPositionY(s, WINDOW_WIDTH-16);
+    if(getSoldierPositionY(s) > WINDOW_HEIGHT-32){
+        setSoldierPositionY(s, WINDOW_WIDTH-32);
     }else if(getSoldierPositionY(s) < 0){
-        setSoldierPositionX(s, 0);
+        setSoldierPositionY(s, 0);
     }
 }
 

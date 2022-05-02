@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
+#include "menu.h"
 #include "collision/collision.h"
 
 #include "sounds/soundeffects.h"
@@ -82,9 +82,6 @@ PUBLIC void applicationUpdate(Application theApp){
     //Create player and set start position
     Soldier soldiers[MAX_PLAYERS];
 
-    initPlayers(soldiers);
-    
-
     SDL_Texture *mSoldier = NULL;
     SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
@@ -100,6 +97,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *bulletTexture = NULL;
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
+
+
 
     Bullet bullets[MAX_BULLETS];
     
@@ -117,6 +116,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+
+
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
     UDPsocket sd;
@@ -126,6 +127,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     initSoundEffects();
     initConnection(&sd, &srvadd, &p, &p2);  
+    initPlayers(soldiers);
 
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
     maxRange = getWeaponRange(getSoldierWeapon(soldiers[playerId]));
@@ -137,7 +139,9 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
     loadBulletMedia(gRenderer, &bulletTexture);
     loadTiles(gRenderer, &mTiles, gTiles);
-    
+    //Menu
+    Menu m = createMenu(gRenderer);
+    if(menuApplication(m) == -1) return;
     bool keep_window_open = true;
 
     while(keep_window_open)

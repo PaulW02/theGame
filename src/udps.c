@@ -11,7 +11,9 @@ exit
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_net.h"
+#include "handlers/playerhandler.h"
 #include "player/soldier.h"
+
 
 #define MAX_PLAYERS 4
 #define MAX_BULLETS 100
@@ -64,16 +66,12 @@ int main(int argc, char **argv)
 	}
 
     for (int i = 0; i < MAX_PLAYERS; i++)
-    {
+    {   
         clients[i].IPclient = 0;
         clients[i].portClient = 0;
-        soldiers[i] = createSoldier(0,0);
-        setSoldierId(soldiers[i], i);
-        setSoldierPositionX(soldiers[i], 0);
-        setSoldierPositionY(soldiers[i], 0);
-        setSoldierFrame(soldiers[i], 0);
-        setSoldierShotFired(soldiers[i], 0);
     }
+
+    initPlayers(soldiers);
  
 	/* Main loop */
 	quit = 0;
