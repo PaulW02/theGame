@@ -120,19 +120,22 @@ PUBLIC void applicationUpdate(Application theApp){
 
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
+    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+
     UDPsocket sd;
 	IPaddress srvadd;
 	UDPpacket *p;
     UDPpacket *p2;
-
+    Menu m = createMenu(gRenderer);
+    if(menuApplication(m) == -1) return;
     initSoundEffects();
-    initConnection(&sd, &srvadd, &p, &p2);  
+    initConnection(&sd, &srvadd, &p, &p2, m);  
     initPlayers(soldiers);
 
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
     maxRange = getWeaponRange(getSoldierWeapon(soldiers[playerId]));
 
-    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+    
 
     setSoldierShotFired(soldiers[playerId],0);
 
@@ -140,8 +143,8 @@ PUBLIC void applicationUpdate(Application theApp){
     loadBulletMedia(gRenderer, &bulletTexture);
     loadTiles(gRenderer, &mTiles, gTiles);
     //Menu
-    Menu m = createMenu(gRenderer);
-    if(menuApplication(m) == -1) return;
+    
+    
     bool keep_window_open = true;
 
     while(keep_window_open)
