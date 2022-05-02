@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
+#include "menu.h"
 #include "collision/collision.h"
 
 #include "sounds/soundeffects.h"
@@ -98,6 +98,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
 
+
+
     Bullet bullets[MAX_BULLETS];
     
     int bulletFrame = 0;
@@ -114,6 +116,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+
+
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
     UDPsocket sd;
@@ -135,7 +139,9 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
     loadBulletMedia(gRenderer, &bulletTexture);
     loadTiles(gRenderer, &mTiles, gTiles);
-    
+    //Menu
+    Menu m = createMenu(gRenderer);
+    if(menuApplication(m) == -1) return;
     bool keep_window_open = true;
 
     while(keep_window_open)
