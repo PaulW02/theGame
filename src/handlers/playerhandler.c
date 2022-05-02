@@ -49,12 +49,12 @@ PUBLIC void initPlayers(Soldier soldiers[]){
 
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
-
-    Weapon pistol = createWeapon(200,10,6);
-    Weapon bow = createWeapon(5,6,7);
-    Weapon spear = createWeapon(5,6,7);
-    Weapon rodBlue = createWeapon(5,6,7);
-    Weapon rodRed = createWeapon(5,6,7);
+                            //range, power, speed, mag_size, firerate, reloadtime
+    Weapon pistol = createWeapon(200,10,10,9,10,100);
+    Weapon bow = createWeapon(5,6,7,1,50,50);
+    Weapon spear = createWeapon(5,6,7,1,50,50);
+    Weapon rodBlue = createWeapon(5,6,7,1,50,50);
+    Weapon rodRed = createWeapon(5,6,7,1,50,50);
     
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {

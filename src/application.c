@@ -134,7 +134,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
-    
+    setSoldierShotFired(soldiers[playerId],0);
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
     loadBulletMedia(gRenderer, &bulletTexture);
@@ -166,6 +166,8 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
+
+        manageFireRateAndAmmo(soldiers);    //Manages firerate and reload for all soldiers
 
         bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
         
