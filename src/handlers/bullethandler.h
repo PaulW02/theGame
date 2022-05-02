@@ -16,5 +16,6 @@ void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *amountOf
 int checkBulletAngle(int frame);
 int deleteBullet(int *amountOfBullets, Bullet bullets[],int delete);
 int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, SDL_Rect playerPosition);
+void manageFireRateAndAmmo(Soldier soldiers[]);
 
 #endif
