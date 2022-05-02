@@ -31,10 +31,14 @@ PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]);
 
 int main(int argc, char **argv)
 {
-	UDPsocket sd;       /* Socket descriptor */
+	UDPsocket udp_sd;       /* Socket descriptor */
 	UDPpacket *pRecive;       /* Pointer to packet memory */
 	UDPpacket *pSent;
-    int quit;
+    char remote_ip_str[16]="";
+    TCPsocket sd, csd;
+
+    IPaddress ip, *remoteIP;
+    int quit, quit2;
     
     Client clients[MAX_PLAYERS];
 
@@ -49,13 +53,24 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
- 
+    if (SDLNet_ResolveHost(&ip, NULL, 2000) < 0)
+    {
+        fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
+    }
+
 	/* Open a socket */
-	if (!(sd = SDLNet_UDP_Open(2000)))
+	if (!(udp_sd = SDLNet_UDP_Open(0)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
+
+    if (!(sd = SDLNet_TCP_Open(&ip)))
+    {
+        fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
+    }
  
 	/* Make space for the packet */
 	if (!((pSent = SDLNet_AllocPacket(1024))&&(pRecive = SDLNet_AllocPacket(1024))))
@@ -77,12 +92,88 @@ int main(int argc, char **argv)
 	while (!quit)
 	{
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
-		if (SDLNet_UDP_Recv(sd, pRecive))
-		{
+		/*if (SDLNet_UDP_Recv(sd, pRecive))
+		{*/
+        if ((csd = SDLNet_TCP_Accept(sd)))
+        {
+
 			//printf("UDP Packet incoming\n");
 			//printf("\tData:    %s\n", (char *)pRecive->data);
 			//printf("\tAddress: %x %x\n", pRecive->address.host, pRecive->address.port);
-            
+            if ((remoteIP = SDLNet_TCP_GetPeerAddress(csd)))
+            {
+                Uint32 remote_ip;
+                unsigned char ch0, ch1, ch2, ch3;
+                /* Print the address, converting in the host format */
+                printf("Host connected: %x %d\n", SDLNet_Read32(&remoteIP->host), SDLNet_Read16(&remoteIP->port));
+                remote_ip = SDLNet_Read32(&remoteIP->host);
+                ch0 = remote_ip>>24;
+                ch1 = (remote_ip & 0x00ffffff)>>16;
+                ch2 = (remote_ip & 0x0000ffff)>>8;
+                ch3 = remote_ip & 0x000000ff;
+
+                sprintf(remote_ip_str,"%d.%d.%d.%d", (int)ch0, (int)ch1, (int)ch2, (int)ch3);
+
+                printf("Remote host IP in string form: %s\n", remote_ip_str);
+
+            }
+            else{
+                fprintf(stderr, "SDLNet_TCP_GetPeerAddress: %s\n", SDLNet_GetError());
+            }
+            quit2 = 0;
+            while (!quit2)
+            {
+                int allocated_index;
+                
+                if (SDLNet_TCP_Recv(csd, buffer, 512) > 0){
+                }
+                else{
+                    fprintf(stderr, ">SDLNet_TCP_Recv: %s", SDLNet_GetError());
+                    exit(EXIT_FAILURE);
+                }
+
+                { 
+                    IPaddress client_address;
+                    if(SDLNet_ResolveHost(&client_address, remote_ip_str, 2001) == -1)
+                    {
+                        fprintf(stderr, "Couldn't resolve client... %s\n", SDLNet_GetError());
+                        exit(EXIT_FAILURE);
+                    }
+
+
+                    while(SDLNet_TCP_Recv(csd,&csm_click_at_pdu,
+                                sizeof(struct csm_click_at))>0)
+                    {
+                        int i; int rx, ry;
+
+                        printf("%d %d\n", csm_click_at_pdu.x, csm_click_at_pdu.y);
+
+                        scm_draw_square_at_pdu.x = csm_click_at_pdu.x;
+                        scm_draw_square_at_pdu.y = csm_click_at_pdu.y;
+
+                        //for(i=0;i<sizeof(struct scm_draw_square_at);i++)
+                        //  p->data[i]=0;
+
+                        p->address.host = client_address.host;
+                        p->address.port = client_address.port;
+                        p->len=12;
+
+                        for(i=0;i<10;i++)
+                        {
+                        
+                        rx = rand()%10; rand()%10 + rand()%10 - 15;
+                        ry = rand()%10; rand()%10 + rand()%10 - 15;
+
+                        sprintf((char *)(p->data),"%d %d %d", csm_click_at_pdu.x+rx, csm_click_at_pdu.y+ry, 1);
+                        SDLNet_UDP_Send(udp_sd,-1,p); 
+                        SDL_Delay(50);
+                        }
+
+
+                    }
+
+                }
+            }
             for (int i = 0; i < MAX_PLAYERS; i++){
                 //printf("%d TEST \n", checkClient(pRecive, i, clients));
                 checkClientBool = checkClient(pRecive, i, clients);
