@@ -19,6 +19,7 @@
 #define CLOSEREQUSTED -1
 #define HOWTOPLAYMENU 3
 #define ONLINEMENU 4
+#define PICKCHARACTERMENU 5
 #define IPWORDLENGTH 16
 
 
@@ -27,6 +28,7 @@ struct menu{
     SDL_Event event;
     TTF_Font* font;
     char ipAddress[IPWORDLENGTH];
+    char characterModel[64];
     char gameModeType; //2v2, 
     //Implement type of gamemode, ex 2v2 or free for all
 };
@@ -42,6 +44,9 @@ PRIVATE void resetMainMenu(Menu m);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
 PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int w, int h);
+PRIVATE int pickCharacterMenu(Menu m);
+PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame);
+
 
 
 
@@ -68,30 +73,34 @@ PUBLIC int menuApplication(Menu m)
     {
         switch (result)
         {
-        case CLOSEREQUSTED:
-            destroyMenu(m);
-            closeRequested=true;
-            break;
+            case CLOSEREQUSTED:
+                destroyMenu(m);
+                closeRequested=true;
+                break;
 
-        case TITLECARD:
-            result = startPage(m);
-            break;
-        
-        case MAINMENU:
-            result = mainMenu(m);
-            break;
+            case TITLECARD:
+                result = startPage(m);
+                break;
+            
+            case MAINMENU:
+                result = mainMenu(m);
+                break;
 
-        case HOWTOPLAYMENU:
-            result = howToPlayMenu(m);
-            break;
-        
-        case ONLINEMENU:
-            result = onlineMenuConfig(m);
-            break;
+            case HOWTOPLAYMENU:
+                result = howToPlayMenu(m);
+                break;
+            
+            case ONLINEMENU:
+                result = onlineMenuConfig(m);
+                break;
+            
+            case PICKCHARACTERMENU:
+                result = pickCharacterMenu(m);
+                break;
 
-        default:
-            return 0;
-            break;
+            default:
+                return 0;
+                break;
         }
     }
     return result;
@@ -238,38 +247,38 @@ PRIVATE int mainMenu(Menu m)
 
         switch (menuChoice)
         {
-        case 0:
-            resetMainMenu(m);
-            renderImage(m,"onlineOptionGray.png",-1,225,1);
-            if(button)
-            {
-                m->gameModeType='O';
-                return ONLINEMENU;
-            }
-            break;
-        
-        case 1:
-            resetMainMenu(m);
-            renderImage(m,"howToPlayGray.png",-1,325,1);
-            if(button)
-            {
-                m->gameModeType='H';
-                return HOWTOPLAYMENU;
-            }
-            break;
-        
-        case 2:
-            resetMainMenu(m);
-            renderImage(m,"co_opGray.png",-1,425,1);
-            if(button)
-            {
-                m->gameModeType='C';
-                return 0;
-            }
-            break;
+            case 0:
+                resetMainMenu(m);
+                renderImage(m,"onlineOptionGray.png",-1,225,1);
+                if(button)
+                {
+                    m->gameModeType='O';
+                    return ONLINEMENU;
+                }
+                break;
+            
+            case 1:
+                resetMainMenu(m);
+                renderImage(m,"howToPlayGray.png",-1,325,1);
+                if(button)
+                {
+                    m->gameModeType='H';
+                    return HOWTOPLAYMENU;
+                }
+                break;
+            
+            case 2:
+                resetMainMenu(m);
+                renderImage(m,"co_opGray.png",-1,425,1);
+                if(button)
+                {
+                    m->gameModeType='C';
+                    return 0;
+                }
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
         SDL_RenderPresent(m->gRenderer);
     }
@@ -316,17 +325,17 @@ PRIVATE int howToPlayMenu(Menu m)
         {
             switch (m->event.type)
             {
-            case SDL_QUIT:
-                windowCloseRequested=true;
-                break;
-            case SDL_KEYDOWN:
-                if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                    return MAINMENU;
-                break;
-            
-            default:
-                break;
-            }
+                case SDL_QUIT:
+                    windowCloseRequested=true;
+                    break;
+                case SDL_KEYDOWN:
+                    if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                        return MAINMENU;
+                    break;
+                
+                default:
+                    break;
+                }
         }
         if(!userInterfaceAppeard)
         {
@@ -378,7 +387,7 @@ PRIVATE int onlineMenuConfig(Menu m)
                             strcpy(m->ipAddress,ipPlaceholder);
                             //printf("You copied: %s \n",m->ipAddress);
                             SDL_StopTextInput();
-                            return 0;
+                            return PICKCHARACTERMENU;
                             break;
 
                         default:
@@ -448,4 +457,88 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
     SDL_FreeSurface(text);
 
     return;
+}
+
+PRIVATE int pickCharacterMenu(Menu m)
+{
+    bool windowCloseRequested = false, spin = true;
+    int i = 0;
+    while(!windowCloseRequested)
+    {
+        while(SDL_PollEvent(&m->event))
+        {
+            switch (m->event.type)
+            {
+                case SDL_QUIT:
+                    windowCloseRequested=true;
+                    break;
+                
+                case SDL_KEYDOWN:
+                    switch (m->event.key.keysym.scancode)
+                    {
+                        case SDL_SCANCODE_ESCAPE:
+                            return ONLINEMENU;
+                            break;
+                        
+                        default:
+                            return 0;
+                            break;
+                    }
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+        if(spin)
+        {
+            //Man väljer character i namn och får sedan se alla sprites med vapen i hand
+            //Använd texture blending
+            //Kolla ifall man inte behöver ta bort allting på skrämen
+
+            SDL_RenderClear(m->gRenderer);
+            renderImage(m,"pickCharacter.png",-1,20,1);
+            renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,200,SDL_FLIP_NONE,i);
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+60,300,SDL_FLIP_NONE,-1);
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-70,300,SDL_FLIP_HORIZONTAL,-1);
+            SDL_RenderPresent(m->gRenderer);
+            if(i!=7)i++;
+            else i=0;
+            SDL_Delay(1000/8);
+        }
+    }
+    return CLOSEREQUSTED;
+}
+
+PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame)
+{
+    SDL_Surface* s = IMG_Load(path);
+
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(m->gRenderer,s);
+    SDL_FreeSurface(s);
+
+    SDL_Rect dest;
+    static SDL_Rect sourceDest[] = {{0,0,32,32},
+                                    {66,0,32,32},
+                                    {0,64,32,32},
+                                    {66,64,32,32},
+                                    {0,96,32,32},
+                                    {66,96,32,32},
+                                    {0,32,32,32},
+                                    {66,32,32,32}};
+
+    SDL_QueryTexture(tex, NULL,NULL,&dest.w,&dest.h);
+    
+    //Defines the position of the images top-left corner
+    if(posX==-1) dest.x=(WINDOW_WIDTH-dest.w)/2;
+    else dest.x=posX;  
+    
+    dest.y=posY;
+    if(directionFrame==-1)
+        SDL_RenderCopyEx(m->gRenderer,tex,NULL,&dest,0,NULL,flip);
+    else
+        SDL_RenderCopyEx(m->gRenderer,tex,&sourceDest[directionFrame],&dest,0,NULL,flip);
+
+    SDL_DestroyTexture(tex);
+    return;  
 }
