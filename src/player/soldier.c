@@ -141,7 +141,7 @@ PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
     strcpy(s->soldierFileName,soldierFileName);
 }
 
-PUBLIC const char* getSoldierFileName(Soldier s)
+PUBLIC char* getSoldierFileName(Soldier s)
 {
     return  s->soldierFileName;
 }

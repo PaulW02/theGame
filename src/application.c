@@ -82,9 +82,6 @@ PUBLIC void applicationUpdate(Application theApp){
     //Create player and set start position
     Soldier soldiers[MAX_PLAYERS];
 
-    initPlayers(soldiers);
-    
-
     SDL_Texture *mSoldier = NULL;
     SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
@@ -126,6 +123,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     initSoundEffects();
     initConnection(&sd, &srvadd, &p, &p2);  
+    initPlayers(soldiers);
 
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
     maxRange = getWeaponRange(getSoldierWeapon(soldiers[playerId]));

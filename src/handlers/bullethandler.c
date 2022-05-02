@@ -16,9 +16,6 @@
 
 PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *amountOfBullets, int *bulletsActive){
     int bulletAngle;
-    if(*amountOfBullets == 0){
-        *bulletsActive = 0;
-    }
     for (int i = 0; i < MAX_PLAYERS; i++)
     { 
         if (getSoldierShotFired(soldiers[i]))
@@ -26,6 +23,7 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
             *bulletsActive = 1;
             Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
             setBulletFrame(b, getSoldierFrame(soldiers[i]));
+            setBulletSoldierId(b, getSoldierId(soldiers[i]));
             bulletAngle = checkBulletAngle(getBulletFrame(b));
             setBulletAngle(b,bulletAngle);
             bullets[*amountOfBullets] = b;
