@@ -1,18 +1,45 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include "collision/collision.h"
+
+#include "sounds/soundeffects.h"
+
+#include "map/world.h"
+#include "map/tile.h"
+
+#include "player/soldier.h"
+#include "player/bullet.h"
+#include "player/weapon.h"
+
+#include "network/initnetwork.h"
+#include "network/clientmanager.h"
+
+#include "handlers/playerhandler.h"
+#include "handlers/bullethandler.h"
+#include "handlers/eventhandler.h"
+
+#include "draw/render.h"
+#include "draw/media.h"
+
 #include "application.h"
-#include "world.h"
-#include "soldier.h"
-#include "bullet.h"
-#include "menu.h"
+#include <unistd.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
 
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512
+
+#define MAX_BULLETS 100
+#define MAX_PLAYERS 4
+#define AMOUNT_TILES 32
+#define CONN_PARAMS_LENGTH 20
 
 struct application{
     SDL_Window  *window;
@@ -21,26 +48,16 @@ struct application{
 
 };
 
-PRIVATE bool init(SDL_Renderer **gRenderer);
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[]);
-PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet);
-PRIVATE void update(Application theApp, double delta_time);
-PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTile, SDL_Rect gTiles[]);
-//PRIVATE void draw(Application theApp);
-PRIVATE void shootBullet(SDL_Renderer *gRenderer, int frame);
-PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete);
-PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition);
-PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
-PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip);
-
-
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
+
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("Failed to initialize the SDL2 library\n");
     }
 
+    SDL_Init(SDL_INIT_AUDIO);
+    
     s->window= SDL_CreateWindow("SDL2",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
     if(!s->window)
@@ -63,277 +80,105 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Renderer *gRenderer = NULL;
 
     //Create player and set start position
-    Soldier soldier = createSoldier(10,10);
+    Soldier soldiers[MAX_PLAYERS];
+
     SDL_Texture *mSoldier = NULL;
     SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
-    SDL_RendererFlip flip = SDL_FLIP_NONE;
-    playerPosition.y = getSoldierPositionY(soldier);
-    playerPosition.x = getSoldierPositionX(soldier);
-    playerPosition.h = 32;
-    playerPosition.w = 32;
+    
+    int weaponSpeed;
+    int maxRange;
+    int oldX, oldY, soldierXPos, soldierYPos;
+
+    int playerId = 0;
+    int playerFrame = 3;
 
     Bullet b = NULL;
     SDL_Texture *bulletTexture = NULL;
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
-    SDL_Surface* bulletSurface = NULL;
-    Bullet bullets[10];
+
+    Bullet bullets[MAX_BULLETS];
+    
     int bulletFrame = 0;
     int bulletAngle = 0;
-    SDL_RendererFlip bulletflip = SDL_FLIP_NONE;
 
     int frame = 3;
-    int counter = 0;
-    bool shotFired = true;
+    int amountOfBullets = 0;
+    int shotFired = 0;
+    int bulletsActive = 0;
+
+    int checkPortalType;
 
      // Background
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
-
-
-    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-
     //Menu
     Menu m = createMenu(gRenderer);
     if(menuApplication(m) == -1) return;
 
-    loadMedia(gRenderer, &mSoldier, gSpriteClips, &mTiles, gTiles);
+    Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
+    UDPsocket sd;
+	IPaddress srvadd;
+	UDPpacket *p;
+    UDPpacket *p2;
+
+    initSoundEffects();
+    initConnection(&sd, &srvadd, &p, &p2);  
+    initPlayers(soldiers);
+
+    weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
+    maxRange = getWeaponRange(getSoldierWeapon(soldiers[playerId]));
+
+    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+
+    
+
+    loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
+    loadBulletMedia(gRenderer, &bulletTexture);
+    loadTiles(gRenderer, &mTiles, gTiles);
+    
     bool keep_window_open = true;
+
     while(keep_window_open)
     {
-        while(SDL_PollEvent(&theApp->window_event) > 0)
+        while(SDL_PollEvent(&theApp->window_event))
         {
-            if(theApp->window_event.type == SDL_QUIT)
-            {
-                    keep_window_open = false;
-                    break;
+            if(theApp->window_event.type == SDL_QUIT){
+                keep_window_open = false;
+                break;
+            }else if( theApp->window_event.type == SDL_KEYUP){
+                setSoldierShotFired(soldiers[playerId], 0);
             }
-            else if( theApp->window_event.type == SDL_KEYDOWN ){
-                //Select surfaces based on key press
-                switch(theApp->window_event.key.keysym.sym )
-                {
-                    case SDLK_UP:
-                        // should be in game logic
-                        playerPosition.y -= 2;
-                        setSoldierPositionY(soldier, playerPosition.y);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 4)
-                            frame = 5;
-                        else
-                            frame = 4;
-                        break;
-                    case SDLK_DOWN:
-                        playerPosition.y += 2;
-                        setSoldierPositionY(soldier, playerPosition.y);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 0)
-                            frame = 1;
-                        else
-                            frame = 0;
-                        break;
-                    case SDLK_LEFT:
-                        playerPosition.x -= 2;
-                        setSoldierPositionX(soldier, playerPosition.x);
-                        flip = SDL_FLIP_HORIZONTAL;
-                        if(frame == 2)
-                            frame = 3;
-                        else
-                            frame = 2;
-                        break;
-                    case SDLK_RIGHT:
-                        playerPosition.x += 2;
-                        setSoldierPositionX(soldier, playerPosition.x);
-                        flip = SDL_FLIP_NONE;
-                        if(frame == 2)
-                            frame = 3;
-                        else
-                            frame = 2;
-                        break;
-                    case SDLK_SPACE:
-                        shotFired = true;
-                        Bullet b = createBullet(playerPosition.x, playerPosition.y, 5);
-                        setBulletFrame(b, frame);
-                        setBulletPositionX(b, playerPosition.x);
-                        setBulletPositionY(b, playerPosition.y+14);
-                        setBulletHeight(b, 5);
-                        setBulletWidth(b, 10);
-                        bulletAngle = checkBulletAngle(frame, &flip);
-                        setBulletFlip(b,flip);
-                        setBulletAngle(b,bulletAngle);
-                        bullets[counter] = b;
-                        counter++;
-                        loadBulletMedia(gRenderer, &bulletTexture, &b);
-                    default:
-                        
-                        break;
-                }
-            }
-        }
-        
+            movementInput(theApp->window_event, soldiers[playerId], &frame, &amountOfBullets);
+        }  
+        motion(soldiers[playerId], &frame);
+
+        // Send and retrive information  
+        clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p);
+        UDPPacketReceiver(soldiers, &playerId, sd, p2);
+
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
-        renderBackground(gRenderer, mTiles, gTiles);
-        checkPlayerOutOfBoundaries(soldier, &playerPosition);
-        SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[frame],&playerPosition , 0, NULL, flip);
+        renderBackground(gRenderer, mTiles, gTiles, tiles);
+        createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
 
-        for (int i = 0; i < counter; i++)
-        {
-            bulletPosition = getBulletPositionSDL(bullets[i]);
-            bulletFrame = getBulletFrame(bullets[i]);
-            bullet = getBulletSDL(bullets[i]);
-            bulletflip = getBulletFlip(bullets[i]);
-            bulletAngle = getBulletAngle(bullets[i]);
-            move(&bulletPosition, bulletFrame, bulletflip);
-            SDL_RenderCopyEx(gRenderer, bulletTexture, &bullet,&bulletPosition, bulletAngle, NULL, bulletflip);
-            if(checkBulletOutOfBoundaries(b, bulletPosition))
-            {
-                free(bullets[i]);
-                counter = deleteBullet(&counter,bullets, i);
-            }else{
-                setBulletPositionX(bullets[i], bulletPosition.x);
-                setBulletPositionY(bullets[i], bulletPosition.y);
-            }
-        }
+        bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
+        
+
+        bulletWallCollision(tiles, bullets, &amountOfBullets);
+
+        renderPlayers(gRenderer, soldiers, mSoldier, gSpriteClips, tiles);
+
+        bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
-        update(theApp, 10.0/60.0);
-    }
-}
-
-PRIVATE int checkBulletAngle(int frame, SDL_RendererFlip *flip)
-{
-    if(frame == 0 || frame == 1)
-    {
-        return 90;
-    }else if( frame == 2 || frame == 3)
-    {
-        return 0;
-    }else
-    {   
-        *flip = SDL_FLIP_HORIZONTAL;
-        return 90;
-    }
-}
-
-PRIVATE int deleteBullet(int *counter, Bullet bullets[],int delete)
-{
-    for (int i = delete; i < (*counter-1); i++){
-        bullets[i] = bullets[i+1];
-    }
-    (*counter)--;
-    return *counter;
-}
-
-PRIVATE void checkPlayerOutOfBoundaries(Soldier s, SDL_Rect *playerPosition)
-{
-    if (getSoldierPositionX(s) > WINDOW_WIDTH-16){
-        playerPosition->x = WINDOW_WIDTH-16;
-    }else if(getSoldierPositionX(s) < 0){
-        playerPosition->x = 0;
-    }
-    
-    if(getSoldierPositionY(s) > WINDOW_HEIGHT-16){
-        playerPosition->y = WINDOW_HEIGHT-16;
-    }else if(getSoldierPositionY(s) < 0){
-        playerPosition->y = 0;
-    }
-}
-
-PRIVATE int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition)
-{
-    if(bulletPosition.x == WINDOW_WIDTH || bulletPosition.y == WINDOW_HEIGHT || bulletPosition.x == -10 || bulletPosition.y == -10){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-PRIVATE void update(Application theApp, double delta_time){
-    //SDL_UpdateWindowSurface(theApp->window);
-}
-
-/*PRIVATE void draw(Application theApp)
-{
-    SDL_FillRect(theApp->window_surface, NULL, SDL_MapRGB(theApp->window_surface->format, 0, 0, 0));
-    SDL_UpdateWindowSurface(theApp->window);
-}
-*/
-PRIVATE void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Bullet *bullet)
-{
-    SDL_Surface* bulletSurface = IMG_Load("resources/THEBULLET.png");
-    *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
-
-    setBulletSDLPos(*bullet, 0,0,10,5);
-}
-
-PRIVATE void loadMedia(SDL_Renderer *gRenderer, SDL_Texture **mSpaceman, SDL_Rect gSpriteClips[], SDL_Texture **mTiles, SDL_Rect gTiles[])
-{
-    SDL_Surface* gSpacemanSurface = IMG_Load("resources/Karaktarer/SKELETON/SKELETONrodBLUE.png");
-    *mSpaceman = SDL_CreateTextureFromSurface(gRenderer, gSpacemanSurface);
-    
-     
-    gSpriteClips[ 0 ].x =   0;
-    gSpriteClips[ 0 ].y =   0;
-    gSpriteClips[ 0 ].w =  32;
-    gSpriteClips[ 0 ].h = 32;
-    
-    gSpriteClips[ 1 ].x =  66;
-    gSpriteClips[ 1 ].y =   0;
-    gSpriteClips[ 1 ].w =  32;
-    gSpriteClips[ 1 ].h = 32;
-    
-    gSpriteClips[ 2 ].x = 0;
-    gSpriteClips[ 2 ].y =   64;
-    gSpriteClips[ 2 ].w =  32;
-    gSpriteClips[ 2 ].h = 32;
-    
-    gSpriteClips[ 3 ].x = 66;
-    gSpriteClips[ 3 ].y =   64;
-    gSpriteClips[ 3 ].w =  32;
-    gSpriteClips[ 3 ].h = 32;
-    
-    gSpriteClips[ 4 ].x = 0;
-    gSpriteClips[ 4 ].y =   96;
-    gSpriteClips[ 4 ].w =  32;
-    gSpriteClips[ 4 ].h = 32;
-    
-    gSpriteClips[ 5 ].x = 66;
-    gSpriteClips[ 5 ].y =   96;
-    gSpriteClips[ 5 ].w =  32;
-    gSpriteClips[ 5 ].h = 32;
-
-    SDL_Surface* gTilesSurface = IMG_Load("resources/GrassAndTowersStraight.PNG");
-    *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
-    for (int i = 0; i < 16; i++) {
-        gTiles[i].x = i*getTileWidth();
-        gTiles[i].y = 0;
-        gTiles[i].w = getTileWidth();
-        gTiles[i].h = getTileHeight();
     }
 }
 
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
+    Mix_CloseAudio();
 }
-
-PRIVATE void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]){
-    
-    SDL_Rect possition;
-    possition.y = 0;
-    possition.x = 0;
-    possition.h = getTileHeight();
-    possition.w = getTileWidth();
-    
-    for (int i = 0; i<getTileColumns(); i++) {
-        for (int j = 0; j<getTileRows(); j++) {
-            possition.y = i*getTileHeight();
-            possition.x = j*getTileWidth();
-            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i,j)],&possition , 0, NULL, SDL_FLIP_NONE);
-        }
-    }
-    
-}
-

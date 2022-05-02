@@ -2,6 +2,18 @@
     "files.associations": {
         "sdl_image.h": "c",
         "sdl.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "bullet.h": "c",
+        "sdl_net.h": "c",
+        "application.h": "c",
+        "sdl_mixer.h": "c",
+        "soldier.h": "c",
+        "weapon.h": "c",
+        "tile.h": "c",
+        "bullethandler.h": "c",
+        "initnetwork.h": "c",
+        "eventhandler.h": "c",
+        "playerhandler.h": "c",
+        "collision.h": "c"
     }
 }
