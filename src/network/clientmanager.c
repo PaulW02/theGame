@@ -6,7 +6,7 @@
 #include "SDL2/SDL_net.h"
 
 #include "clientmanager.h"
-
+#include "../sounds/soundeffects.h"
 #include "../player/soldier.h"
 
 #define PUBLIC /* empty */
@@ -61,6 +61,7 @@ PUBLIC void insertValuesToAllPlayers(Soldier soldiers[], int connParams[], int p
                         break;
                     case 4:
                         setSoldierShotFired(soldiers[i], connParams[j+margin]);
+                        /*shootingSound(*shotEffect);*/
                         break;
                 }
             }

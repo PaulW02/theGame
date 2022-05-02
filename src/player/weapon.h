@@ -10,5 +10,7 @@ typedef struct weapon *Weapon;
     int getWeaponPower(Weapon w);
     void setWeaponSpeed(Weapon w, int speed);
     int getWeaponSpeed(Weapon w);
+    void setWeaponBullet(Weapon w, char weaponBullet[]);
+    const char* getWeaponBullet(Weapon w);
 
 #endif

@@ -8,6 +8,8 @@
 
 #include "playerhandler.h"
 #include "../player/soldier.h"
+#include "../player/bullet.h"
+#include "../player/weapon.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -36,12 +38,12 @@ PUBLIC void initPlayers(Soldier soldiers[]){
         setSoldierId(soldiers[i], i);
         setSoldierPosition(soldiers[i], getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i]), 32, 32);
         setSoldierFileName(soldiers[i],"resources/Karaktarer/BOY/BOYpistol.png");
-        weaponChoiceHandler(soldiers[i]);
+        weaponChoiceHandler(soldiers[i],weaponBullet);
     }
 }
 
 
-PUBLIC void weaponChoiceHandler(Soldier soldier)
+PUBLIC void weaponChoiceHandler(Soldier soldier, Weapon w)
 {
 
     Weapon pistol = createWeapon(200,10,6);
@@ -53,21 +55,26 @@ PUBLIC void weaponChoiceHandler(Soldier soldier)
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
         setSoldierWeapon(soldier,pistol);
+        setWeaponBullet(w, "resources/pistolbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"bow"))
     {
         setSoldierWeapon(soldier,bow);
+        setWeaponBullet(w, "resources/bowbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"spear"))
     {
         setSoldierWeapon(soldier,spear);
+        setWeaponBullet(w, "resources/spearbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodBLUE"))
     {
-        setSoldierWeapon(soldier,pistol);
+        setSoldierWeapon(soldier,rodBlue);
+        setWeaponBullet(w, "resources/bluerodbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodRED"))
     {
-        setSoldierWeapon(soldier,pistol);
+        setSoldierWeapon(soldier,rodRed);
+        setWeaponBullet(w, "resources/redrodbullet.png");
     }
 }

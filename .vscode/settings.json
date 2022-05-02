@@ -13,6 +13,7 @@
         "initnetwork.h": "c",
         "eventhandler.h": "c",
         "playerhandler.h": "c",
-        "collision.h": "c"
+        "collision.h": "c",
+        "soundeffects.h": "c"
     }
 }

@@ -81,7 +81,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     //Create player and set start position
     Soldier soldiers[MAX_PLAYERS];
-
+    Weapon weaponBullet;
     initPlayers(soldiers);
     
 
@@ -135,7 +135,7 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
-    loadBulletMedia(gRenderer, &bulletTexture);
+    loadBulletMedia(gRenderer, &bulletTexture, weaponBullet);
     loadTiles(gRenderer, &mTiles, gTiles);
     
     bool keep_window_open = true;

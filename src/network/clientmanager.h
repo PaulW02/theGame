@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-
+#include "../sounds/soundeffects.h"
 #include "../player/soldier.h"
 
 void clientPacketSender(Soldier soldiers[], int *soldierXPos, int *soldierYPos, int *oldX, int *oldY, int *playerId, int bulletsActive, UDPsocket sd, IPaddress srvadd, UDPpacket *p);

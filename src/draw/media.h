@@ -9,12 +9,13 @@
 
 #include "../player/soldier.h"
 #include "../player/bullet.h"
+#include "../player/weapon.h"
 
 #include "../map/tile.h"
 
 
 void loadSoldierMedia(SDL_Renderer *gRenderer, SDL_Texture **mSoldier, SDL_Rect gSoldierFrames[], Soldier s);
-void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture);
+void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Weapon w);
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 
 #endif
