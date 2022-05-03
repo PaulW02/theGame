@@ -2,6 +2,7 @@
     "files.associations": {
         "sdl_image.h": "c",
         "sdl.h": "c",
+        "string.h": "c",
         "bullet.h": "c",
         "sdl_net.h": "c",
         "application.h": "c",

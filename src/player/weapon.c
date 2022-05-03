@@ -14,6 +14,13 @@ struct weapon{
     int range;
     int power;
     int speed;
+    int magazine_size;
+    int magazine;
+    int firerate;
+    int reloadTime;
+    int bulletTimer;
+    bool shotCooldown;
+    bool reload;
     Bullet bullet;
     SDL_Texture *weaponTexture;
     SDL_Rect weapon;
@@ -22,12 +29,55 @@ struct weapon{
 };
 
 
-PUBLIC Weapon createWeapon(int range, int power, int speed){
+PUBLIC Weapon createWeapon(int range, int power, int speed, int magazine_size, int firerate, int reloadTime){
     Weapon w = malloc(sizeof(struct weapon));
     w->range = range;
     w->power = power;
     w->speed = speed;
+    w->magazine_size = magazine_size;
+    w->magazine = magazine_size;
+    w->firerate = firerate;
+    w->reloadTime = reloadTime;
+    w->bulletTimer = 0;
+    w->shotCooldown = false;
+    w->reload = false;
     return w;
+}
+
+PUBLIC void manageFireRate(Weapon w)
+{
+    if(getWeaponReload(w))
+    {
+        return;
+    }
+    else if (getWeaponBulletTimer(w) < getWeaponFirerate(w))
+    {
+        setWeaponShotCooldown(w,true);
+        setWeaponBulletTimer(w,getWeaponBulletTimer(w)+1);
+    }
+    else
+    {
+        setWeaponShotCooldown(w,false);
+    }
+}
+
+PUBLIC void manageReload(Weapon w)
+{
+    if (getWeaponReload(w))
+    {
+        printf("Reloading...\n");
+        if(getWeaponBulletTimer(w) >= getWeaponReloadTime(w))
+        {
+            setWeaponReload(w,false);
+            setWeaponMagazine(w,getWeaponMagazine_Size(w));
+        }
+        setWeaponBulletTimer(w,getWeaponBulletTimer(w)+1);
+    }
+    else if (getWeaponMagazine(w) == 0)
+    {
+        setWeaponBulletTimer(w, 0);
+        setWeaponReload(w,true);
+    }
 }
 
 PUBLIC void setWeaponRange(Weapon w, int range){
@@ -62,4 +112,60 @@ PUBLIC void setWeaponBullet(Weapon w, char weaponBullet[MAXCHAR])
 PUBLIC char* getWeaponBullet(Weapon w)
 {
     return  w->weaponBullet;
+}
+PUBLIC void setWeaponMagazine_Size(Weapon w, int magazine_size)
+{
+    w->magazine_size = magazine_size;
+}
+
+PUBLIC int getWeaponMagazine_Size(Weapon w){
+    return w->magazine_size;
+}
+
+PUBLIC void setWeaponMagazine(Weapon w, int magazine){
+    w->magazine = magazine;
+}
+
+PUBLIC int getWeaponMagazine(Weapon w){
+    return w->magazine;
+}
+
+PUBLIC void setWeaponFirerate(Weapon w, int firerate){
+    w->firerate = firerate;
+}
+
+PUBLIC int getWeaponFirerate(Weapon w){
+    return w->firerate;
+}
+
+PUBLIC void setWeaponBulletTimer(Weapon w, int bulletTimer){
+    w->bulletTimer = bulletTimer;
+}
+
+PUBLIC int getWeaponBulletTimer(Weapon w){
+    return w->bulletTimer;
+}
+
+PUBLIC void setWeaponReloadTime(Weapon w, int reloadTime){
+    w->reloadTime = reloadTime;
+}
+
+PUBLIC int getWeaponReloadTime(Weapon w){
+    return w->reloadTime;
+}
+
+PUBLIC void setWeaponShotCooldown(Weapon w, bool shotCooldown){
+    w->shotCooldown = shotCooldown;
+}
+
+PUBLIC bool getWeaponShotCooldown(Weapon w){
+    return w->shotCooldown;
+}
+
+PUBLIC void setWeaponReload(Weapon w, bool reload){
+    w->reload = reload;
+}
+
+PUBLIC bool getWeaponReload(Weapon w){
+    return w->reload;
 }

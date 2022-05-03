@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
+#include "menu.h"
 #include "collision/collision.h"
 
 #include "sounds/soundeffects.h"
@@ -101,6 +101,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
 
+
+
     Bullet bullets[MAX_BULLETS];
     
     int bulletFrame = 0;
@@ -117,26 +119,34 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+
+
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
+
+    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
     UDPsocket sd;
 	IPaddress srvadd;
 	UDPpacket *p;
     UDPpacket *p2;
-
+    Menu m = createMenu(gRenderer);
+    if(menuApplication(m) == -1) return;
     initSoundEffects();
-    initConnection(&sd, &srvadd, &p, &p2);  
+    initConnection(&sd, &srvadd, &p, &p2, m);  
+    initPlayers(soldiers);
 
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[playerId]));
     maxRange = getWeaponRange(getSoldierWeapon(soldiers[playerId]));
 
-    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-
     
+
+    setSoldierShotFired(soldiers[playerId],0);
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(soldiers[playerId]));
     loadTiles(gRenderer, &mTiles, gTiles);
+    //Menu
+    
     
     bool keep_window_open = true;
 
@@ -162,6 +172,8 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(soldiers, bullets, &amountOfBullets, &bulletsActive);
+
+        manageFireRateAndAmmo(soldiers);    //Manages firerate and reload for all soldiers
 
         bulletPlayerCollision(bullets, soldiers, &amountOfBullets);
         

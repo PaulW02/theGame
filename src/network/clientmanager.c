@@ -44,7 +44,7 @@ PUBLIC void UDPPacketReceiver(Soldier soldiers[], int *playerId, UDPsocket sd, U
 PUBLIC void insertValuesToAllPlayers(Soldier soldiers[], int connParams[], int playerId){
     int margin = 0;
     for(int i = 0; i < MAX_PLAYERS; i++) {
-        for(int j = 0; j < 6; j++) {
+        for(int j = 0; j < 5; j++) {
             if(playerId != i) {
                 switch(j) {
                     case 0:
