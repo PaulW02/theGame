@@ -7,6 +7,8 @@
 #ifndef tile_h
 #define tile_h
 
+#define AMOUNT_TILES 32
+
 typedef struct tile *Tile;
 
 Tile createTile(int x, int y, int num);
