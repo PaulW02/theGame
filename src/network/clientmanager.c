@@ -61,7 +61,6 @@ PUBLIC void insertValuesToAllPlayers(Soldier soldiers[], int connParams[], int p
                         break;
                     case 4:
                         setSoldierShotFired(soldiers[i], connParams[j+margin]);
-                        /*shootingSound(*shotEffect);*/
                         break;
                 }
             }

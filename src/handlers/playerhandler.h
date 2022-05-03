@@ -11,6 +11,6 @@
 #include "../player/soldier.h"
 
 void initPlayers(Soldier soldiers[]);
-void weaponChoiceHandler(Soldier soldier, Weapon w);
+void weaponChoiceHandler(Soldier soldier);
 
 #endif

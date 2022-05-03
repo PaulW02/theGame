@@ -37,13 +37,13 @@ PUBLIC void initPlayers(Soldier soldiers[]){
 
         setSoldierId(soldiers[i], i);
         setSoldierPosition(soldiers[i], getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i]), 32, 32);
-        setSoldierFileName(soldiers[i],"resources/Karaktarer/BOY/BOYpistol.png");
-        weaponChoiceHandler(soldiers[i],weaponBullet);
+        setSoldierFileName(soldiers[i],"resources/Karaktarer/BOY/BOYbow.png");
+        weaponChoiceHandler(soldiers[i]);
     }
 }
 
 
-PUBLIC void weaponChoiceHandler(Soldier soldier, Weapon w)
+PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
 
     Weapon pistol = createWeapon(200,10,6);
@@ -55,26 +55,26 @@ PUBLIC void weaponChoiceHandler(Soldier soldier, Weapon w)
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
         setSoldierWeapon(soldier,pistol);
-        setWeaponBullet(w, "resources/pistolbullet.png");
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/pistolbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"bow"))
     {
         setSoldierWeapon(soldier,bow);
-        setWeaponBullet(w, "resources/bowbullet.png");
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/bowbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"spear"))
     {
         setSoldierWeapon(soldier,spear);
-        setWeaponBullet(w, "resources/spearbullet.png");
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/spearbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodBLUE"))
     {
         setSoldierWeapon(soldier,rodBlue);
-        setWeaponBullet(w, "resources/bluerodbullet.png");
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/bluerodbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodRED"))
     {
         setSoldierWeapon(soldier,rodRed);
-        setWeaponBullet(w, "resources/redrodbullet.png");
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/redrodbullet.png");
     }
 }

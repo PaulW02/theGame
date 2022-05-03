@@ -9,6 +9,6 @@
 #include "SDL2/SDL_mixer.h"
 
 void initSoundEffects();
-int shootingSound(Mix_Chunk *shotEffect);
+int shootingSound();
 
 #endif

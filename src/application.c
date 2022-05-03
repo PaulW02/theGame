@@ -135,7 +135,7 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
-    loadBulletMedia(gRenderer, &bulletTexture, weaponBullet);
+    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(soldiers[playerId]));
     loadTiles(gRenderer, &mTiles, gTiles);
     
     bool keep_window_open = true;

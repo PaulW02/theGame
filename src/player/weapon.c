@@ -59,7 +59,7 @@ PUBLIC void setWeaponBullet(Weapon w, char weaponBullet[MAXCHAR])
     strcpy(w->weaponBullet,weaponBullet);
 }
 
-PUBLIC const char* getWeaponBullet(Weapon w)
+PUBLIC char* getWeaponBullet(Weapon w)
 {
     return  w->weaponBullet;
 }
