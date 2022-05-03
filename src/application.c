@@ -157,10 +157,8 @@ PUBLIC void applicationUpdate(Application theApp){
             if(theApp->window_event.type == SDL_QUIT){
                 keep_window_open = false;
                 break;
-            }else if( theApp->window_event.type == SDL_KEYUP){
-                setSoldierShotFired(soldiers[playerId], 0);
             }
-            movementInput(theApp->window_event, soldiers[playerId], &frame, &amountOfBullets);
+            movementInput(theApp->window_event, soldiers[playerId]);
         }  
         motion(soldiers[playerId], &frame);
 

@@ -13,7 +13,7 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s, int *pframe, int *amountOfBullets){
+PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
     //Bör ens dessa finnas kvar?
     int speedX=0, speedY=0;
     Weapon weapon = getSoldierWeapon(s);
@@ -65,6 +65,9 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s, int *pframe, int 
                 break;
             case SDL_SCANCODE_RIGHT: case SDL_SCANCODE_D:
                 setSoldierSpeedX(s, getSoldierSpeedX(s) - getSoldierSpeed(s));
+                break;
+            case SDL_SCANCODE_SPACE:
+                setSoldierShotFired(s, 0);
                 break;
         }
     }

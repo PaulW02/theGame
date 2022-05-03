@@ -14,7 +14,7 @@ PUBLIC void initSoundEffects(int shootingSound){
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,2 ,2048 );
     Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
     Mix_PlayMusic(backgroundSound,-1);
-    Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
+    Mix_VolumeMusic(1);
 }
 
 PUBLIC int shootingSound()
