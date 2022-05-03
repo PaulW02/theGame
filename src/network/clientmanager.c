@@ -6,7 +6,7 @@
 #include "SDL2/SDL_net.h"
 
 #include "clientmanager.h"
-
+#include "../sounds/soundeffects.h"
 #include "../player/soldier.h"
 
 #define PUBLIC /* empty */

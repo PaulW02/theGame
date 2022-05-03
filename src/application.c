@@ -81,6 +81,9 @@ PUBLIC void applicationUpdate(Application theApp){
 
     //Create player and set start position
     Soldier soldiers[MAX_PLAYERS];
+    Weapon weaponBullet;
+    initPlayers(soldiers);
+    
 
     SDL_Texture *mSoldier = NULL;
     SDL_Rect gSpriteClips[8];
@@ -140,7 +143,7 @@ PUBLIC void applicationUpdate(Application theApp){
     setSoldierShotFired(soldiers[playerId],0);
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
-    loadBulletMedia(gRenderer, &bulletTexture);
+    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(soldiers[playerId]));
     loadTiles(gRenderer, &mTiles, gTiles);
     //Menu
     

@@ -59,21 +59,26 @@ PUBLIC void weaponChoiceHandler(Soldier soldier)
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
         setSoldierWeapon(soldier,pistol);
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/pistolbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"bow"))
     {
         setSoldierWeapon(soldier,bow);
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/bowbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"spear"))
     {
         setSoldierWeapon(soldier,spear);
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/spearbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodBLUE"))
     {
-        setSoldierWeapon(soldier,pistol);
+        setSoldierWeapon(soldier,rodBlue);
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/bluerodbullet.png");
     }
     if (strstr(getSoldierFileName(soldier),"rodRED"))
     {
-        setSoldierWeapon(soldier,pistol);
+        setSoldierWeapon(soldier,rodRed);
+        setWeaponBullet(getSoldierWeapon(soldier), "resources/redrodbullet.png");
     }
 }

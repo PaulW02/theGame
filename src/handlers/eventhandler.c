@@ -5,7 +5,7 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
-
+#include "../sounds/soundeffects.h"
 #include "eventhandler.h"
 
 #include "../player/soldier.h"
@@ -39,6 +39,8 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
             setSoldierSpeedX(s, speedX);
         }
         if(keystate[SDL_SCANCODE_SPACE]){
+            setSoldierShotFired(s, 1);
+            shootingSound();
             if(!getWeaponReload(weapon))
             {
                 setSoldierShotFired(s, 1);

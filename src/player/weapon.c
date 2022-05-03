@@ -8,6 +8,7 @@
 
 #define PUBLIC /* empty */
 #define PRIVATE static
+#define MAXCHAR 100
 
 struct weapon{
     int range;
@@ -24,6 +25,7 @@ struct weapon{
     SDL_Texture *weaponTexture;
     SDL_Rect weapon;
     SDL_Surface weaponSurface;
+    char weaponBullet[MAXCHAR];
 };
 
 
@@ -102,7 +104,17 @@ PUBLIC int getWeaponSpeed(Weapon w){
     return w->speed;
 }
 
-PUBLIC void setWeaponMagazine_Size(Weapon w, int magazine_size){
+PUBLIC void setWeaponBullet(Weapon w, char weaponBullet[MAXCHAR])
+{
+    strcpy(w->weaponBullet,weaponBullet);
+}
+
+PUBLIC char* getWeaponBullet(Weapon w)
+{
+    return  w->weaponBullet;
+}
+PUBLIC void setWeaponMagazine_Size(Weapon w, int magazine_size)
+{
     w->magazine_size = magazine_size;
 }
 
