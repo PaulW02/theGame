@@ -8,7 +8,7 @@
 
 #include "../player/soldier.h"
 
-void movementInput(SDL_Event theApp, Soldier s, int *pframe, int *amountOfBullets);
+void movementInput(SDL_Event theApp, Soldier s);
 void motion(Soldier s, int *pframe);
 
 #endif

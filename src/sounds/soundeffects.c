@@ -15,5 +15,5 @@ PUBLIC void initSoundEffects(){
     Mix_Chunk *shotEffect = Mix_LoadWAV("resources/shoot.wav");
     Mix_Music *backgroundSound = Mix_LoadMUS("resources/backgroundmusic.wav");
     Mix_PlayMusic(backgroundSound,-1);
-    Mix_Volume(-1,SDL_MIX_MAXVOLUME/2);
+    Mix_VolumeMusic(1);
 }
