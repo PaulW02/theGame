@@ -13,6 +13,8 @@ typedef struct weapon *Weapon;
     int getWeaponPower(Weapon w);
     void setWeaponSpeed(Weapon w, int speed);
     int getWeaponSpeed(Weapon w);
+    void setWeaponBullet(Weapon w, char weaponBullet[]);
+    char* getWeaponBullet(Weapon w);
     void setWeaponMagazine_Size(Weapon w, int magazine_size);
     int getWeaponMagazine_Size(Weapon w);
     void setWeaponMagazine(Weapon w, int magazine);
