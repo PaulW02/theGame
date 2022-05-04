@@ -17,6 +17,7 @@
 #include "player/soldier.h"
 #include "player/bullet.h"
 #include "player/weapon.h"
+#include "player/powerup.h"
 
 #include "network/initnetwork.h"
 #include "network/clientmanager.h"
@@ -153,8 +154,10 @@ PUBLIC void applicationUpdate(Application theApp){
                 break;
             }
             movementInput(theApp->window_event, soldiers[playerId]);
+        }
+        if(getSoldierSpeedX(soldiers[playerId]) || getSoldierSpeedY(soldiers[playerId])){
+            motion(soldiers[playerId], &frame);
         }  
-        motion(soldiers[playerId], &frame);
 
         // Send and retrive information  
         clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p);

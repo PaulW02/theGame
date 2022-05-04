@@ -24,7 +24,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
         
         if(keystate[SDL_SCANCODE_UP]||keystate[SDL_SCANCODE_W]){
             speedY -= getSoldierSpeed(s);
-            setSoldierSpeedY(s, speedY);
+            setSoldierSpeedY(s, -getSoldierSpeed(s));
         }
         if(keystate[SDL_SCANCODE_DOWN]||keystate[SDL_SCANCODE_S]){
             speedY += getSoldierSpeed(s);
@@ -75,7 +75,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
 
 PUBLIC void motion(Soldier s, int *pframe){
     int newYPos, newXPos;
-    if((getSoldierFrameTimer(s))>2){
+    if((getSoldierFrameTimer(s))>8){
         if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
             if((*pframe) == 2)
                 (*pframe) = 3;
@@ -101,11 +101,33 @@ PUBLIC void motion(Soldier s, int *pframe){
         }
         (setSoldierFrameTimer(s, 0));
     }
-    newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
-    setSoldierPositionY(s, newYPos);
+    if((getSoldierMovementTimer(s))>2){
+        
+        //Fixar problem med att programmet ibland vill springa dubbelt så snabbt
+        if(getSoldierSpeedX(s)>3){
+            setSoldierSpeedX(s, getSoldierSpeed(s));
+        }else if(getSoldierSpeedX(s)<(-3)){
+            setSoldierSpeedX(s, -getSoldierSpeed(s));
+        }
+        if(getSoldierSpeedY(s)>3){
+            setSoldierSpeedY(s, getSoldierSpeed(s));
+        }else if(getSoldierSpeedY(s)<(-3)){
+            setSoldierSpeedY(s, -getSoldierSpeed(s));
+        }
 
-    newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
-    setSoldierPositionX(s, newXPos); 
+        //Fixar problemet med att vid beröring av speedup knasar
+        if(getSoldierSpeedX(s)==1 || getSoldierSpeedX(s)==-1){
+            setSoldierSpeedX(s, 0);
+        }else if(getSoldierSpeedY(s)==1 || getSoldierSpeedY(s)==-1){
+            setSoldierSpeedY(s, 0);
+        }
+
+        newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
+        setSoldierPositionY(s, newYPos);
+
+        newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
+        setSoldierPositionX(s, newXPos);  
+        setSoldierMovementTimer(s, 0);
+    }
     setSoldierFrame(s, (*pframe));
-    SDL_Delay(25);
 }

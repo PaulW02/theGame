@@ -18,6 +18,7 @@ struct tile{
     int tileCollision;
     int tilePortal;
     SDL_Rect tilePosition;
+    int tilePowerup;
 };
 
 
@@ -100,4 +101,12 @@ PUBLIC void setTilePortal(Tile t, int portal){
 
 PUBLIC int getTilePortal(Tile t){
     return t->tilePortal; 
+}
+
+PUBLIC void setTilePowerup(Tile t, int powerup){
+    t->tilePowerup = powerup;
+}
+
+PUBLIC int getTilePowerup(Tile t){
+    return t->tilePowerup; 
 }

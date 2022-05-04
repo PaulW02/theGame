@@ -50,7 +50,7 @@ PUBLIC void initPlayers(Soldier soldiers[]){
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
                             //range, power, speed, mag_size, firerate, reloadtime
-    Weapon pistol = createWeapon(200,10,10,9,10,100);
+    Weapon pistol = createWeapon(200,10,5,9,50,100);
     Weapon bow = createWeapon(5,6,7,1,50,50);
     Weapon spear = createWeapon(5,6,7,1,50,50);
     Weapon rodBlue = createWeapon(5,6,7,1,50,50);

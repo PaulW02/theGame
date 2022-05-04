@@ -29,5 +29,7 @@ void setTileCollision(Tile t, int collision);
 int getTileCollision(Tile t);
 void setTilePortal(Tile t, int portal);
 int getTilePortal(Tile t);
+void setTilePowerup(Tile t, int powerup);
+int getTilePowerup(Tile t);
 
 #endif /* tile_h */

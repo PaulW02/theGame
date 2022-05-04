@@ -31,6 +31,8 @@ struct soldier{
     int shotFired;
     char soldierFileName[MAXCHAR];
     int frameTimer;
+    int speedUpTimer;
+    int movementTimer;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -41,7 +43,6 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->position.x = x; 
     s->position.y = y;
     s->frame = 0;
-    s->frameTimer=0;
     return s;
 }
 
@@ -154,4 +155,20 @@ PUBLIC void setSoldierFrameTimer(Soldier s, int timer){
 
 PUBLIC int getSoldierFrameTimer(Soldier s){
     return s->frameTimer;
+}
+
+PUBLIC void setSoldierSpeedUpTimer(Soldier s, int timer){
+    s->speedUpTimer = timer;
+}
+
+PUBLIC int getSoldierSpeedUpTimer(Soldier s){
+    return s->speedUpTimer;
+}
+
+PUBLIC void setSoldierMovementTimer(Soldier s, int timer){
+    s->movementTimer = timer;
+}
+
+PUBLIC int getSoldierMovementTimer(Soldier s){
+    return s->movementTimer;
 }

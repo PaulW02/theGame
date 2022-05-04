@@ -44,6 +44,10 @@ void setSoldierFileName(Soldier s, char soldierFileName[]);
 char* getSoldierFileName(Soldier s);
 void setSoldierFrameTimer(Soldier s, int timer);
 int getSoldierFrameTimer(Soldier s);
+void setSoldierSpeedUpTimer(Soldier s, int timer);
+int getSoldierSpeedUpTimer(Soldier s);
+void setSoldierMovementTimer(Soldier s, int timer);
+int getSoldierMovementTimer(Soldier s);
 
 #endif /* spaceman_h */
 

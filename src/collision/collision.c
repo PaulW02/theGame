@@ -8,6 +8,7 @@
 
 #include "../player/soldier.h"
 #include "../player/bullet.h"
+#include "../player/powerup.h"
 
 #include "../map/tile.h"
 #include "../map/world.h"
@@ -29,9 +30,30 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
     int topA, topB;
     int bottomA, bottomB;
     
-    //För portaler
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
+            
+            //För powerups
+            if(getTilePowerup(tiles[i][j])==1){
+                //Rect Player
+                leftA = (getSoldierPositionX(s)+6);
+                rightA = (getSoldierPositionX(s) + (getSoldierWidth()-8));
+                topA = (getSoldierPositionY(s)+6);
+                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-8));
+
+                //Rect Tile
+                leftB = getTilePositionX(tiles[i][j]);
+                rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
+                topB = getTilePositionY(tiles[i][j]);
+                bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
+
+                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
+                }else{
+                    powerupTouched(s,tiles, i, j);
+                }    
+            }
+            
+            //För portaler
             if(getTilePortal(tiles[i][j])==1){
                 //Rect Player
                 leftA = (getSoldierPositionX(s)+6);
@@ -109,21 +131,40 @@ PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet b
 
 PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
     int newYPos, newXPos;
-    if (getSoldierSpeedY(s)>0){
-        newYPos=(playerPosition->y-=2);
-        setSoldierPositionY(s, newYPos);
-    }
-    if (getSoldierSpeedX(s)>0){
-        newXPos=(playerPosition->x-=2);
-        setSoldierPositionX(s, newXPos);
-    }
-    if (getSoldierSpeedX(s)<0){
-        newXPos=(playerPosition->x+=2);
-        setSoldierPositionX(s, newXPos);
-    }
-    if (getSoldierSpeedY(s)<0){
-        newYPos=(playerPosition->y+=2);
-        setSoldierPositionY(s, newYPos);
+    if(!getSoldierSpeedUpTimer(s)){
+        if (getSoldierSpeedY(s)>0){
+            newYPos=(playerPosition->y-=2);
+            setSoldierPositionY(s, newYPos);
+        }
+        if (getSoldierSpeedX(s)>0){
+            newXPos=(playerPosition->x-=2);
+            setSoldierPositionX(s, newXPos);
+        }
+        if (getSoldierSpeedX(s)<0){
+            newXPos=(playerPosition->x+=2);
+            setSoldierPositionX(s, newXPos);
+        }
+        if (getSoldierSpeedY(s)<0){
+            newYPos=(playerPosition->y+=2);
+            setSoldierPositionY(s, newYPos);
+        }
+    }else{
+        if (getSoldierSpeedY(s)>0){
+            newYPos=(playerPosition->y-=3);
+            setSoldierPositionY(s, newYPos);
+        }
+        if (getSoldierSpeedX(s)>0){
+            newXPos=(playerPosition->x-=3);
+            setSoldierPositionX(s, newXPos);
+        }
+        if (getSoldierSpeedX(s)<0){
+            newXPos=(playerPosition->x+=3);
+            setSoldierPositionX(s, newXPos);
+        }
+        if (getSoldierSpeedY(s)<0){
+            newYPos=(playerPosition->y+=3);
+            setSoldierPositionY(s, newYPos);
+        }        
     }
 }
 

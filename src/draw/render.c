@@ -77,14 +77,23 @@ PUBLIC void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_R
             position=getTileSDLRec(tile);
             if(number==0x03 || number==0x04 || number==0x08||number==0x09){
                 setTileCollision(tile, 1);
+                setTilePortal(tile, 0);
+                setTilePowerup(tile, 0);  
             }else if(number == 0x0d || number==0x0a){
+                setTileCollision(tile, 0);
                 setTilePortal(tile, 1);
-            }
-            else{
+                setTilePowerup(tile, 0);                
+            }else if(number == 0x0e){
                 setTileCollision(tile, 0);
                 setTilePortal(tile, 0);
+                setTilePowerup(tile, 1);
+            }else{
+                setTileCollision(tile, 0);
+                setTilePortal(tile, 0);
+                setTilePowerup(tile, 0);
             }
             tiles[i][j]=tile;
+
 
             SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i,j)],&position , 0, NULL, SDL_FLIP_NONE);
         }
