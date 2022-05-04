@@ -47,8 +47,7 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
                 topB = getTilePositionY(tiles[i][j]);
                 bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
 
-                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
-                }else{
+                if( !((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB)) ){
                     powerupTouched(s,tiles, i, j);
                 }    
             }
@@ -67,8 +66,7 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
                 topB = getTilePositionY(tiles[i][j]);
                 bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
 
-                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
-                }else{
+                if( !((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB)) ){
                     teleportSoldier(s,tiles, i, j, playerPosition);
                 }    
             }
@@ -89,9 +87,9 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
                 bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
 
                 if( !((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB)) ){
-                    stepBack(s, playerPosition, frame);
+                    stepBack(s, playerPosition, tiles[i][j]);
                 }
-            }   
+            }
         }
     }
     return false;
@@ -129,42 +127,41 @@ PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet b
     }
 }
 
-PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
+PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, Tile tile){
     int newYPos, newXPos;
-    if(!getSoldierSpeedUpTimer(s)){
-        if (getSoldierSpeedY(s)>0){
-            newYPos=(playerPosition->y-=2);
+    //Testing
+    /*
+    printf("X: %d   Y: %d\n", getSoldierSpeedX(s), getSoldierSpeedY(s));
+    if(getSoldierSpeedY(s)>0 && getSoldierSpeedX(s)>0){
+        newYPos=(playerPosition->y-=getSoldierSpeed(s));
+        newXPos=(playerPosition->x+=getSoldierSpeed(s));
+        if(testCollisionAgain(newXPos, newYPos, tile)){
             setSoldierPositionY(s, newYPos);
         }
-        if (getSoldierSpeedX(s)>0){
-            newXPos=(playerPosition->x-=2);
+        newYPos=(playerPosition->y+=getSoldierSpeed(s));
+        newXPos=(playerPosition->x-=getSoldierSpeed(s));
+        if(testCollisionAgain(newXPos, newYPos, tile)){
             setSoldierPositionX(s, newXPos);
         }
-        if (getSoldierSpeedX(s)<0){
-            newXPos=(playerPosition->x+=2);
-            setSoldierPositionX(s, newXPos);
-        }
-        if (getSoldierSpeedY(s)<0){
-            newYPos=(playerPosition->y+=2);
-            setSoldierPositionY(s, newYPos);
-        }
-    }else{
-        if (getSoldierSpeedY(s)>0){
-            newYPos=(playerPosition->y-=3);
-            setSoldierPositionY(s, newYPos);
-        }
-        if (getSoldierSpeedX(s)>0){
-            newXPos=(playerPosition->x-=3);
-            setSoldierPositionX(s, newXPos);
-        }
-        if (getSoldierSpeedX(s)<0){
-            newXPos=(playerPosition->x+=3);
-            setSoldierPositionX(s, newXPos);
-        }
-        if (getSoldierSpeedY(s)<0){
-            newYPos=(playerPosition->y+=3);
-            setSoldierPositionY(s, newYPos);
-        }        
+    }
+    */
+
+
+    if(getSoldierSpeedY(s)>0){
+        newYPos=(playerPosition->y-=getSoldierSpeed(s));
+        setSoldierPositionY(s, newYPos);
+    }
+    if(getSoldierSpeedX(s)>0){
+        newXPos=(playerPosition->x-=getSoldierSpeed(s));
+        setSoldierPositionX(s, newXPos);
+    }
+    if(getSoldierSpeedX(s)<0){
+        newXPos=(playerPosition->x+=getSoldierSpeed(s));
+        setSoldierPositionX(s, newXPos);
+    }
+    if(getSoldierSpeedY(s)<0){
+        newYPos=(playerPosition->y+=getSoldierSpeed(s));
+        setSoldierPositionY(s, newYPos);
     }
 }
 
@@ -255,5 +252,27 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
                 }
             }   
         }
+    }
+}
+
+PUBLIC bool testCollisionAgain(int nextXPos, int nextYPos, Tile tile){
+    int leftA, rightA, topA, bottomA;
+    int leftB, rightB, topB, bottomB;
+    //Rect Player
+    leftA = (nextXPos+4);
+    rightA = (nextXPos + (getSoldierWidth()-6));
+    topA = (nextYPos+4);
+    bottomA = (nextYPos + (getSoldierHeight()-6));
+
+    //Rect Tile
+    leftB = getTilePositionX(tile);
+    rightB = (getTilePositionX(tile) + getTileWidth());
+    topB = getTilePositionY(tile);
+    bottomB = (getTilePositionY(tile) + getTileHeight());
+
+    if( !((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB)) ){
+        return true;
+    }else{
+        return false;
     }
 }

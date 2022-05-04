@@ -15,10 +15,11 @@
 
 bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame);
 void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet bullets[], int *counter);
-void stepBack(Soldier s, SDL_Rect *playerPosition, int frame);
+void stepBack(Soldier s, SDL_Rect *playerPosition, Tile tile);
 void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int i, int j, SDL_Rect *playerPosition);
 int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 void checkPlayerOutOfBoundaries(Soldier s);
 void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets);
+bool testCollisionAgain(int nextXPos, int nextYPos, Tile tile);
 
 #endif
