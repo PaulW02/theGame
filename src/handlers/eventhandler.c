@@ -75,29 +75,31 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
 
 PUBLIC void motion(Soldier s, int *pframe){
     int newYPos, newXPos;
+    if((getSoldierFrameTimer(s))>2){
+        if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
+            if((*pframe) == 2)
+                (*pframe) = 3;
+            else
+                (*pframe) = 2;  
+        }else if (getSoldierSpeedX(s)<0 || (getSoldierSpeedX(s)<0 && getSoldierSpeedY(s)!=0)){
+            if((*pframe) == 6)
+                (*pframe) = 7;
+            else
+                (*pframe) = 6;
+        }
 
-    if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
-        if((*pframe) == 2)
-            (*pframe) = 3;
-        else
-            (*pframe) = 2;  
-    }else if (getSoldierSpeedX(s)<0 || (getSoldierSpeedX(s)<0 && getSoldierSpeedY(s)!=0)){
-        if((*pframe) == 6)
-            (*pframe) = 7;
-        else
-            (*pframe) = 6;
-    }
-
-    if(getSoldierSpeedY(s)>0 && getSoldierSpeedX(s)==0){
-        if((*pframe) == 0)
-            (*pframe) = 1;
-        else
-            (*pframe) = 0;
-    }else if (getSoldierSpeedY(s)<0 && getSoldierSpeedX(s)==0){
-        if((*pframe) == 4)
-            (*pframe) = 5;
-        else
-            (*pframe) = 4;
+        if(getSoldierSpeedY(s)>0 && getSoldierSpeedX(s)==0){
+            if((*pframe) == 0)
+                (*pframe) = 1;
+            else
+                (*pframe) = 0;
+        }else if (getSoldierSpeedY(s)<0 && getSoldierSpeedX(s)==0){
+            if((*pframe) == 4)
+                (*pframe) = 5;
+            else
+                (*pframe) = 4;
+        }
+        (setSoldierFrameTimer(s, 0));
     }
     newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
     setSoldierPositionY(s, newYPos);

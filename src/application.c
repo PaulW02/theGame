@@ -7,6 +7,7 @@
 #include <string.h>
 #include "menu.h"
 #include "collision/collision.h"
+#include "timers.h"
 
 #include "sounds/soundeffects.h"
 
@@ -33,12 +34,6 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-#define WINDOW_WIDTH 512
-#define WINDOW_HEIGHT 512
-
-#define MAX_BULLETS 100
-#define MAX_PLAYERS 4
-#define AMOUNT_TILES 32
 #define CONN_PARAMS_LENGTH 20
 
 struct application{
@@ -147,7 +142,6 @@ PUBLIC void applicationUpdate(Application theApp){
     loadTiles(gRenderer, &mTiles, gTiles);
     //Menu
     
-    
     bool keep_window_open = true;
 
     while(keep_window_open)
@@ -182,6 +176,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
+        timerUpdate(soldiers[playerId]);
     }
 }
 
