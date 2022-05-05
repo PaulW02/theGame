@@ -5,7 +5,12 @@
 #define PRIVATE static
 
 
-PUBLIC void timerUpdate(Soldier s){
+PUBLIC void timerUpdate(Soldier s, int *currentTime, int *lastTime){
+    (*currentTime) = SDL_GetTicks();
+    if ((*currentTime) > ((*lastTime) + 1000)) {
+        printf("hello");
+        (*lastTime) = (*currentTime);
+    }    
     //Movement timer
     setSoldierMovementTimer(s, getSoldierMovementTimer(s) + 1);
 

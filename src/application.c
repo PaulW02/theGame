@@ -142,6 +142,9 @@ PUBLIC void applicationUpdate(Application theApp){
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(soldiers[playerId]));
     loadTiles(gRenderer, &mTiles, gTiles);
     //Menu
+
+    //Timer
+    int currentTime, lastTime=0;
     
     bool keep_window_open = true;
 
@@ -179,7 +182,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
-        timerUpdate(soldiers[playerId]);
+        timerUpdate(soldiers[playerId], &currentTime, &lastTime);
     }
 }
 

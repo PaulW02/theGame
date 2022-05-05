@@ -4,7 +4,7 @@
 #include "application.h"
 #include "player/soldier.h"
 
-void timerUpdate(Soldier s);
+void timerUpdate(Soldier s, int *currentTime, int *lastTime);
 
 
 #endif
