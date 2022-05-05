@@ -6,16 +6,21 @@
 
 
 PUBLIC void timerUpdate(Soldier s, int *currentTime, int *lastTime){
-    (*currentTime) = SDL_GetTicks();
-    if ((*currentTime) > ((*lastTime) + 1000)) {
-        printf("hello");
+    
+    (*currentTime) = SDL_GetTicks64();
+    if ((*currentTime) > ((*lastTime) + 6)) {
+        //Movement timer
+        setSoldierMovementTimer(s, getSoldierMovementTimer(s) + 1);
+        
+        //Frame timer
+        setSoldierFrameTimer(s, getSoldierFrameTimer(s) + 1);
+
         (*lastTime) = (*currentTime);
-    }    
+    }
+
     //Movement timer
-    setSoldierMovementTimer(s, getSoldierMovementTimer(s) + 1);
 
     //Frame timer
-    setSoldierFrameTimer(s, getSoldierFrameTimer(s) + 1);
 
     //Powerup timers
     if(getSoldierSpeedUpTimer(s)>0){
