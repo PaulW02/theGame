@@ -188,5 +188,5 @@ PUBLIC void applicationUpdate(Application theApp){
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
-    Mix_CloseAudio();
+    //Mix_CloseAudio();
 }
