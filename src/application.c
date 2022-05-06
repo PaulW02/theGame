@@ -49,26 +49,24 @@ struct application{
 
 };
 
-struct movement{
+struct playersData{
     int id;
 	int x;
 	int y;
     int frame;
     int shotFired;
 };
-typedef struct movement Movement;
+typedef struct playersData PlayersData;
 
 struct gameInfo{
-    Movement playersMovement[MAX_PLAYERS];
+    PlayersData playersData[MAX_PLAYERS];
     Soldier soldiers[MAX_PLAYERS];
     TCPsocket tcp_sd;
-    Application app;
     int id;
 };
 typedef struct gameInfo GameInfo;
 
 PUBLIC void *handleNetwork(void *ptr);
-//PUBLIC void *keyHandler(void *ptr);
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -103,7 +101,6 @@ PUBLIC void applicationUpdate(Application theApp){
 
     //Create player and set start position
     GameInfo *gameInfo = (struct gameInfo *)malloc(sizeof(struct gameInfo));
-    //gameInfo->app = theApp;
     initPlayers(gameInfo->soldiers);
     
 
@@ -154,30 +151,21 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
 
-    //initSoundEffects();
+    initSoundEffects();
     initConnection(&sd, &gameInfo->tcp_sd, &srvadd, &p, &p2);  
 
-
-
-
-
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-
-    //sendStarterPacket(soldier1, tcp_sd);
     
     bool keep_window_open = true;
 
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     maxRange = getWeaponRange(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
-    //pthread_create(&keyThread, NULL, keyHandler, (void *)gameInfo);
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture);
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
-
-        
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
@@ -191,11 +179,9 @@ PUBLIC void applicationUpdate(Application theApp){
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
         motion(gameInfo->soldiers[gameInfo->id], &frame);
 
-        // Send and retrive information  
+        // Send and retrive information UDP
         //clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
         //UDPPacketReceiver(soldiers, &playerId, sd, p2, packetType);
-
-        
    
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
@@ -207,11 +193,9 @@ PUBLIC void applicationUpdate(Application theApp){
 
         renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
-       // SDL_RenderCopyEx(gRenderer, mSoldier, &gSpriteClips[getSoldierFrame(soldier1)],&playerPosition, 0, NULL, SDL_FLIP_NONE);
         SDL_RenderPresent(gRenderer);
     }
     SDLNet_TCP_Close(gameInfo->tcp_sd);
-    //destoryApplication(gameInfo->app);
 }
 
 PUBLIC void destoryApplication(Application theApp){
@@ -223,14 +207,11 @@ PUBLIC void destoryApplication(Application theApp){
 
 PUBLIC void *handleNetwork(void *ptr) {
 
-    Movement clientMovement;
+    PlayersData clientPlayersData;
 
     int connParams[6];
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
-    //printf("%d %s", getSoldierFrame(soldier1), getSoldierFileName(soldier1));
-    //printf("NETWORK 1\n");
     setSoldierId(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[0]);
-    //printf("NETWORK 2\n");
     setSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[1]);
     setSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[2]);
     setSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[3]);
@@ -238,71 +219,36 @@ PUBLIC void *handleNetwork(void *ptr) {
     setSoldierPosition(((GameInfo *)ptr)->soldiers[connParams[0]],getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]), getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]), 32, 32);
     setSoldierFileName(((GameInfo *)ptr)->soldiers[connParams[0]], "resources/Karaktarer/BOY/BOYpistol.png");
     setSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[5]);
-    //printf("NETWORK 3\n");
     ((GameInfo *)ptr)->id = connParams[0];
 
-
-
     int gameOver = 0;
-    // While loop
+    
     while (!gameOver)
     {
-        //printf("TOP OF THE LOOP\n");
+        clientPlayersData.id = connParams[0];
+        clientPlayersData.x = getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.y = getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.frame = getSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.shotFired = getSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]]);
 
-        clientMovement.id = connParams[0];
-        clientMovement.x = getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]);
-        clientMovement.y = getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]);
-        clientMovement.frame = getSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]]);
-        clientMovement.shotFired = getSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]]);
-
-		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientMovement, sizeof(struct movement)) < sizeof(struct movement))
+		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientPlayersData, sizeof(struct playersData)) < sizeof(struct playersData))
 		{
 			fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 			exit(EXIT_FAILURE);
 		}
-        //printf("In the middle of TCP Send and Recv\n");
 
-        SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playersMovement, 4*sizeof(struct movement));
+        SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playersData, 4*sizeof(struct playersData));
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
-            if(i != clientMovement.id){
-                setSoldierId(((GameInfo *)ptr)->soldiers[i],((GameInfo *)ptr)->playersMovement[i].id);
-                setSoldierPositionX(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].x);
-                setSoldierPositionY(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].y);
-                setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].frame);
-                setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].shotFired);
-                 // usleep(1) -- Maybe? 
-                 usleep(1);
+            if(i != clientPlayersData.id){
+                setSoldierId(((GameInfo *)ptr)->soldiers[i],((GameInfo *)ptr)->playersData[i].id);
+                setSoldierPositionX(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].x);
+                setSoldierPositionY(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].y);
+                setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].frame);
+                setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].shotFired);
+                usleep(1);
             }
-             //printf("Shot fired: %d\n", getSoldierShotFired(((GameInfo *)ptr)->soldiers[i]));
-            
         }
-        //printf("BOTTOM\n");
         usleep(1000);
     }
 }
-/*
-PUBLIC void *keyHandler(void *ptr){
-    int gameOver = 0;
-    int frame = 0;
-    while(!gameOver)
-    {
-        
-        while(SDL_PollEvent(&((GameInfo *)ptr)->app->window_event))
-        {
-            if(((GameInfo *)ptr)->app->window_event.type == SDL_QUIT){
-                //gameOver = true;
-                //break;
-            }else if( ((GameInfo *)ptr)->app->window_event.type == SDL_KEYUP){
-                setSoldierShotFired(((GameInfo *)ptr)->soldiers[((GameInfo *)ptr)->id], 0);
-            }
-            movementInput(((GameInfo *)ptr)->app->window_event, ((GameInfo *)ptr)->soldiers[((GameInfo *)ptr)->id]);
-            printf("TEST1\n");
-        }  
-        frame = getSoldierFrame(((GameInfo *)ptr)->soldiers[((GameInfo *)ptr)->id]);
-        motion(((GameInfo *)ptr)->soldiers[((GameInfo *)ptr)->id], &frame);
-        usleep(50000);
-    }
-    
-
-}*/
