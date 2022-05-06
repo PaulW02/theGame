@@ -41,9 +41,11 @@ Weapon getSoldierWeapon(Soldier s);
 void setSoldierShotFired(Soldier s, int shotFired);
 int getSoldierShotFired(Soldier s);
 void setSoldierFileName(Soldier s, char soldierFileName[]);
-const char* getSoldierFileName(Soldier s);
+char* getSoldierFileName(Soldier s);
 void setSoldierConnected(Soldier s, int connected);
 int getSoldierConnected(Soldier s);
+void setSoldierFrameTimer(Soldier s, int timer);
+int getSoldierFrameTimer(Soldier s);
 
 #endif
 

@@ -64,9 +64,9 @@ PUBLIC void loadSoldierMedia(SDL_Renderer *gRenderer, SDL_Texture **mSoldier, SD
     gSoldierFrames[ 7 ].h = 32;
 }
 
-PUBLIC void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture)
+PUBLIC void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Weapon w)
 {
-    SDL_Surface* bulletSurface = IMG_Load("resources/THEBULLET.png");
+    SDL_Surface* bulletSurface = IMG_Load(getWeaponBullet(w));
     *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
 }
 

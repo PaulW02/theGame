@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
+#include "menu.h"
 #include "collision/collision.h"
+#include "timers.h"
 
 #include "sounds/soundeffects.h"
 
@@ -34,12 +35,6 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-#define WINDOW_WIDTH 512
-#define WINDOW_HEIGHT 512
-
-#define MAX_BULLETS 100
-#define MAX_PLAYERS 4
-#define AMOUNT_TILES 32
 #define CONN_PARAMS_LENGTH 20
 
 struct application{
@@ -120,6 +115,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
 
+
+
     Bullet bullets[MAX_BULLETS];
     
     int bulletFrame = 0;
@@ -138,6 +135,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
    
+
+
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
     UDPsocket sd;
@@ -145,16 +144,14 @@ PUBLIC void applicationUpdate(Application theApp){
 	IPaddress srvadd;
 	UDPpacket *p;
     UDPpacket *p2;
-
-
-    pthread_t networkThread;
-    
-
-
-    initSoundEffects();
-    initConnection(&sd, &gameInfo->tcp_sd, &srvadd, &p, &p2);  
-
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+    Menu m = createMenu(gRenderer);
+    if(menuApplication(m) == -1) return;
+    initSoundEffects();
+    initConnection(&sd, &gameInfo->tcp_sd, &srvadd, &p, &p2, m);  
+    pthread_t networkThread;
+
+
     
     bool keep_window_open = true;
 
@@ -162,7 +159,7 @@ PUBLIC void applicationUpdate(Application theApp){
     weaponSpeed = getWeaponSpeed(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     maxRange = getWeaponRange(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
-    loadBulletMedia(gRenderer, &bulletTexture);
+    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
@@ -186,14 +183,16 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
-        createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
 
+        createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
+        manageFireRateAndAmmo(gameInfo->soldiers);    //Manages firerate and reload for all soldiers
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
         renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
+        timerUpdate(gameInfo->soldiers[gameInfo->id]);
     }
     SDLNet_TCP_Close(gameInfo->tcp_sd);
 }
@@ -201,8 +200,7 @@ PUBLIC void applicationUpdate(Application theApp){
 PUBLIC void destoryApplication(Application theApp){
     SDL_FreeSurface(theApp->window_surface);
     SDL_DestroyWindow(theApp->window);
-    
-    Mix_CloseAudio();
+    //Mix_CloseAudio();
 }
 
 PUBLIC void *handleNetwork(void *ptr) {

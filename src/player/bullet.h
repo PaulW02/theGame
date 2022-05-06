@@ -7,6 +7,8 @@
 #ifndef bullet_h
 #define bullet_h
 
+#define MAX_BULLETS 100
+
 typedef struct bullet *Bullet;
 
 Bullet createBullet(int x, int y, Soldier soldier);
