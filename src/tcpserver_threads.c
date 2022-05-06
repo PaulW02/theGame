@@ -43,7 +43,7 @@ int main(int argc,char** argv)
     SDLNet_Init();
     
     IPaddress ip;
-    SDLNet_ResolveHost(&ip,NULL,1234);
+    SDLNet_ResolveHost(&ip,NULL,2000);
     
     TCPsocket server=SDLNet_TCP_Open(&ip);
     TCPsocket client;
@@ -147,7 +147,7 @@ void *handlePlayer(void *ptr) {
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }
 
-        usleep(0);
+        usleep(1000);
     }
     
 

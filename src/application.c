@@ -154,7 +154,7 @@ PUBLIC void applicationUpdate(Application theApp){
     
 
 
-    initSoundEffects();
+    //initSoundEffects();
     initConnection(&sd, &gameInfo->tcp_sd, &srvadd, &p, &p2);  
 
 
@@ -278,7 +278,7 @@ PUBLIC void *handleNetwork(void *ptr) {
             }
         }
         //printf("BOTTOM\n");
-        usleep(0);
+        usleep(1000);
     }
 }
 /*
