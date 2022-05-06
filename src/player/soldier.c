@@ -30,6 +30,7 @@ struct soldier{
     Weapon weapon;
     int shotFired;
     char soldierFileName[MAXCHAR];
+    int connected;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -40,6 +41,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->position.x = x; 
     s->position.y = y;
     s->frame = 0;
+    s->connected = 0;
     return s;
 }
 
@@ -134,6 +136,14 @@ PUBLIC void setSoldierShotFired(Soldier s, int shotFired){
 
 PUBLIC int getSoldierShotFired(Soldier s){
     return s->shotFired;
+}
+
+PUBLIC void setSoldierConnected(Soldier s, int connected){
+    s->connected = connected;
+}
+
+PUBLIC int getSoldierConnected(Soldier s){
+    return s->connected;
 }
 
 PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])

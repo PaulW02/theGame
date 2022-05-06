@@ -9,6 +9,6 @@
 #include <stdbool.h>
 
 
-void initConnection(UDPsocket *sd, IPaddress *srvadd, UDPpacket **p, UDPpacket **p2);
+void initConnection(UDPsocket *sd, TCPsocket *tcp_sd, IPaddress *srvadd, UDPpacket **p, UDPpacket **p2);
 
 #endif

@@ -13,7 +13,7 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s, int *pframe, int *amountOfBullets){
+PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
     //Bör ens dessa finnas kvar?
     int speedX=0, speedY=0;
     
@@ -93,5 +93,5 @@ PUBLIC void motion(Soldier s, int *pframe){
     newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
     setSoldierPositionX(s, newXPos); 
     setSoldierFrame(s, (*pframe));
-    SDL_Delay(25);
+    SDL_Delay(0);
 }

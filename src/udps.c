@@ -1,4 +1,4 @@
-#if 0
+/*#if 0
 #!/bin/sh
 gcc -Wall `sdl-config --cflags` udps.c -o udps `sdl-config --libs` -lSDL_net
  
@@ -24,55 +24,83 @@ exit
 struct client {
     Uint32 IPclient;
     Uint32 portClient;
+    TCPsocket sock;
 };
 typedef struct client Client;
+
+struct serverPlayer {
+    int id;
+    TCPsocket sock;
+    char imageFileName[50];
+    int startX;
+    int startY;
+};
+typedef struct serverPlayer ServerPlayer;
 
 PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]);
 
 int main(int argc, char **argv)
 {
-	UDPsocket udp_sd;       /* Socket descriptor */
-	UDPpacket *pRecive;       /* Pointer to packet memory */
+	UDPsocket udp_sd;       /* Socket descriptor 
+	UDPpacket *pRecive;       /* Pointer to packet memory 
 	UDPpacket *pSent;
-    char remote_ip_str[16]="";
-    TCPsocket sd, csd;
-
-    IPaddress ip, *remoteIP;
-    int quit, quit2;
+    IPaddress ip;
+    TCPsocket tcp_sd, sd;
+    TCPsocket client_sockets[MAX_PLAYERS];
+    SDLNet_SocketSet socketSet;
+    int quit;
     
     Client clients[MAX_PLAYERS];
 
     Soldier soldiers[MAX_PLAYERS];
 
-    int playerId = 0, checkClientBool = 0;
+    int playerId = 0, checkClientBool = 0, currentAmountOfPlayers = 0;
     
 
-	/* Initialize SDL_net */
+	/* Initialize SDL_net 
 	if (SDLNet_Init() < 0)
 	{
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-    if (SDLNet_ResolveHost(&ip, NULL, 2000) < 0)
-    {
-        fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+
+    /* Resolve server name  
+	if (SDLNet_ResolveHost(&ip, NULL, 2000) == -1)
+	{
+		fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+    socketSet=SDLNet_AllocSocketSet(6);
+    if(!socketSet) {
+        printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+        exit(1); //most of the time this is a major error, but do what you want.
     }
 
-	/* Open a socket */
-	if (!(udp_sd = SDLNet_UDP_Open(0)))
+	/* Open a socket 
+	if (!(udp_sd = SDLNet_UDP_Open(2000)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
 
-    if (!(sd = SDLNet_TCP_Open(&ip)))
+    if (SDLNet_UDP_AddSocket(socketSet, udp_sd) == -1)
     {
-        fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Failed to add socket to socket set (UDP): %s", SDLNet_GetError());
     }
+
+	if (!(tcp_sd = SDLNet_TCP_Open(&ip)))
+	{
+		fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
  
-	/* Make space for the packet */
+    if (SDLNet_TCP_AddSocket(socketSet, tcp_sd) == -1)
+    {
+        fprintf(stderr,"Failed to add socket to socket set (TCP): %s", SDLNet_GetError());
+    }
+
+	/* Make space for the packet 
 	if (!((pSent = SDLNet_AllocPacket(1024))&&(pRecive = SDLNet_AllocPacket(1024))))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
@@ -83,97 +111,64 @@ int main(int argc, char **argv)
     {
         clients[i].IPclient = 0;
         clients[i].portClient = 0;
+        client_sockets[i] = NULL;
     }
+         
 
     initPlayers(soldiers);
  
-	/* Main loop */
+	/* Main loop 
 	quit = 0;
 	while (!quit)
 	{
-		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
-		/*if (SDLNet_UDP_Recv(sd, pRecive))
-		{*/
-        if ((csd = SDLNet_TCP_Accept(sd)))
+        for (int i = 0; i < MAX_PLAYERS; i++)  
+        {  
+            //socket descriptor 
+            sd = client_sockets[i];  
+                 
+            //if valid socket descriptor then add to read list 
+            if(sd){  
+                SDLNet_TCP_AddSocket(socketSet, sd); 
+                printf("TEST %d\n", i);
+            } 
+        }  
+
+        TCPsocket newClientSock = SDLNet_TCP_Accept(tcp_sd);
+        printf("TESTar");
+        if (newClientSock)
         {
+            for (int i = 0; i < MAX_PLAYERS; i++)  
+            {  
+                //if position is empty 
+                if(client_sockets[i] == NULL)  
+                {  
+                    Soldier soldier;
+                    client_sockets[i] = newClientSock;  
+                    printf("Adding to list of sockets as %d\n" , i);  
+                    SDLNet_TCP_Recv(sd, soldier, sizeof(soldier));
+                    printf("%d TEST", getSoldierId(soldier));
+                            
+                    break;  
+                }  
+            } 
+        }
 
-			//printf("UDP Packet incoming\n");
-			//printf("\tData:    %s\n", (char *)pRecive->data);
-			//printf("\tAddress: %x %x\n", pRecive->address.host, pRecive->address.port);
-            if ((remoteIP = SDLNet_TCP_GetPeerAddress(csd)))
-            {
-                Uint32 remote_ip;
-                unsigned char ch0, ch1, ch2, ch3;
-                /* Print the address, converting in the host format */
-                printf("Host connected: %x %d\n", SDLNet_Read32(&remoteIP->host), SDLNet_Read16(&remoteIP->port));
-                remote_ip = SDLNet_Read32(&remoteIP->host);
-                ch0 = remote_ip>>24;
-                ch1 = (remote_ip & 0x00ffffff)>>16;
-                ch2 = (remote_ip & 0x0000ffff)>>8;
-                ch3 = remote_ip & 0x000000ff;
+        for (int i = 0; i < MAX_PLAYERS; i++)  
+        {  
+            sd = client_sockets[i];  
+                 
+            if (sd)  
+            {  
+                char message[30];
+                strcpy(message, "GOt IT now im sending it back");
 
-                sprintf(remote_ip_str,"%d.%d.%d.%d", (int)ch0, (int)ch1, (int)ch2, (int)ch3);
+                SDLNet_TCP_Send(sd, message, strlen(message)+1);  
+            }  
+        }
 
-                printf("Remote host IP in string form: %s\n", remote_ip_str);
-
-            }
-            else{
-                fprintf(stderr, "SDLNet_TCP_GetPeerAddress: %s\n", SDLNet_GetError());
-            }
-            quit2 = 0;
-            while (!quit2)
-            {
-                int allocated_index;
-                
-                if (SDLNet_TCP_Recv(csd, buffer, 512) > 0){
-                }
-                else{
-                    fprintf(stderr, ">SDLNet_TCP_Recv: %s", SDLNet_GetError());
-                    exit(EXIT_FAILURE);
-                }
-
-                { 
-                    IPaddress client_address;
-                    if(SDLNet_ResolveHost(&client_address, remote_ip_str, 2001) == -1)
-                    {
-                        fprintf(stderr, "Couldn't resolve client... %s\n", SDLNet_GetError());
-                        exit(EXIT_FAILURE);
-                    }
-
-
-                    while(SDLNet_TCP_Recv(csd,&csm_click_at_pdu,
-                                sizeof(struct csm_click_at))>0)
-                    {
-                        int i; int rx, ry;
-
-                        printf("%d %d\n", csm_click_at_pdu.x, csm_click_at_pdu.y);
-
-                        scm_draw_square_at_pdu.x = csm_click_at_pdu.x;
-                        scm_draw_square_at_pdu.y = csm_click_at_pdu.y;
-
-                        //for(i=0;i<sizeof(struct scm_draw_square_at);i++)
-                        //  p->data[i]=0;
-
-                        p->address.host = client_address.host;
-                        p->address.port = client_address.port;
-                        p->len=12;
-
-                        for(i=0;i<10;i++)
-                        {
-                        
-                        rx = rand()%10; rand()%10 + rand()%10 - 15;
-                        ry = rand()%10; rand()%10 + rand()%10 - 15;
-
-                        sprintf((char *)(p->data),"%d %d %d", csm_click_at_pdu.x+rx, csm_click_at_pdu.y+ry, 1);
-                        SDLNet_UDP_Send(udp_sd,-1,p); 
-                        SDL_Delay(50);
-                        }
-
-
-                    }
-
-                }
-            }
+		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming 
+		if (SDLNet_UDP_Recv(udp_sd, pRecive))
+		{
             for (int i = 0; i < MAX_PLAYERS; i++){
                 //printf("%d TEST \n", checkClient(pRecive, i, clients));
                 checkClientBool = checkClient(pRecive, i, clients);
@@ -188,13 +183,12 @@ int main(int argc, char **argv)
                 //}
             }
             for (int i = 0; i < MAX_PLAYERS; i++){        
-                for (int j = 0; j < MAX_PLAYERS; j++){
-                    if (pRecive->address.port == clients[i].portClient){
-                        if(clients[j].IPclient != 0 && j != i){
+                    if (pRecive->address.port = clients[i].portClient){
+                        if(clients[i].IPclient != 0){
                             //printf("Recived data\n");
-                            printf("Send to Client %d\n", j+1);
-                            pSent->address.host = clients[j].IPclient;	/* Set the destination host */
-                            pSent->address.port = clients[j].portClient;
+                            printf("Send to Client %d\n", i+1);
+                            pSent->address.host = clients[i].IPclient;	/* Set the destination host 
+                            pSent->address.port = clients[i].portClient;
                             //int connParams[CONN_PARAMS_LENGTH];
                             playerId = i;
                             printf("%d LENGTH\n", pRecive->len);
@@ -205,30 +199,30 @@ int main(int argc, char **argv)
                                 setSoldierPositionX(soldiers[playerId], connParams[1]);
                                 setSoldierPositionY(soldiers[playerId], connParams[2]);
                                 setSoldierFrame(soldiers[playerId], connParams[3]);
-                                sprintf((char *)pSent->data, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", j, getSoldierId(soldiers[0]), getSoldierPositionX(soldiers[0]), getSoldierPositionY(soldiers[0]), getSoldierFrame(soldiers[0]), getSoldierId(soldiers[1]), getSoldierPositionX(soldiers[1]), getSoldierPositionY(soldiers[1]), getSoldierFrame(soldiers[1]), getSoldierId(soldiers[2]), getSoldierPositionX(soldiers[2]), getSoldierPositionY(soldiers[2]), getSoldierFrame(soldiers[2]), getSoldierId(soldiers[3]), getSoldierPositionX(soldiers[3]), getSoldierPositionY(soldiers[3]), getSoldierFrame(soldiers[3]));
+                                sprintf((char *)pSent->data, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", i, getSoldierId(soldiers[0]), getSoldierPositionX(soldiers[0]), getSoldierPositionY(soldiers[0]), getSoldierFrame(soldiers[0]), getSoldierId(soldiers[1]), getSoldierPositionX(soldiers[1]), getSoldierPositionY(soldiers[1]), getSoldierFrame(soldiers[1]), getSoldierId(soldiers[2]), getSoldierPositionX(soldiers[2]), getSoldierPositionY(soldiers[2]), getSoldierFrame(soldiers[2]), getSoldierId(soldiers[3]), getSoldierPositionX(soldiers[3]), getSoldierPositionY(soldiers[3]), getSoldierFrame(soldiers[3]));
                                 pSent->len = strlen((char *)pSent->data) + 1;
                             }else if(pRecive->len < 8){
-                                int connParams[2];
-                                sscanf((char * )pRecive->data, "%d %d\n", &connParams[0], &connParams[1]);
-                                setSoldierId(soldiers[playerId], connParams[0]);
-                                setSoldierShotFired(soldiers[playerId], connParams[1]);
-                                sprintf((char *)pSent->data, "%d %d %d %d %d %d %d %d %d\n", j, getSoldierId(soldiers[0]), getSoldierShotFired(soldiers[0]), getSoldierId(soldiers[1]), getSoldierShotFired(soldiers[1]), getSoldierId(soldiers[2]), getSoldierShotFired(soldiers[2]), getSoldierId(soldiers[3]), getSoldierShotFired(soldiers[3]));
+                                int connParams1[2];
+                                sscanf((char * )pRecive->data, "%d %d\n", &connParams1[0], &connParams1[1]);
+                                setSoldierId(soldiers[playerId], playerId);
+                                setSoldierShotFired(soldiers[playerId], connParams1[1]);
+                                sprintf((char *)pSent->data, "%d %d %d %d %d %d %d %d %d\n", i, getSoldierId(soldiers[0]), getSoldierShotFired(soldiers[0]), getSoldierId(soldiers[1]), getSoldierShotFired(soldiers[1]), getSoldierId(soldiers[2]), getSoldierShotFired(soldiers[2]), getSoldierId(soldiers[3]), getSoldierShotFired(soldiers[3]));
                                 pSent->len = strlen((char *)pSent->data) + 1;                            
                             }
-                            SDLNet_UDP_Send(sd, -1, pSent);
+                            SDLNet_UDP_Send(udp_sd, -1, pSent);
+                            
                         }
-                    }
                 }
             }
             
 
-			/* Quit if packet contains "quit" */
+			/* Quit if packet contains "quit" 
 			if (strcmp((char *)pSent->data, "quit") == 0)
 				quit = 1;
 		}		
 	}
  
-	/* Clean and exit */
+	/* Clean and exit 
 	SDLNet_FreePacket(pSent);
     SDLNet_FreePacket(pRecive);
 	SDLNet_Quit();
@@ -244,4 +238,4 @@ PRIVATE int checkClient(UDPpacket *pRecieve, int i, Client clients[]){
         }
     }
     return counter;
-}
+}*/

@@ -61,7 +61,7 @@ PUBLIC void insertMovementValuesToAllPlayers(Soldier soldiers[], int connParams[
 PUBLIC void insertShotFiredValuesToAllPlayers(Soldier soldiers[], int connParams[], int playerId){
     int margin = 0;
     for(int i = 0; i < MAX_PLAYERS; i++) {
-        for(int j = 0; j < 4; j++) {
+        for(int j = 0; j < 2; j++) {
             if(playerId != i) {
                 switch(j) {
                     case 0:
@@ -70,16 +70,9 @@ PUBLIC void insertShotFiredValuesToAllPlayers(Soldier soldiers[], int connParams
                     case 1:
                         setSoldierShotFired(soldiers[i], connParams[j+margin]);
                         break;
-                    case 2:
-                        printf("%d X\n", getSoldierPositionX(soldiers[i]));
-                        setSoldierPositionX(soldiers[i], getSoldierPositionX(soldiers[i]));
-                        
-                        break;
-                    case 3:
-                        setSoldierPositionY(soldiers[i], getSoldierPositionY(soldiers[i]));
                 }
             }
         }
-        margin += 4;
+        margin += 2;
     }
 }

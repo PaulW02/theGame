@@ -15,6 +15,22 @@
 #define CONN_PARAMS_LENGTH 16
 #define MAX_PLAYERS 4
 
+PUBLIC void sendStarterPacket(Soldier soldier, TCPsocket tcp_sd){
+    
+    if(getSoldierId(soldier) == 0){
+        setSoldierFileName(soldier, "resources/Karaktarer/FEMALEwizard/FEMALEbow.png");
+    }else if(getSoldierId(soldier) == 1){
+        setSoldierFileName(soldier, "resources/Karaktarer/BOY/BOYpistol.png");
+    }else if(getSoldierId(soldier) == 2){
+        setSoldierFileName(soldier, "resources/Karaktarer/MALEwarrior/MALEbow.png");
+    }else{
+        setSoldierFileName(soldier, "resources/Karaktarer/SKELETON/SKELETONbow.png");
+    }
+    
+    SDLNet_TCP_Send(tcp_sd, soldier, sizeof(soldier));
+
+}
+
 PUBLIC void clientPacketSender(Soldier soldiers[], int *soldierXPos, int *soldierYPos, int *oldX, int *oldY, int *playerId, int bulletsActive, UDPsocket sd, IPaddress srvadd, UDPpacket *p, int *packetType){
     *soldierXPos = getSoldierPositionX(soldiers[*playerId]);
     *soldierYPos = getSoldierPositionY(soldiers[*playerId]);
@@ -43,6 +59,7 @@ PUBLIC void UDPPacketSender(Soldier soldier, UDPsocket sd, IPaddress srvadd, UDP
     p->len = strlen((char *)p->data) + 1;
     
     SDLNet_UDP_Send(sd, -1, p); 
+    
 }
 
 PUBLIC void UDPPacketReceiver(Soldier soldiers[], int *playerId, UDPsocket sd, UDPpacket *p2, int packetType){
@@ -52,6 +69,7 @@ PUBLIC void UDPPacketReceiver(Soldier soldiers[], int *playerId, UDPsocket sd, U
             clientReceiveMovementPacket(playerId, soldiers, p2);
             printf("RECEIVED 1\n");
         }else if(packetType == 2){
+            printf("TESTAR 2\n");
             clientReceiveShotFiredPacket(playerId, soldiers, p2);
             printf("RECEIVED 2\n");
         }
