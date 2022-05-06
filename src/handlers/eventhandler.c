@@ -107,5 +107,5 @@ PUBLIC void motion(Soldier s, int *pframe){
     newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
     setSoldierPositionX(s, newXPos); 
     setSoldierFrame(s, (*pframe));
-    SDL_Delay(25);
+    SDL_Delay(0);
 }

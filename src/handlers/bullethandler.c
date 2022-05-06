@@ -39,6 +39,40 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
     }
 }
 
+
+PUBLIC void move(SDL_Rect *b, int frame, int speed){
+    switch (frame)
+    {
+    case 0:
+        b->y += speed;
+        break;
+    case 1:
+        b->y += speed;
+        break;
+    case 2:
+        b->x += speed;
+        break;
+    case 3:
+        b->x += speed;
+        break; 
+    case 4:
+        b->y -= speed;
+        break;
+    case 5:
+        b->y -= speed;
+        break;
+    case 6:
+        b->x -= speed;
+        break;
+    case 7:
+        b->x -= speed;
+        break;
+    default:
+        break;
+    }
+}
+
+
 PUBLIC int checkBulletAngle(int frame){
     if(frame == 0 || frame == 1){
         return 90;

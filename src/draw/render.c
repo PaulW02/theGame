@@ -25,11 +25,18 @@
 
 PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){
     SDL_Rect playerPosition;
+    int frame;
     for (int i = 0; i < MAX_PLAYERS; i++){
+        frame = getSoldierFrame(soldiers[i]);
+        if (frame > 7)
+        {
+            frame = 7;
+        }
         playerPosition = getSoldierPosition(soldiers[i]);
         checkPlayerOutOfBoundaries(soldiers[i]); 
-        soldierWallCollision(tiles, soldiers[i], &playerPosition, getSoldierFrame(soldiers[i]));
-        SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[getSoldierFrame(soldiers[i])],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        soldierWallCollision(tiles, soldiers[i], &playerPosition, frame);
+        SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        
     }
 }
 
