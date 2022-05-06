@@ -103,6 +103,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
     
+    SDL_Texture *mHealthBar = NULL;
+    SDL_Rect healthClips[11];
+    SDL_Rect healthBarPositions[MAX_PLAYERS];
+
     int weaponSpeed;
     int maxRange;
     int oldX, oldY, soldierXPos, soldierYPos;
@@ -160,6 +164,7 @@ PUBLIC void applicationUpdate(Application theApp){
     maxRange = getWeaponRange(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
+    loadHealthMedia(gRenderer, &mHealthBar, healthClips);
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
@@ -174,7 +179,7 @@ PUBLIC void applicationUpdate(Application theApp){
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
-        motion(gameInfo->soldiers[gameInfo->id], &frame);
+        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id]);
 
         // Send and retrive information UDP
         //clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
@@ -189,7 +194,7 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
-        renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles);
+        renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);

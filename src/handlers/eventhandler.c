@@ -73,7 +73,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
     }
 }
 
-PUBLIC void motion(Soldier s, int *pframe){
+PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition){
     int newYPos, newXPos;
     if((getSoldierFrameTimer(s))>2){
         if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
@@ -103,9 +103,12 @@ PUBLIC void motion(Soldier s, int *pframe){
     }
     newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
     setSoldierPositionY(s, newYPos);
+    healthBarPosition->y = getSoldierPositionY(s) - 12;
 
     newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
     setSoldierPositionX(s, newXPos); 
+    healthBarPosition->x = getSoldierPositionX(s) - 4;
     setSoldierFrame(s, (*pframe));
+
     SDL_Delay(0);
 }

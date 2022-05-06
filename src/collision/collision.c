@@ -23,7 +23,7 @@
 #define WINDOW_HEIGHT 512
 
 // Collision detection functions
-PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame){
+PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame, SDL_Rect *healthBarPosition){
     int leftA, leftB;
     int rightA, rightB;
     int topA, topB;
@@ -47,7 +47,7 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
 
                 if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
                 }else{
-                    teleportSoldier(s,tiles, i, j, playerPosition);
+                    teleportSoldier(s,tiles, i, j, playerPosition, healthBarPosition);
                 }    
             }
 
@@ -127,36 +127,44 @@ PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
     }
 }
 
-PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int row, int coloumn, SDL_Rect *playerPosition){
+PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int row, int column, SDL_Rect *playerPosition, SDL_Rect *healthBarPosition){
    int newYPos, newXPos;
    
-   if(getTileNumber(tiles[row][coloumn])==0x0d){
-       if((coloumn==9)&&(row==6)){
+   if(getTileNumber(tiles[row][column])==0x0d){
+       if((column==2)&&(row==12)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[25][26])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[25][26])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }
-        else if((coloumn==26)&&(row==24)){
-            newYPos=(playerPosition->y=(getTilePositionY(tiles[4][9])));
+        else if((column==26)&&(row==24)){
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[13][1])));
             setSoldierPositionY(s, newYPos);
-            newXPos=(playerPosition->x=(getTilePositionX(tiles[4][9])));
+            healthBarPosition->y = playerPosition->y - 12;
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[13][1])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }        
        
    }
-   else if(getTileNumber(tiles[row][coloumn])==0x0a){
-       if((coloumn==24)&&(row==14)){   
+   else if(getTileNumber(tiles[row][column])==0x0a){
+       if((column==24)&&(row==14)){   
             newYPos=(playerPosition->y=(getTilePositionY(tiles[19][8])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[19][8])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }
-        else if((coloumn==9)&&(row==18)){
+        else if((column==9)&&(row==21)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[12][24])));
             setSoldierPositionY(s, newYPos);
+            healthBarPosition->y = playerPosition->y - 12;
             newXPos=(playerPosition->x=(getTilePositionX(tiles[12][24])));
             setSoldierPositionX(s, newXPos);
+            healthBarPosition->x = playerPosition->x - 4;
         }        
        
    }  
@@ -210,6 +218,7 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
             }else{
                 if(((getBulletSoldierId(bullets[i])) != (j))){
                     deleteBullet(amountOfBullets, bullets, i);
+                    setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
 
                 }
             }   

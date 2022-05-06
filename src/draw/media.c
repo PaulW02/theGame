@@ -70,6 +70,65 @@ PUBLIC void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture
     *bulletTexture = SDL_CreateTextureFromSurface(gRenderer, bulletSurface);
 }
 
+PUBLIC void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, SDL_Rect healthClips[]){
+    SDL_Surface* gHealthSurface = IMG_Load("resources/AllHealthStatuses6x6.PNG");
+    *mHealthBar = SDL_CreateTextureFromSurface(gRenderer, gHealthSurface);
+
+    healthClips[ 0 ].x =0;
+    healthClips[ 0 ].y =0;
+    healthClips[ 0 ].w =36;
+    healthClips[ 0 ].h =8;
+
+    healthClips[ 1 ].x =36;
+    healthClips[ 1 ].y =0;
+    healthClips[ 1 ].w =36;
+    healthClips[ 1 ].h =8;
+
+    healthClips[ 2 ].x =72;
+    healthClips[ 2 ].y =0;
+    healthClips[ 2 ].w =36;
+    healthClips[ 2 ].h =8;
+
+    healthClips[ 3 ].x =108;
+    healthClips[ 3 ].y =0;
+    healthClips[ 3 ].w =36;
+    healthClips[ 3 ].h =8;
+
+    healthClips[ 4 ].x =144;
+    healthClips[ 4 ].y =0;
+    healthClips[ 4 ].w =36;
+    healthClips[ 4 ].h =8;
+
+    healthClips[ 5 ].x =180;
+    healthClips[ 5 ].y =0;
+    healthClips[ 5 ].w =36;
+    healthClips[ 5 ].h =8;
+
+    healthClips[ 6 ].x =216;
+    healthClips[ 6 ].y =0;
+    healthClips[ 6 ].w =36;
+    healthClips[ 6 ].h =8;
+
+    healthClips[ 7 ].x =252;
+    healthClips[ 7 ].y =0;
+    healthClips[ 7 ].w =36;
+    healthClips[ 7 ].h =8;
+
+    healthClips[ 8 ].x =288;
+    healthClips[ 8 ].y =0;
+    healthClips[ 8 ].w =36;
+    healthClips[ 8 ].h =8;
+
+    healthClips[ 9 ].x =324;
+    healthClips[ 9 ].y =0;
+    healthClips[ 9 ].w =36;
+    healthClips[ 9 ].h =8;
+
+    healthClips[ 10 ].x =360;
+    healthClips[ 10 ].y =0;
+    healthClips[ 10 ].w =36;
+    healthClips[ 10 ].h =8;
+}
 
 PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]){
 

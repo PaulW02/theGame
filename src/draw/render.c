@@ -13,6 +13,7 @@
 #include "../player/bullet.h"
 
 #include "../handlers/bullethandler.h"
+#include "../handlers/playerhandler.h"
 
 #include "../map/tile.h"
 #include "../map/world.h"
@@ -23,9 +24,9 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[]){
     SDL_Rect playerPosition;
-    int frame;
+    int frame, healthImage;
     for (int i = 0; i < MAX_PLAYERS; i++){
         frame = getSoldierFrame(soldiers[i]);
         if (frame > 7)
@@ -33,9 +34,18 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Textu
             frame = 7;
         }
         playerPosition = getSoldierPosition(soldiers[i]);
+        healthBarPositions[i].y = getSoldierPositionY(soldiers[i]) - 12;
+        healthBarPositions[i].x = getSoldierPositionX(soldiers[i]) - 4;
+        healthBarPositions[i].h = 8;           // kolla här också!
+        healthBarPositions[i].w = 36;
         checkPlayerOutOfBoundaries(soldiers[i]); 
-        soldierWallCollision(tiles, soldiers[i], &playerPosition, frame);
+        soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
+        healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
+        if(healthImage == 10){
+            respawnPlayer(soldiers[i]);
+        }
         
     }
 }

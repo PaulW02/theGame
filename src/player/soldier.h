@@ -46,6 +46,8 @@ void setSoldierConnected(Soldier s, int connected);
 int getSoldierConnected(Soldier s);
 void setSoldierFrameTimer(Soldier s, int timer);
 int getSoldierFrameTimer(Soldier s);
+void setSoldierHealth(Soldier s, int health);
+int getSoldierHealth(Soldier s);
 
 #endif
 
