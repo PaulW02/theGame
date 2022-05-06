@@ -457,9 +457,12 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
  
     SDL_Rect rect;
-    rect.x=x;
-    rect.y=y;
     SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
+
+    if(x==-1) rect.x=(WINDOW_WIDTH-rect.w)/2;
+    else rect.x=x;
+    rect.y=y;
+
     SDL_RenderCopy(m->gRenderer,textTexture,NULL,&rect);
             
     //Cleans up resources
@@ -472,10 +475,15 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
 PRIVATE int pickCharacterMenu(Menu m)
 {
     bool windowCloseRequested = false, spin = true;
-    int i = 0, button, arrowOption = 5;
+    int i = 0, button, arrowOption = 5, mouseButtonDown=0, characterIndex=0, weaponIndex=0;
     Uint32 ticks, seconds, sprite;
     Uint8 alpha[4] = {255,255,255,255};
+    SDL_Color color = {0xFF,0xFF,0xFF}; //White
+    
     bool hovering[4]={false};
+
+    //Names
+    char characters[7][10] = {"Boy","Female","Ghost","Male","Pumpkin","Skeleton","Wizard"};
 
     while(!windowCloseRequested)
     {
@@ -505,6 +513,10 @@ PRIVATE int pickCharacterMenu(Menu m)
                     }
                     break;
                 
+                case SDL_MOUSEBUTTONDOWN:
+                    mouseButtonDown=1;
+                    break;
+
                 default:
                     break;
             }
@@ -516,6 +528,7 @@ PRIVATE int pickCharacterMenu(Menu m)
             renderImage(m,"pickCharacter.png",-1,20,1);
             renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
 
+            //Checks what the user is hovering and highlights it
             if(arrowOption<4) alpha[arrowOption]=255;
             if(hovering[0]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,350,&button)) arrowOption=0;
             if(hovering[1]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,350,&button)) arrowOption=1;
@@ -523,14 +536,41 @@ PRIVATE int pickCharacterMenu(Menu m)
             if(hovering[3]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,400,&button)) arrowOption=3;
             if(!hovering[0] && !hovering[1] && !hovering[2] && !hovering[3]) alpha[arrowOption]=255;
             else alpha[arrowOption]=144;
-            printf("Option: %d\n", arrowOption);
 
             //Arrow options
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,350,SDL_FLIP_HORIZONTAL,-1, alpha[0]);
+            if(button==1 && hovering[0] && mouseButtonDown && characterIndex>0)
+            {
+                printf("Pressed left top!\n");
+                characterIndex--;
+                mouseButtonDown=0;
+            }
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,350,SDL_FLIP_NONE,-1,alpha[1]);
+            if(button==1 && hovering[1] && mouseButtonDown && characterIndex<6)
+            {
+                printf("Pressed right top!\n");
+                characterIndex++;
+                mouseButtonDown=0;
+            }
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,400,SDL_FLIP_HORIZONTAL,-1,alpha[2]);
+            if(button==1 && hovering[2] && mouseButtonDown && weaponIndex>0)
+            {
+                printf("Pressed lower left!\n");
+                weaponIndex--;
+                mouseButtonDown=0;
+            }
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,400,SDL_FLIP_NONE,-1,alpha[3]);
+            if(button==1 && hovering[3] && mouseButtonDown && weaponIndex<5)
+            {
+                printf("Pressed lower righ!\n");
+                weaponIndex++;
+                mouseButtonDown=0;
+            }
 
+            renderText(m,characters[characterIndex],color,-1,340);
+
+            //printf("CharacterIndex: %d\n", characterIndex);
+            //printf("Weaponindex: %d\n", weaponIndex);
             SDL_RenderPresent(m->gRenderer);
         }
     }
