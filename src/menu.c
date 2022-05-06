@@ -43,9 +43,10 @@ PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePos
 PRIVATE void resetMainMenu(Menu m);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int w, int h);
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y);
 PRIVATE int pickCharacterMenu(Menu m);
-PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame);
+PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpa);
+PRIVATE void renderRect(Menu m, int x, int y, int w, int h);
 
 
 
@@ -378,7 +379,8 @@ PRIVATE int onlineMenuConfig(Menu m)
                             if(strlen(ipPlaceholder)!=0)
                             {
                                 ipPlaceholder[strlen(ipPlaceholder)-1]='\0';
-                                renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200,300,50);
+                                renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
+                                renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200);
                             }
                             break;
                         
@@ -401,7 +403,8 @@ PRIVATE int onlineMenuConfig(Menu m)
                         if(strlen(ipPlaceholder)<IPWORDLENGTH-1)
                         {
                             strncat(ipPlaceholder,m->event.text.text,1);
-                            renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200,300,50);
+                            renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
+                            renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200);
                             //printf("%c",m->event.text.text[0]);
                         }
                     }
@@ -419,10 +422,13 @@ PRIVATE int onlineMenuConfig(Menu m)
             renderImage(m,"onlineOption.png",-1,50,1);
 
             //Renders a centered rectangle with white border
+            renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
+            /*
             SDL_Rect ipInputRect = {(WINDOW_WIDTH-300)/2,200,300,50}; //x,y,w,h
             SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
             SDL_RenderDrawRect(m->gRenderer,&ipInputRect);
-
+            */
+            
             SDL_RenderPresent(m->gRenderer);
             //Restores the drawcolor to its original state 
             SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
@@ -435,14 +441,18 @@ PRIVATE int onlineMenuConfig(Menu m)
     return CLOSEREQUSTED;
 }
 
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int w, int h)
-{        
-    SDL_Rect ipInputBox = {x,y,w,h};
-    SDL_RenderFillRect(m->gRenderer,&ipInputBox);
+PRIVATE void renderRect(Menu m, int x, int y, int w, int h)
+{
+    SDL_Rect rect = {x,y,w,h};
+    SDL_RenderFillRect(m->gRenderer,&rect);
     SDL_SetRenderDrawColor(m->gRenderer,0xFF,0xFF,0xFF,SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawRect(m->gRenderer,&ipInputBox);
+    SDL_RenderDrawRect(m->gRenderer,&rect);
     SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
+    return;
+}
 
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y)
+{        
     SDL_Surface* text = TTF_RenderText_Solid(m->font,textToRender,color);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
  
@@ -462,7 +472,9 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
 PRIVATE int pickCharacterMenu(Menu m)
 {
     bool windowCloseRequested = false, spin = true;
-    int i = 0, ticks, seconds, sprite;
+    int i = 0, button, arrowOption = 5, prevOpt;
+    Uint32 ticks, seconds, sprite;
+    Uint8 alpha[4] = {255,255,255,255};
     while(!windowCloseRequested)
     {
 
@@ -499,25 +511,36 @@ PRIVATE int pickCharacterMenu(Menu m)
         {
             SDL_RenderClear(m->gRenderer);
 
-
             renderImage(m,"pickCharacter.png",-1,20,1);
-            renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,200,SDL_FLIP_NONE,sprite);
+            renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
 
+            if(arrowOption<4) alpha[arrowOption]=255;
+            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,350,&button)) arrowOption=0;
+            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,350,&button)) arrowOption=1;
+            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,400,&button)) arrowOption=2;
+            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,400,&button)) arrowOption=3;
+            alpha[arrowOption]=144;
+            printf("Option: %d\n", arrowOption);
 
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+60,300,SDL_FLIP_NONE,-1);
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-70,300,SDL_FLIP_HORIZONTAL,-1);
+            //Arrow options
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,350,SDL_FLIP_HORIZONTAL,-1, alpha[0]);
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,350,SDL_FLIP_NONE,-1,alpha[1]);
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,400,SDL_FLIP_HORIZONTAL,-1,alpha[2]);
+            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,400,SDL_FLIP_NONE,-1,alpha[3]);
+
             SDL_RenderPresent(m->gRenderer);
         }
     }
     return CLOSEREQUSTED;
 }
 
-PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame)
+PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha)
 {
     SDL_Surface* s = IMG_Load(path);
 
     SDL_Texture* tex = SDL_CreateTextureFromSurface(m->gRenderer,s);
     SDL_FreeSurface(s);
+    SDL_SetTextureAlphaMod(tex,alpha);
 
     SDL_Rect dest;
     static SDL_Rect sourceDest[] = {{0,0,32,32},
