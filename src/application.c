@@ -150,6 +150,8 @@ PUBLIC void applicationUpdate(Application theApp){
 
     while(keep_window_open)
     {
+        Uint64 start = SDL_GetPerformanceCounter();
+
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
@@ -183,6 +185,10 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(soldiers[playerId], &currentTime, &lastTime);
+
+        Uint64 end = SDL_GetPerformanceCounter();
+        float elapsed = (end - start) / (float)SDL_GetPerformanceFrequency();
+        printf("Current FPS: %f \n", (1.0f/elapsed));
     }
 }
 

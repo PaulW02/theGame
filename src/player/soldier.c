@@ -37,7 +37,7 @@ struct soldier{
 
 PUBLIC Soldier createSoldier(int x, int y){
     Soldier s = malloc(sizeof(struct soldier));
-    s->speed = 2;
+    s->speed = 5;
     s->speedX = 0;
     s->speedY = 0;
     s->position.x = x; 

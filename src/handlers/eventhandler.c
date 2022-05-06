@@ -101,7 +101,7 @@ PUBLIC void motion(Soldier s, int *pframe){
         }
         (setSoldierFrameTimer(s, 0));
     }
-    if((getSoldierMovementTimer(s))>2){
+    if((getSoldierMovementTimer(s))>1){
         
         //Fixar problem med att programmet ibland vill springa dubbelt så snabbt
         if(getSoldierSpeedX(s)>3){
