@@ -159,8 +159,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
 
 
-    weaponSpeed = 2;
-    //maxRange = getWeaponRange(getSoldierWeapon(soldier1));
+
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 
@@ -169,6 +168,8 @@ PUBLIC void applicationUpdate(Application theApp){
     bool keep_window_open = true;
 
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
+    weaponSpeed = getWeaponSpeed(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
+    maxRange = getWeaponRange(getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     //pthread_create(&keyThread, NULL, keyHandler, (void *)gameInfo);
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture);
@@ -180,13 +181,12 @@ PUBLIC void applicationUpdate(Application theApp){
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
-                //gameOver = true;
-                //break;
+                keep_window_open = false;
+                break;
             }else if( theApp->window_event.type == SDL_KEYUP){
                 setSoldierShotFired(gameInfo->soldiers[gameInfo->id], 0);
             }
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
-            printf("TEST1\n");
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
         motion(gameInfo->soldiers[gameInfo->id], &frame);
@@ -270,12 +270,12 @@ PUBLIC void *handleNetwork(void *ptr) {
                 setSoldierPositionX(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].x);
                 setSoldierPositionY(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].y);
                 setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].frame);
-                
-                 setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].shotFired);
-                 // usleep(1) -- Maybe?
-              
-                //printf("PlayerId: %d %d %d\n", ((GameInfo *)ptr)->playersMovement[i].id, ((GameInfo *)ptr)->playersMovement[i].x, ((GameInfo *)ptr)->playersMovement[i].shotFired);
+                setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersMovement[i].shotFired);
+                 // usleep(1) -- Maybe? 
+                 usleep(1);
             }
+             //printf("Shot fired: %d\n", getSoldierShotFired(((GameInfo *)ptr)->soldiers[i]));
+            
         }
         //printf("BOTTOM\n");
         usleep(1000);
