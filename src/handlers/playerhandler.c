@@ -82,3 +82,35 @@ PUBLIC void weaponChoiceHandler(Soldier soldier)
         setWeaponBullet(getSoldierWeapon(soldier), "resources/redrodbullet.png");
     }
 }
+
+PUBLIC int getHealthImageBasedOnCurrentHealth(int currentHealth){
+    if (currentHealth > 90 && currentHealth <= 100){
+        return 0;
+    }else if(currentHealth > 80 && currentHealth <= 90){
+        return 1;
+    }else if(currentHealth > 70 && currentHealth <= 80){
+        return 2;
+    }else if(currentHealth > 60 && currentHealth <= 70){
+        return 3;
+    }else if(currentHealth > 50 && currentHealth <= 60){
+        return 4;
+    }else if(currentHealth > 40 && currentHealth <= 50){
+        return 5;
+    }else if(currentHealth > 30 && currentHealth <= 40){
+        return 6;
+    }else if(currentHealth > 20 && currentHealth <= 30){
+        return 7;
+    }else if(currentHealth > 10 && currentHealth <= 20){
+        return 8;
+    }else if(currentHealth > 0 && currentHealth <= 10){
+        return 9;
+    }else{
+        return 10;
+    }
+}
+
+PUBLIC void respawnPlayer(Soldier soldierToRespawn){
+    setSoldierHealth(soldierToRespawn, 100);
+    setSoldierPositionX(soldierToRespawn, 256);
+    setSoldierPositionY(soldierToRespawn, 200);
+}
