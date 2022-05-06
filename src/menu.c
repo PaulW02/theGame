@@ -48,7 +48,6 @@ PRIVATE void renderTextInputBox(Menu m, int x, int y, int w, int h);
 PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y);
 PRIVATE int pickCharacterMenu(Menu m);
 PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha);
-PRIVATE void renderCharacterMenuUI(Menu m);
 
 
 
@@ -451,12 +450,12 @@ PRIVATE void renderTextInputBox(Menu m, int x, int y, int w, int h)
 }
 
 PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y)
-{        
+{    
+        
     SDL_Surface* text = TTF_RenderText_Solid(m->font,textToRender,color);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
  
     SDL_Rect rect;
-    
 
     SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
 
@@ -488,8 +487,6 @@ PRIVATE int pickCharacterMenu(Menu m)
 
     while(!windowCloseRequested)
     {
-        //SDL_Delay(1000/60) ger 60 frames per sekund
-
         ticks = SDL_GetTicks();
         seconds = ticks/300;
         sprite = seconds % 8;
@@ -528,9 +525,6 @@ PRIVATE int pickCharacterMenu(Menu m)
 
             SDL_RenderClear(m->gRenderer);
 
-            //The animation 
-            renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,200,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
-
             //Arrow options
             if(hoveringOption<4) alpha[hoveringOption]=SDL_ALPHA_OPAQUE;
             if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-70,350,&button)) hoveringOption=0;    
@@ -539,7 +533,10 @@ PRIVATE int pickCharacterMenu(Menu m)
             if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+60,400,&button)) hoveringOption=3;
             alpha[hoveringOption]=144;
 
-            //renderCharacterMenuUI(m);
+            //The animation 
+            //renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,200,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
+
+
             renderImage(m,"pickCharacter.png",-1,20,1);
 
             //Top buttons
@@ -581,15 +578,13 @@ PRIVATE int pickCharacterMenu(Menu m)
             //Renders character name and weapon
             //renderText(m,characterName[characterIndex],color,-1,340);
             //renderText(m,characterWeapon[weaponIndex],color,-1,390);
-
-            //printf("Index: %s\n", characterName[characterIndex]);
             SDL_RenderPresent(m->gRenderer);
         }
     }
     return CLOSEREQUSTED;
 }
 
-PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha)
+PRIVATE void renderImageEx(Menu m, char *path, int posX, int posY, int flip, int directionFrame, Uint8 alpha)
 {
     SDL_Surface* s = IMG_Load(path);
 
@@ -621,23 +616,4 @@ PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int d
 
     SDL_DestroyTexture(tex);
     return;  
-}
-
-PRIVATE void renderCharacterMenuUI(Menu m)
-{
-    static int i = 0;
-    renderImage(m,"pickCharacter.png",-1,20,1);
-    
-    //The animation
-    renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,200,SDL_FLIP_NONE,i,SDL_ALPHA_OPAQUE);
-    if(i!=7)i++;
-    else i=0;  
-    
-    //The arrows
-    renderImageEx(m,PATH_TO_ARROW,((WINDOW_WIDTH-16)/2)+60,350,SDL_FLIP_NONE,-1,SDL_ALPHA_OPAQUE);
-    renderImageEx(m,PATH_TO_ARROW,((WINDOW_WIDTH-16)/2)-70,350,SDL_FLIP_HORIZONTAL,-1,SDL_ALPHA_OPAQUE);
-    renderImageEx(m,PATH_TO_ARROW,((WINDOW_WIDTH-16)/2)+60,400,SDL_FLIP_NONE,-1,SDL_ALPHA_OPAQUE);
-    renderImageEx(m,PATH_TO_ARROW,((WINDOW_WIDTH-16)/2)-70,400,SDL_FLIP_HORIZONTAL,-1,SDL_ALPHA_OPAQUE);
-
-    return;
 }
