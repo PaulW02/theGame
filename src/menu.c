@@ -472,9 +472,11 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
 PRIVATE int pickCharacterMenu(Menu m)
 {
     bool windowCloseRequested = false, spin = true;
-    int i = 0, button, arrowOption = 5, prevOpt;
+    int i = 0, button, arrowOption = 5;
     Uint32 ticks, seconds, sprite;
     Uint8 alpha[4] = {255,255,255,255};
+    bool hovering[4]={false};
+
     while(!windowCloseRequested)
     {
 
@@ -515,11 +517,12 @@ PRIVATE int pickCharacterMenu(Menu m)
             renderImageEx(m,"resources/Karaktarer/BOY/BOYbow.png",-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
 
             if(arrowOption<4) alpha[arrowOption]=255;
-            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,350,&button)) arrowOption=0;
-            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,350,&button)) arrowOption=1;
-            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,400,&button)) arrowOption=2;
-            if(checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,400,&button)) arrowOption=3;
-            alpha[arrowOption]=144;
+            if(hovering[0]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,350,&button)) arrowOption=0;
+            if(hovering[1]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,350,&button)) arrowOption=1;
+            if(hovering[2]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)-100,400,&button)) arrowOption=2;
+            if(hovering[3]=checkImageBoxForCursor("arrow.png",((WINDOW_WIDTH-16)/2)+100,400,&button)) arrowOption=3;
+            if(!hovering[0] && !hovering[1] && !hovering[2] && !hovering[3]) alpha[arrowOption]=255;
+            else alpha[arrowOption]=144;
             printf("Option: %d\n", arrowOption);
 
             //Arrow options
