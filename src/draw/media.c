@@ -130,6 +130,11 @@ PUBLIC void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, S
     healthClips[ 10 ].h =8;
 }
 
+loadAmmoMedia(SDL_Renderer gRenderer, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[])
+{
+    
+}
+
 PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]){
 
     SDL_Surface* gTilesSurface = IMG_Load("resources/GrassTowersPortals.PNG");

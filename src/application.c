@@ -107,6 +107,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect healthClips[11];
     SDL_Rect healthBarPositions[MAX_PLAYERS];
 
+    SDL_Texture *mAmmoCounter = NULL;
+    SDL_Rect ammoClips[11];
+    SDL_Rect ammoPosition;
+
     int weaponSpeed;
     int maxRange;
     int oldX, oldY, soldierXPos, soldierYPos;
@@ -165,6 +169,7 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadHealthMedia(gRenderer, &mHealthBar, healthClips);
+    loadAmmoMedia(gRenderer, &mAmmoCounter, ammoClips);
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
