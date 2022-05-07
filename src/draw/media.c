@@ -130,6 +130,67 @@ PUBLIC void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, S
     healthClips[ 10 ].h =8;
 }
 
+PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[])
+{
+    SDL_Surface* gAmmoSurface = IMG_Load("resources/ammo_numbers.PNG");
+    *mAmmoCounter = SDL_CreateTextureFromSurface(gRenderer, gAmmoSurface);
+
+    ammoClips[ 0 ].x =0;
+    ammoClips[ 0 ].y =0;
+    ammoClips[ 0 ].w =5;
+    ammoClips[ 0 ].h =7;
+
+    ammoClips[ 1 ].x =6;
+    ammoClips[ 1 ].y =0;
+    ammoClips[ 1 ].w =5;
+    ammoClips[ 1 ].h =7;
+
+    ammoClips[ 2 ].x =12;
+    ammoClips[ 2 ].y =0;
+    ammoClips[ 2 ].w =5;
+    ammoClips[ 2 ].h =7;
+
+    ammoClips[ 3 ].x =18;
+    ammoClips[ 3 ].y =0;
+    ammoClips[ 3 ].w =5;
+    ammoClips[ 3 ].h =7;
+
+    ammoClips[ 4 ].x =24;
+    ammoClips[ 4 ].y =0;
+    ammoClips[ 4 ].w =5;
+    ammoClips[ 4 ].h =7;
+
+    ammoClips[ 5 ].x =30;
+    ammoClips[ 5 ].y =0;
+    ammoClips[ 5 ].w =5;
+    ammoClips[ 5 ].h =7;
+
+    ammoClips[ 6 ].x =36;
+    ammoClips[ 6 ].y =0;
+    ammoClips[ 6 ].w =5;
+    ammoClips[ 6 ].h =7;
+
+    ammoClips[ 7 ].x =42;
+    ammoClips[ 7 ].y =0;
+    ammoClips[ 7 ].w =5;
+    ammoClips[ 7 ].h =7;
+
+    ammoClips[ 8 ].x =48;
+    ammoClips[ 8 ].y =0;
+    ammoClips[ 8 ].w =5;
+    ammoClips[ 8 ].h =7;
+
+    ammoClips[ 9 ].x =54;
+    ammoClips[ 9 ].y =0;
+    ammoClips[ 9 ].w =5;
+    ammoClips[ 9 ].h =7;
+
+    ammoClips[ 10 ].x =60;
+    ammoClips[ 10 ].y =0;
+    ammoClips[ 10 ].w =5;
+    ammoClips[ 10 ].h =7;
+}
+
 PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]){
 
     SDL_Surface* gTilesSurface = IMG_Load("resources/GrassTowersPortals.PNG");
