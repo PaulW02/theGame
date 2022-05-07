@@ -184,7 +184,7 @@ PUBLIC void applicationUpdate(Application theApp){
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
-        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id]);
+        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id], &ammoPosition);
 
         // Send and retrive information UDP
         //clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
@@ -199,7 +199,7 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
-        renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions);
+        renderPlayers(gRenderer, gameInfo->soldiers, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);
