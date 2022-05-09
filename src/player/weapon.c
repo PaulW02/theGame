@@ -65,7 +65,6 @@ PUBLIC void manageReload(Weapon w)
 {
     if (getWeaponReload(w))
     {
-        printf("Reloading...\n");
         if(getWeaponBulletTimer(w) >= getWeaponReloadTime(w))
         {
             setWeaponReload(w,false);

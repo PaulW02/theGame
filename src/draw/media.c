@@ -191,6 +191,43 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, SDL_Texture **mAmmoCounter, S
     ammoClips[ 10 ].h =7;
 }
 
+PUBLIC void loadReloadMedia(SDL_Renderer *gRenderer, SDL_Texture **mReloadDisplay, SDL_Rect reloadClips[])
+{
+    
+    reloadClips[ 0 ].x =0;
+    reloadClips[ 0 ].y =0;
+    reloadClips[ 0 ].w =36;
+    reloadClips[ 0 ].h =8;
+
+    reloadClips[ 1 ].x =72;
+    reloadClips[ 1 ].y =0;
+    reloadClips[ 1 ].w =36;
+    reloadClips[ 1 ].h =8;
+
+    reloadClips[ 2 ].x =144;
+    reloadClips[ 2 ].y =0;
+    reloadClips[ 2 ].w =36;
+    reloadClips[ 2 ].h =8;
+
+    reloadClips[ 3 ].x =216;
+    reloadClips[ 3 ].y =0;
+    reloadClips[ 3 ].w =36;
+    reloadClips[ 3 ].h =8;
+
+    reloadClips[ 4 ].x =288;
+    reloadClips[ 4 ].y =0;
+    reloadClips[ 4 ].w =36;
+    reloadClips[ 4 ].h =8;
+
+    reloadClips[ 5 ].x =360;
+    reloadClips[ 5 ].y =0;
+    reloadClips[ 5 ].w =36;
+    reloadClips[ 5 ].h =8;
+
+    SDL_Surface* gReloadSurface = IMG_Load("resources/AllHealthStatuses6x6.PNG");
+    *mReloadDisplay = SDL_CreateTextureFromSurface(gRenderer, gReloadSurface);
+}
+
 PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]){
 
     SDL_Surface* gTilesSurface = IMG_Load("resources/GrassTowersPortals.PNG");
