@@ -24,7 +24,7 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition){
     SDL_Rect playerPosition;
     int frame, healthImage;
     for (int i = 0; i < MAX_PLAYERS; i++){
@@ -38,28 +38,28 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Textu
         healthBarPositions[i].x = getSoldierPositionX(soldiers[i]) - 4;
         healthBarPositions[i].h = 8;           // kolla här också!
         healthBarPositions[i].w = 36;
-        ammoPosition.y = healthBarPositions[i].y - 8;
-        ammoPosition.x = healthBarPositions[i].x + 8;
-        ammoPosition.h = 7;
-        ammoPosition.w = 5;
         checkPlayerOutOfBoundaries(soldiers[i]); 
         soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
         healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
-        if(!getWeaponReload(getSoldierWeapon(soldiers[i])))
-        {
-            drawAmmoDisplay(gRenderer, soldiers[i], mAmmoCounter, ammoClips, ammoPosition);
-        }
-        /*else
-        {
-            //future reload display
-        }*/
         if(healthImage == 10){
             respawnPlayer(soldiers[i]);
         }
-        
     }
+    // ammunition display
+    ammoPosition.y = healthBarPositions[id].y - 8;
+    ammoPosition.x = healthBarPositions[id].x + 8;
+    ammoPosition.h = 7;
+    ammoPosition.w = 5;
+    if(!getWeaponReload(getSoldierWeapon(soldiers[id])))
+    {
+        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
+    }
+    /*else
+    {
+        //future reload display
+    }*/
 }
 
 // Handles bullets

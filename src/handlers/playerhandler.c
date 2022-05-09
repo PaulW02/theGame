@@ -111,6 +111,7 @@ PUBLIC int getHealthImageBasedOnCurrentHealth(int currentHealth){
 
 PUBLIC void respawnPlayer(Soldier soldierToRespawn){
     setSoldierHealth(soldierToRespawn, 100);
+    setWeaponMagazine(getSoldierWeapon(soldierToRespawn), getWeaponMagazine_Size(getSoldierWeapon(soldierToRespawn)));
     setSoldierPositionX(soldierToRespawn, 256);
     setSoldierPositionY(soldierToRespawn, 200);
 }
