@@ -131,7 +131,7 @@ PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
    int newYPos, newXPos;
    
    if(getTileNumber(tiles[row][column])==0x0d){
-       if((column==2)&&(row==12)){
+       if((column==9)&&(row==6)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[25][26])));
             setSoldierPositionY(s, newYPos);
             healthBarPosition->y = playerPosition->y - 12;
@@ -140,10 +140,10 @@ PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
             healthBarPosition->x = playerPosition->x - 4;
         }
         else if((column==26)&&(row==24)){
-            newYPos=(playerPosition->y=(getTilePositionY(tiles[13][1])));
+            newYPos=(playerPosition->y=(getTilePositionY(tiles[4][9])));
             setSoldierPositionY(s, newYPos);
             healthBarPosition->y = playerPosition->y - 12;
-            newXPos=(playerPosition->x=(getTilePositionX(tiles[13][1])));
+            newXPos=(playerPosition->x=(getTilePositionX(tiles[4][9])));
             setSoldierPositionX(s, newXPos);
             healthBarPosition->x = playerPosition->x - 4;
         }        
@@ -158,7 +158,7 @@ PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], i
             setSoldierPositionX(s, newXPos);
             healthBarPosition->x = playerPosition->x - 4;
         }
-        else if((column==9)&&(row==21)){
+        else if((column==9)&&(row==18)){
             newYPos=(playerPosition->y=(getTilePositionY(tiles[12][24])));
             setSoldierPositionY(s, newYPos);
             healthBarPosition->y = playerPosition->y - 12;
