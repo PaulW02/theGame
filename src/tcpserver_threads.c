@@ -145,10 +145,5 @@ void *handlePlayer(void *ptr) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) { // sometimes blank!
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }
-
-        usleep(0);
     }
-    
-
-
 }

@@ -254,9 +254,7 @@ PUBLIC void *handleNetwork(void *ptr) {
                 setSoldierPositionY(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].y);
                 setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].frame);
                 setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].shotFired);
-                usleep(1);
             }
         }
-        usleep(1000);
     }
 }
