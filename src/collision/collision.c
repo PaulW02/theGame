@@ -4,6 +4,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 
+
 #include "collision.h"
 
 #include "../player/soldier.h"
@@ -57,8 +58,8 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
                 //Rect Player
                 leftA = (getSoldierPositionX(s)+4);
                 rightA = (getSoldierPositionX(s) + (getSoldierWidth()-6));
-                topA = (getSoldierPositionY(s)+4);
-                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-6));
+                topA = (getSoldierPositionY(s)+10);
+                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-2));
 
                 //Rect Tile
                 leftB = getTilePositionX(tiles[i][j]);
@@ -222,6 +223,33 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
 
                 }
             }   
+        }
+    }
+}
+
+PUBLIC void powersPlayerCollision(Soldier soldiers[], PowerUps powers){
+
+   int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+
+    for (int j = 0; j < MAX_PLAYERS; j++){
+
+        //Rect Player
+        leftB = (getSoldierPositionX(soldiers[j]));
+        rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth()));
+        topB = (getSoldierPositionY(soldiers[j]));
+        bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight()));
+    
+                        //Rect Player
+        leftA = getPowerUpsPositionX(powers);
+        rightA = getPowerUpsPositionX(powers) + getPowerUpsWidth(powers);
+        topA = getPowerUpsPositionY(powers);
+        bottomA = getPowerUpsPositionY(powers) + getPowerUpsHeight(powers);
+        
+        if(! ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
+            printf("Funkar?!?");
         }
     }
 }

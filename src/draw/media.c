@@ -202,3 +202,13 @@ PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gT
         gTiles[i].h = getTileHeight();
     }
 }
+
+void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersClips[]){
+    SDL_Surface* gPowersSurface = IMG_Load("resources/gift.PNG");
+    *mPowers = SDL_CreateTextureFromSurface(gRenderer, gPowersSurface);
+
+    PowersClips[ 0 ].x =0;
+    PowersClips[ 0 ].y =0;
+    PowersClips[ 0 ].w =16;
+    PowersClips[ 0 ].h =16;
+}

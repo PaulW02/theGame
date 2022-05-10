@@ -33,6 +33,7 @@ struct soldier{
     int connected;
     int frameTimer;
     int health;
+    int speedUp;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -46,6 +47,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->connected = 0;
     s->frameTimer=0;
     s->health = 100;
+    s->speedUp = 0;
     return s;
 }
 
