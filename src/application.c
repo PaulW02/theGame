@@ -31,6 +31,7 @@
 #include "application.h"
 #include <unistd.h>
 #include <pthread.h>
+#include <math.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -173,6 +174,7 @@ PUBLIC void applicationUpdate(Application theApp){
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
+        Uint64 start = SDL_GetPerformanceCounter();
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
@@ -203,6 +205,11 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);
+
+
+	    Uint64 end = SDL_GetPerformanceCounter();
+        float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
+        SDL_Delay(floor(16.666f - elapsedMS));
     }
     SDLNet_TCP_Close(gameInfo->tcp_sd);
 }
