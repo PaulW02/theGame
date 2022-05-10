@@ -24,17 +24,17 @@
 #define NUMBEROFWEAPONS 5
 #define NUMBEROFCHARACTERS 7
 #define PATHLENGTH 64
-
+#define WORDLENGTH 16
 
 struct menu{
     SDL_Renderer *gRenderer;
     SDL_Event event;
-    TTF_Font* font;
     char ipAddress[IPWORDLENGTH];
     char pathToCharacter[PATHLENGTH];
     char gameModeType; //2v2,
     int character;
     int weapon; 
+    char name[WORDLENGTH];
     //Implement type of gamemode, ex 2v2 or free for all
 };
 
@@ -45,10 +45,9 @@ PRIVATE void renderImage(Menu m, char *imageName, int posX, int posY, int scaleM
 PRIVATE int startPage(Menu m);
 PRIVATE int mainMenu(Menu m);
 PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
-PRIVATE void resetMainMenu(Menu m);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y);
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int size);
 PRIVATE int pickCharacterMenu(Menu m);
 PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha);
 PRIVATE void renderRect(Menu m, int x, int y, int w, int h);
@@ -65,7 +64,6 @@ PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 
     //Initilizing TTF
     if(TTF_Init()<0) printf("Error with init!\n");
-    m->font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",30);
     m->gRenderer = gRenderer;
     m->gameModeType = '\0';
     m->event = windowEvent;
@@ -121,7 +119,6 @@ PUBLIC int menuApplication(Menu m)
 //Isn't implemented yet
 PUBLIC void destroyMenu(Menu m)
 {
-    TTF_CloseFont(m->font);
     SDL_DestroyRenderer(m->gRenderer);
     TTF_Quit();
     free(m);
@@ -150,6 +147,11 @@ PUBLIC int getWeapon(Menu m)
 PUBLIC char* getPathToCharacter(Menu m)
 {
     return m->pathToCharacter;
+}
+
+PUBLIC char* getPlayerName(Menu m)
+{
+    return m->name;
 }
 
 PRIVATE int startPage(Menu m)
@@ -247,8 +249,10 @@ PRIVATE int mainMenu(Menu m)
 {
     //Typsnitt: Showcard Gothic, Storlek 48
 
-    bool windowCloseRequested = false, userInterfaceAppeard = false;
-    int menuChoice = 0, button;
+    bool windowCloseRequested = false, userInterfaceAppeard = false, hovering[3] = {false};
+    int menuChoice = 4, button;
+    Uint8 alpha[3] = {255,255,255};
+
     
     while(!windowCloseRequested)
     {
@@ -257,61 +261,52 @@ PRIVATE int mainMenu(Menu m)
             if(m->event.type==SDL_QUIT)
                 windowCloseRequested=true;
         }
-        
-        if(!userInterfaceAppeard)
-        {
-            SDL_RenderClear(m->gRenderer);
-            renderImage(m,"theGame.png",-1,20,1,SDL_ALPHA_OPAQUE);
-            resetMainMenu(m);
-            SDL_RenderPresent(m->gRenderer);
-            userInterfaceAppeard=true;
-        }
-        
+                
         //Checks which option the mouse is hovering on.
-        if(checkImageBoxForCursor("onlineOption.png",-1,225,&button)) menuChoice=0;
-        if(checkImageBoxForCursor("howToPlay.png",-1,325,&button)) menuChoice=1;
-        if(checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
-
-        switch (menuChoice)
+        if(menuChoice<3) alpha[menuChoice]=255;
+        if(hovering[0]=checkImageBoxForCursor("onlineOption.png",-1,225,&button)) menuChoice=0;
+        if(hovering[1]=checkImageBoxForCursor("howToPlay.png",-1,325,&button)) menuChoice=1;
+        if(hovering[2]=checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
+        if(!hovering[0] && !hovering[1] && !hovering[2]) alpha[menuChoice]=255;
+        else alpha[menuChoice]=144;
+        
+        if(button)
         {
+            switch (menuChoice)
+            {
             case 0:
-                resetMainMenu(m);
-                renderImage(m,"onlineOptionGray.png",-1,225,1,SDL_ALPHA_OPAQUE);
-                if(button)
-                {
-                    m->gameModeType='O';
-                    return ONLINEMENU;
-                }
+                m->gameModeType='O';
+                return ONLINEMENU;
                 break;
             
             case 1:
-                resetMainMenu(m);
-                renderImage(m,"howToPlayGray.png",-1,325,1,SDL_ALPHA_OPAQUE);
-                if(button)
-                {
-                    m->gameModeType='H';
-                    return HOWTOPLAYMENU;
-                }
+                return HOWTOPLAYMENU;
                 break;
             
             case 2:
-                resetMainMenu(m);
-                renderImage(m,"co_opGray.png",-1,425,1,SDL_ALPHA_OPAQUE);
-                if(button)
-                {
-                    m->gameModeType='C';
-                    return 0;
-                }
+                m->gameModeType='C';
+                return 0;
                 break;
 
             default:
                 break;
+            }
         }
+
+        SDL_RenderClear(m->gRenderer);
+
+        renderImage(m,"theGame.png",-1,20,1,SDL_ALPHA_OPAQUE);
+        
+        renderImage(m,"onlineOption.png",-1,225,1,alpha[0]);
+        renderImage(m,"howToPlay.png",-1,325,1,alpha[1]);
+        renderImage(m,"co_op.png",-1,425,1,alpha[2]);
+
         SDL_RenderPresent(m->gRenderer);
     }
     return CLOSEREQUSTED;
 }
 
+/*Checks if the cursor is withing the image paramater*/
 PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button)
 {
     int cursorX, cursorY;
@@ -333,14 +328,6 @@ PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePos
         return true;
     } 
     return false;   
-}
-
-PRIVATE void resetMainMenu(Menu m)
-{
-    renderImage(m,"onlineOption.png",-1,225,1,SDL_ALPHA_OPAQUE);
-    renderImage(m,"howToPlay.png",-1,325,1,SDL_ALPHA_OPAQUE);
-    renderImage(m,"co_op.png",-1,425,1,SDL_ALPHA_OPAQUE);
-    return;
 }
 
 PRIVATE int howToPlayMenu(Menu m)
@@ -365,13 +352,25 @@ PRIVATE int howToPlayMenu(Menu m)
                 }
         }
         if(!userInterfaceAppeard)
-        {
+        {            
             SDL_RenderClear(m->gRenderer);
             renderImage(m,"howToPlay.png",-1,100,1,SDL_ALPHA_OPAQUE);
             SDL_RenderPresent(m->gRenderer);
 
+            //[Ladda in från en fil].
             //Add text here for how the game is to be played!
+            FILE *fp = fopen("resources/menu/howToPlay.txt","r");
+            if(fp==NULL)
+            {
+                printf("Can't open file!\n");
+            }
+            //char message[64];
+            //fscanf(fp,"%[^\n]",message);
+            //printf("MEssage: %s", message);
+    
+            fclose(fp);
 
+            userInterfaceAppeard=true;
         }
 
     }
@@ -380,9 +379,14 @@ PRIVATE int howToPlayMenu(Menu m)
 
 PRIVATE int onlineMenuConfig(Menu m)
 {
-    bool windowCloseRequested = false, userInterfaceAppeard = false;
+    bool windowCloseRequested = false, hovering = false;
     char ipPlaceholder[16] = "\0";
     SDL_Color color = {0xFF,0xFF,0xFF}; //White
+    Uint8 alpha = 255;
+    int button;
+
+    
+    SDL_StartTextInput();
 
     while(!windowCloseRequested)
     {
@@ -405,15 +409,11 @@ PRIVATE int onlineMenuConfig(Menu m)
                             if(strlen(ipPlaceholder)!=0)
                             {
                                 ipPlaceholder[strlen(ipPlaceholder)-1]='\0';
-                                renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
-                                renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200);
                             }
                             break;
                         
                         case SDL_SCANCODE_RETURN:
-                            //printf("You pressed enter!\n");
                             strcpy(m->ipAddress,ipPlaceholder);
-                            //printf("You copied: %s \n",m->ipAddress);
                             SDL_StopTextInput();
                             return PICKCHARACTERMENU;
                             break;
@@ -429,8 +429,6 @@ PRIVATE int onlineMenuConfig(Menu m)
                         if(strlen(ipPlaceholder)<IPWORDLENGTH-1)
                         {
                             strncat(ipPlaceholder,m->event.text.text,1);
-                            renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
-                            renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,200);
                             //printf("%c",m->event.text.text[0]);
                         }
                     }
@@ -440,28 +438,35 @@ PRIVATE int onlineMenuConfig(Menu m)
                     break;
             }
         }
-        if(!userInterfaceAppeard)
-        {
-            SDL_StartTextInput();
-            SDL_RenderClear(m->gRenderer);
-            
-            renderImage(m,"onlineOption.png",-1,50,1,SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(m->gRenderer);
 
-            //Renders a centered rectangle with white border
-            renderRect(m,(WINDOW_WIDTH-300)/2,200,300,50);
-            
-            SDL_RenderPresent(m->gRenderer);
-            //Restores the drawcolor to its original state 
-            SDL_SetRenderDrawColor(m->gRenderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
-            userInterfaceAppeard=true;
+        //Render title   
+        renderImage(m,"onlineOption.png",-1,100,1,SDL_ALPHA_OPAQUE);
+
+        //Renders a centered rectangle with white border with text in it
+        renderRect(m,(WINDOW_WIDTH-300)/2,250,300,50);
+        renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,250,30);
+
+        //Renders "Continue" and changes ALPHA
+        if(hovering=checkImageBoxForCursor("continue.png",-1,330,&button)) alpha=144;
+        else alpha=255;
+        renderImage(m,"continue.png",-1,330,1,alpha);
+
+        if(hovering && button)
+        {
+            strcpy(m->ipAddress,ipPlaceholder);
+            SDL_StopTextInput();
+            return PICKCHARACTERMENU;  
         }
-        SDL_RenderPresent(m->gRenderer);
+
+        SDL_RenderPresent(m->gRenderer);        
 
     }
     SDL_StopTextInput();
     return CLOSEREQUSTED;
 }
 
+/*Renders a rectangle*/
 PRIVATE void renderRect(Menu m, int x, int y, int w, int h)
 {
     SDL_Rect rect = {x,y,w,h};
@@ -472,9 +477,10 @@ PRIVATE void renderRect(Menu m, int x, int y, int w, int h)
     return;
 }
 
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y)
+PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int size)
 {        
-    SDL_Surface* text = TTF_RenderText_Solid(m->font,textToRender,color);
+    TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
+    SDL_Surface* text = TTF_RenderText_Solid(font,textToRender,color);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
  
     SDL_Rect rect;
@@ -489,6 +495,7 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
     //Cleans up resources
     SDL_DestroyTexture(textTexture);
     SDL_FreeSurface(text);
+    TTF_CloseFont(font);
 
     return;
 }
@@ -506,6 +513,9 @@ PRIVATE int pickCharacterMenu(Menu m)
     //Names & Weapons
     PRIVATE char characters[7][10] = {"Boy","Female","Ghost","Male","Pumpkin","Skeleton","Wizard"};
     PRIVATE char weapons[5][11] = {"Bow","Pistol","Blue rod", "Red rod", "Spear"};
+    char namePlaceholder[WORDLENGTH] = "\0";
+
+    SDL_StartTextInput();
 
     while(!windowCloseRequested)
     {
@@ -526,9 +536,25 @@ PRIVATE int pickCharacterMenu(Menu m)
                     switch (m->event.key.keysym.scancode)
                     {
                         case SDL_SCANCODE_ESCAPE:
+                            SDL_StopTextInput();
                             return ONLINEMENU;
                             break;
                         
+                        case SDL_SCANCODE_BACKSPACE:
+                            if(strlen(namePlaceholder)!=0)
+                            {
+                                namePlaceholder[strlen(namePlaceholder)-1]='\0';
+                            }
+                            break;
+                        
+                        case SDL_SCANCODE_RETURN:
+                            m->character=characterIndex;
+                            m->weapon=weaponIndex;
+                            strcpy(m->name,namePlaceholder);
+                            SDL_StopTextInput();
+                            return 0;
+                            break;
+
                         default:
                             break;
                     }
@@ -536,6 +562,13 @@ PRIVATE int pickCharacterMenu(Menu m)
                 
                 case SDL_MOUSEBUTTONDOWN:
                     mouseButtonDown=1;
+                    break;
+
+                case SDL_TEXTINPUT:
+                    if(strlen(namePlaceholder)<WORDLENGTH-2)
+                    {
+                        strncat(namePlaceholder,m->event.text.text,1);
+                    }
                     break;
 
                 default:
@@ -546,7 +579,14 @@ PRIVATE int pickCharacterMenu(Menu m)
         {
             SDL_RenderClear(m->gRenderer);
 
+            //Title
             renderImage(m,"pickCharacter.png",-1,20,1,SDL_ALPHA_OPAQUE);
+            
+            //Name input
+            renderRect(m,(WINDOW_WIDTH-275)/2,125,280,35);
+            renderText(m,namePlaceholder,color,-1,125,24);
+            
+            //Animation
             renderCharacter(m,sprite, characterIndex,weaponIndex);
 
             //Checks what the user is hovering and highlights it
@@ -589,16 +629,19 @@ PRIVATE int pickCharacterMenu(Menu m)
             {
                 m->character=characterIndex;
                 m->weapon=weaponIndex;
+                strcpy(m->name,namePlaceholder);
                 mouseButtonDown=0;
+                SDL_StopTextInput();
                 return 0;
             }
 
-            renderText(m,characters[characterIndex],color,-1,340);
-            renderText(m,weapons[weaponIndex],color,-1,390);
+            renderText(m,characters[characterIndex],color,-1,340,30);
+            renderText(m,weapons[weaponIndex],color,-1,390,30);
 
             SDL_RenderPresent(m->gRenderer);
         }
     }
+    SDL_StopTextInput();
     return CLOSEREQUSTED;
 }
 
