@@ -21,6 +21,8 @@
 #define ONLINEMENU 4
 #define PICKCHARACTERMENU 5
 #define IPWORDLENGTH 16
+//#define NUMBEROFWEAPONS 5
+//#define NUMBEROFCHARACTERS 7
 
 
 struct menu{
