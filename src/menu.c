@@ -21,8 +21,9 @@
 #define ONLINEMENU 4
 #define PICKCHARACTERMENU 5
 #define IPWORDLENGTH 16
-//#define NUMBEROFWEAPONS 5
-//#define NUMBEROFCHARACTERS 7
+#define NUMBEROFWEAPONS 5
+#define NUMBEROFCHARACTERS 7
+#define PATHLENGTH 64
 
 
 struct menu{
@@ -30,6 +31,7 @@ struct menu{
     SDL_Event event;
     TTF_Font* font;
     char ipAddress[IPWORDLENGTH];
+    char pathToCharacter[PATHLENGTH];
     char gameModeType; //2v2,
     int character;
     int weapon; 
@@ -70,6 +72,7 @@ PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
     m->character=0;
     m->weapon=0;
     strcpy(m->ipAddress,"\0");
+    strcpy(m->pathToCharacter,"\0");
     return m;
 }
 
@@ -142,6 +145,11 @@ PUBLIC int getCharacter(Menu m)
 PUBLIC int getWeapon(Menu m)
 {
     return m->weapon;
+}
+
+PUBLIC char* getPathToCharacter(Menu m)
+{
+    return m->pathToCharacter;
 }
 
 PRIVATE int startPage(Menu m)
@@ -522,7 +530,6 @@ PRIVATE int pickCharacterMenu(Menu m)
                             break;
                         
                         default:
-                            return 0;
                             break;
                     }
                     break;
@@ -560,7 +567,7 @@ PRIVATE int pickCharacterMenu(Menu m)
                 mouseButtonDown=0;
             }
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,350,SDL_FLIP_NONE,-1,alpha[1]);
-            if(button==1 && hovering[1] && mouseButtonDown && characterIndex<6)
+            if(button==1 && hovering[1] && mouseButtonDown && characterIndex<NUMBEROFCHARACTERS-1)
             {
                 characterIndex++;
                 mouseButtonDown=0;
@@ -572,7 +579,7 @@ PRIVATE int pickCharacterMenu(Menu m)
                 mouseButtonDown=0;
             }
             renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,400,SDL_FLIP_NONE,-1,alpha[3]);
-            if(button==1 && hovering[3] && mouseButtonDown && weaponIndex<4)
+            if(button==1 && hovering[3] && mouseButtonDown && weaponIndex<NUMBEROFWEAPONS-1)
             {
                 weaponIndex++;
                 mouseButtonDown=0;
@@ -640,7 +647,7 @@ PRIVATE void renderCharacter(Menu m, Uint32 sprite, int characterIndex, int weap
     strcat(path,characterPaths[characterIndex]);
     strcat(path,weaponPaths[weaponIndex]);
 
-    //printf("Path: %s\n", path);
     renderImageEx(m,path,-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
+    strcpy(m->pathToCharacter,path);
     return;
 }

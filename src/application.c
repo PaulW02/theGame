@@ -139,11 +139,12 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, soldiers[playerId]);
     loadBulletMedia(gRenderer, &bulletTexture);
     loadTiles(gRenderer, &mTiles, gTiles);
+   
     //Menu
     Menu m = createMenu(gRenderer);
     if(menuApplication(m) == -1) return;
+   
     bool keep_window_open = true;
-
     while(keep_window_open)
     {
         while(SDL_PollEvent(&theApp->window_event))

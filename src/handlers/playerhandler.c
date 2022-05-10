@@ -27,7 +27,7 @@ PUBLIC void initPlayers(Soldier soldiers[]){
         }else if(i == 1){
             soldiers[i] = createSoldier(470, 10);
             setSoldierFrame(soldiers[i], 6);
-            setSoldierFileName(soldiers[i],"resources/Karaktarer/FEMALEwizard/FEMALEpistol.png");
+            setSoldierFileName(soldiers[i],"resources/Karaktarer/FEMALE/FEMALEpistol.png");
         }else if(i == 2){
             soldiers[i] = createSoldier(470, 470);
             setSoldierFrame(soldiers[i], 6);
