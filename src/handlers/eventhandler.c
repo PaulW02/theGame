@@ -102,12 +102,16 @@ PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect
         (setSoldierFrameTimer(s, 0));
     }
 
-    //Fixes bug that character runs 2x fast
+    //Makes sure the character never runs too fast
     if(getSoldierSpeedX(s)>3){
         setSoldierSpeedX(s, getSoldierSpeed(s));
-    } 
+    }else if(getSoldierSpeedX(s)<(-3)){
+        setSoldierSpeedX(s, -getSoldierSpeed(s));
+    }
     if(getSoldierSpeedY(s)>3){
         setSoldierSpeedY(s, getSoldierSpeed(s));
+    }else if(getSoldierSpeedY(s)<(-3)){
+        setSoldierSpeedY(s, -getSoldierSpeed(s));
     }
 
     //Moving character and Health pool
