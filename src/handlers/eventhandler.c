@@ -101,16 +101,24 @@ PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect
         }
         (setSoldierFrameTimer(s, 0));
     }
+
+    //Fixes bug that character runs 2x fast
+    if(getSoldierSpeedX(s)>3){
+        setSoldierSpeedX(s, getSoldierSpeed(s));
+    } 
+    if(getSoldierSpeedY(s)>3){
+        setSoldierSpeedY(s, getSoldierSpeed(s));
+    }
+
+    //Moving character and Health pool
     newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
     setSoldierPositionY(s, newYPos);
     healthBarPosition->y = getSoldierPositionY(s) - 12;
     ammoPosition->y = healthBarPosition->y - 8;
-
     newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
     setSoldierPositionX(s, newXPos); 
     healthBarPosition->x = getSoldierPositionX(s) - 4;
     ammoPosition->x = healthBarPosition->x + 12;
-    setSoldierFrame(s, (*pframe));
 
-    SDL_Delay(0);
+    setSoldierFrame(s, (*pframe));
 }

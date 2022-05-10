@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "menu.h"
 #include "collision/collision.h"
 #include "timers.h"
@@ -173,13 +174,13 @@ PUBLIC void applicationUpdate(Application theApp){
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
+        Uint64 start = SDL_GetPerformanceCounter();  
+
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
                 keep_window_open = false;
                 break;
-            }else if( theApp->window_event.type == SDL_KEYUP){
-                setSoldierShotFired(gameInfo->soldiers[gameInfo->id], 0);
             }
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
         }  
@@ -203,6 +204,10 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);
+
+        Uint64 end = SDL_GetPerformanceCounter();
+        float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
+        SDL_Delay(floor(16.666f - elapsedMS));
     }
     SDLNet_TCP_Close(gameInfo->tcp_sd);
 }
