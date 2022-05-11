@@ -332,7 +332,19 @@ PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePos
 
 PRIVATE int howToPlayMenu(Menu m)
 {
-    bool windowCloseRequested = false, userInterfaceAppeard = false;
+    bool windowCloseRequested = false, userInterfaceAppeard = false,firstLoop=true;
+    SDL_Color color = {0xFF,0xFF,0xFF}; //White
+    char c[2]={'\0'};
+    int xDisplacement=0;
+    int yDisplacement=0;
+
+
+    FILE *fp = fopen("resources/menu/howToPlay.txt","r");
+    if(fp==NULL)
+    {
+        printf("Can't open file!\n");
+    }
+
     while(!windowCloseRequested)
     {
         while(SDL_PollEvent(&m->event))
@@ -344,36 +356,50 @@ PRIVATE int howToPlayMenu(Menu m)
                     break;
                 case SDL_KEYDOWN:
                     if(m->event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                    {
+                        fclose(fp);
                         return MAINMENU;
+                    }
                     break;
                 
                 default:
                     break;
                 }
         }
-        if(!userInterfaceAppeard)
-        {            
+        if(firstLoop)
+        {
             SDL_RenderClear(m->gRenderer);
             renderImage(m,"howToPlay.png",-1,100,1,SDL_ALPHA_OPAQUE);
-            SDL_RenderPresent(m->gRenderer);
-
-            //[Ladda in från en fil].
-            //Add text here for how the game is to be played!
-            FILE *fp = fopen("resources/menu/howToPlay.txt","r");
-            if(fp==NULL)
+            firstLoop=false;
+        }
+        if(!userInterfaceAppeard)
+        {            
+            //renderRect(m,(WINDOW_WIDTH-400)/2,200,400,200);
+            if((c[0]=getc(fp)) != EOF)
             {
-                printf("Can't open file!\n");
-            }
-            //char message[64];
-            //fscanf(fp,"%[^\n]",message);
-            //printf("MEssage: %s", message);
-    
-            fclose(fp);
-
-            userInterfaceAppeard=true;
+                if(c[0]=='\n')
+                {
+                    yDisplacement+=25;
+                    xDisplacement=0;
+                }
+                else
+                {
+                    renderText(m,c,color,(WINDOW_WIDTH-400+xDisplacement)/2,200+yDisplacement,18);
+                    xDisplacement+=25;
+                    if(xDisplacement>650 && c[0]==' ')
+                    {
+                        xDisplacement=0;
+                        yDisplacement+=25;
+                    }
+                    //printf("%c",c[0]);
+                    SDL_RenderPresent(m->gRenderer);
+                }
+            }            
+            SDL_RenderPresent(m->gRenderer);
         }
 
     }
+    fclose(fp);
     return CLOSEREQUSTED;
 }
 
