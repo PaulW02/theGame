@@ -8,6 +8,7 @@
 
 #include "../player/soldier.h"
 #include "../player/bullet.h"
+#include "../player/weapon.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -20,18 +21,57 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
     { 
         if (getSoldierShotFired(soldiers[i]))
         {
-            *bulletsActive = 1;
-            Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
-            setBulletFrame(b, getSoldierFrame(soldiers[i]));
-            setBulletSoldierId(b, getSoldierId(soldiers[i]));
-            bulletAngle = checkBulletAngle(getBulletFrame(b));
-            setBulletAngle(b,bulletAngle);
-            bullets[*amountOfBullets] = b;
-            (*amountOfBullets)++;
-            
+            //Weapon weapon = getSoldierWeapon(soldiers[i]);
+            if(!getWeaponShotCooldown(getSoldierWeapon(soldiers[i])))
+            {
+                setWeaponBulletTimer(getSoldierWeapon(soldiers[i]),0);
+                setWeaponMagazine(getSoldierWeapon(soldiers[i]),getWeaponMagazine(getSoldierWeapon(soldiers[i]))-1);
+                *bulletsActive = 1;
+                Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
+                setBulletFrame(b, getSoldierFrame(soldiers[i]));
+                setBulletSoldierId(b, getSoldierId(soldiers[i]));
+                bulletAngle = checkBulletAngle(getBulletFrame(b));
+                setBulletAngle(b,bulletAngle);
+                bullets[*amountOfBullets] = b;
+                (*amountOfBullets)++;
+            }
         } 
     }
 }
+
+
+PUBLIC void move(SDL_Rect *b, int frame, int speed){
+    switch (frame)
+    {
+    case 0:
+        b->y += speed;
+        break;
+    case 1:
+        b->y += speed;
+        break;
+    case 2:
+        b->x += speed;
+        break;
+    case 3:
+        b->x += speed;
+        break; 
+    case 4:
+        b->y -= speed;
+        break;
+    case 5:
+        b->y -= speed;
+        break;
+    case 6:
+        b->x -= speed;
+        break;
+    case 7:
+        b->x -= speed;
+        break;
+    default:
+        break;
+    }
+}
+
 
 PUBLIC int checkBulletAngle(int frame){
     if(frame == 0 || frame == 1){
@@ -60,5 +100,15 @@ PUBLIC int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, 
         return 1;
     }else{
         return 0;
+    }
+}
+
+PUBLIC void manageFireRateAndAmmo(Soldier soldiers[])
+{
+    for(int i=0;i< MAX_PLAYERS;i++)
+    {
+        Weapon weapon = getSoldierWeapon(soldiers[i]);
+        manageFireRate(weapon);
+        manageReload(weapon);
     }
 }

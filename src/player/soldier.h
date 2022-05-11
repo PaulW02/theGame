@@ -42,8 +42,14 @@ void setSoldierShotFired(Soldier s, int shotFired);
 int getSoldierShotFired(Soldier s);
 void setSoldierFileName(Soldier s, char soldierFileName[]);
 char* getSoldierFileName(Soldier s);
+void setSoldierConnected(Soldier s, int connected);
+int getSoldierConnected(Soldier s);
+void setSoldierFrameTimer(Soldier s, int timer);
+int getSoldierFrameTimer(Soldier s);
+void setSoldierHealth(Soldier s, int health);
+int getSoldierHealth(Soldier s);
 
-#endif /* spaceman_h */
+#endif
 
 
 

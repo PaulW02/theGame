@@ -13,6 +13,7 @@
 #include "../player/bullet.h"
 
 #include "../handlers/bullethandler.h"
+#include "../handlers/playerhandler.h"
 
 #include "../map/tile.h"
 #include "../map/world.h"
@@ -23,19 +24,48 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition){
     SDL_Rect playerPosition;
+    int frame, healthImage;
     for (int i = 0; i < MAX_PLAYERS; i++){
+        frame = getSoldierFrame(soldiers[i]);
+        if (frame > 7)
+        {
+            frame = 7;
+        }
         playerPosition = getSoldierPosition(soldiers[i]);
+        healthBarPositions[i].y = getSoldierPositionY(soldiers[i]) - 12;
+        healthBarPositions[i].x = getSoldierPositionX(soldiers[i]) - 4;
+        healthBarPositions[i].h = 8;           // kolla här också!
+        healthBarPositions[i].w = 36;
         checkPlayerOutOfBoundaries(soldiers[i]); 
-        soldierWallCollision(tiles, soldiers[i], &playerPosition, getSoldierFrame(soldiers[i]));
-        SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[getSoldierFrame(soldiers[i])],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
+        healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
+        SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
+        if(healthImage == 10){
+            respawnPlayer(soldiers[i]);
+        }
     }
+    // ammunition display
+    ammoPosition.y = healthBarPositions[id].y - 8;
+    ammoPosition.x = healthBarPositions[id].x + 8;
+    ammoPosition.h = 7;
+    ammoPosition.w = 5;
+    if(!getWeaponReload(getSoldierWeapon(soldiers[id])))
+    {
+        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
+    }
+    /*else
+    {
+        //future reload display
+    }*/
 }
 
 // Handles bullets
-PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[], SDL_Texture **bulletTexture, int *amountOfBullets, int weaponSpeed, int *bulletsActive){
+PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet bullets[], SDL_Texture **bulletTexture, int *amountOfBullets, int *bulletsActive){
     SDL_Rect bulletPosition, bullet;
+    int maxRange, weaponSpeed;
 
     if(*amountOfBullets == 0){
         *bulletsActive = 0;
@@ -43,6 +73,8 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[], SDL_Textu
     for (int i = 0; i < *amountOfBullets; i++){
         bulletPosition = getBulletPositionSDL(bullets[i]);
         bullet = getBulletSDL(bullets[i]);
+        weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
+        maxRange = getWeaponRange(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
         move(&bulletPosition, getBulletFrame(bullets[i]), weaponSpeed);
         SDL_RenderCopyEx(gRenderer, *bulletTexture, &bullet, &bulletPosition, getBulletAngle(bullets[i]), NULL, SDL_FLIP_NONE);
         if(checkBulletOutOfBoundaries(bullets[i], bulletPosition)){
@@ -54,6 +86,22 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[], SDL_Textu
         }
     }
     
+}
+
+PUBLIC void drawAmmoDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition)
+{
+    Weapon w = getSoldierWeapon(s);
+    //Prints current magazine size
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    ammoPosition.x += 6;
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    //Prints "/ max ammo"
+    ammoPosition.x += 6;
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    ammoPosition.x += 6;
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    ammoPosition.x += 6;
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
 }
 
 PUBLIC void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){

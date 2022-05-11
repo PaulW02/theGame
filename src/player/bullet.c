@@ -43,39 +43,6 @@ PUBLIC Bullet createBullet(int x, int y, Soldier soldier){
     return b;
 }
 
-PUBLIC void move(SDL_Rect *b, int frame, int speed){
-    switch (frame)
-    {
-    case 0:
-        b->y += speed;
-        break;
-    case 1:
-        b->y += speed;
-        break;
-    case 2:
-        b->x += speed;
-        break;
-    case 3:
-        b->x += speed;
-        break; 
-    case 4:
-        b->y -= speed;
-        break;
-    case 5:
-        b->y -= speed;
-        break;
-    case 6:
-        b->x -= speed;
-        break;
-    case 7:
-        b->x -= speed;
-        break;
-    default:
-        break;
-    }
-}
-
-
 PUBLIC void setBulletPositionX(Bullet b, int positionX){
     b->bulletPosition.x = positionX;
 }

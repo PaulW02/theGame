@@ -30,6 +30,9 @@ struct soldier{
     Weapon weapon;
     int shotFired;
     char soldierFileName[MAXCHAR];
+    int connected;
+    int frameTimer;
+    int health;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -40,6 +43,9 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->position.x = x; 
     s->position.y = y;
     s->frame = 0;
+    s->connected = 0;
+    s->frameTimer=0;
+    s->health = 100;
     return s;
 }
 
@@ -136,6 +142,14 @@ PUBLIC int getSoldierShotFired(Soldier s){
     return s->shotFired;
 }
 
+PUBLIC void setSoldierConnected(Soldier s, int connected){
+    s->connected = connected;
+}
+
+PUBLIC int getSoldierConnected(Soldier s){
+    return s->connected;
+}
+
 PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
 {
     strcpy(s->soldierFileName,soldierFileName);
@@ -144,4 +158,20 @@ PUBLIC void setSoldierFileName(Soldier s, char soldierFileName[MAXCHAR])
 PUBLIC char* getSoldierFileName(Soldier s)
 {
     return  s->soldierFileName;
+}
+
+PUBLIC void setSoldierFrameTimer(Soldier s, int timer){
+    s->frameTimer = timer;
+}
+
+PUBLIC int getSoldierFrameTimer(Soldier s){
+    return s->frameTimer;
+}
+
+PUBLIC void setSoldierHealth(Soldier s, int health){
+    s->health = health;
+}
+
+PUBLIC int getSoldierHealth(Soldier s){
+    return s->health;
 }

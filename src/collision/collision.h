@@ -13,10 +13,10 @@
 
 #define AMOUNT_TILES 32
 
-bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame);
+bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame, SDL_Rect *healthBarPosition);
 void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet bullets[], int *counter);
 void stepBack(Soldier s, SDL_Rect *playerPosition, int frame);
-void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int i, int j, SDL_Rect *playerPosition);
+void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int row, int column, SDL_Rect *playerPosition, SDL_Rect *healthBarPosition);
 int checkBulletOutOfBoundaries(Bullet b, SDL_Rect bulletPosition);
 void checkPlayerOutOfBoundaries(Soldier s);
 void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets);

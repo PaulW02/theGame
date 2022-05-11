@@ -7,10 +7,11 @@
 #ifndef bullet_h
 #define bullet_h
 
+#define MAX_BULLETS 100
+
 typedef struct bullet *Bullet;
 
 Bullet createBullet(int x, int y, Soldier soldier);
-void move(SDL_Rect *b, int frame, int speed);
 void setBulletPositionX(Bullet b, int positionX);
 int getBulletPositionX(Bullet b);
 void setBulletPositionY(Bullet b, int positionY);
