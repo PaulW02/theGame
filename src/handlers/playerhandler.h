@@ -12,7 +12,6 @@
 
 void initPlayers(Soldier soldiers[]);
 void weaponChoiceHandler(Soldier soldier);
-void manageFireRateAndAmmo(Soldier soldiers[]);
 int getHealthImageBasedOnCurrentHealth(int currentHealth);
 void respawnPlayer(Soldier soldierToRespawn);
 #endif

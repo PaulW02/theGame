@@ -63,8 +63,9 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
 }
 
 // Handles bullets
-PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[], SDL_Texture **bulletTexture, int *amountOfBullets, int weaponSpeed, int *bulletsActive){
+PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet bullets[], SDL_Texture **bulletTexture, int *amountOfBullets, int *bulletsActive){
     SDL_Rect bulletPosition, bullet;
+    int maxRange, weaponSpeed;
 
     if(*amountOfBullets == 0){
         *bulletsActive = 0;
@@ -72,6 +73,8 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Bullet bullets[], SDL_Textu
     for (int i = 0; i < *amountOfBullets; i++){
         bulletPosition = getBulletPositionSDL(bullets[i]);
         bullet = getBulletSDL(bullets[i]);
+        weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
+        maxRange = getWeaponRange(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
         move(&bulletPosition, getBulletFrame(bullets[i]), weaponSpeed);
         SDL_RenderCopyEx(gRenderer, *bulletTexture, &bullet, &bulletPosition, getBulletAngle(bullets[i]), NULL, SDL_FLIP_NONE);
         if(checkBulletOutOfBoundaries(bullets[i], bulletPosition)){
