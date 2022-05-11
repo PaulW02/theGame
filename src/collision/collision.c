@@ -110,20 +110,20 @@ PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet b
 
 PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
     int newYPos, newXPos;
-    if (getSoldierSpeedY(s)>0){
-        newYPos=(playerPosition->y-=2);
+    if(getSoldierSpeedY(s)>0){
+        newYPos=(playerPosition->y-=getSoldierSpeed(s));
         setSoldierPositionY(s, newYPos);
     }
-    if (getSoldierSpeedX(s)>0){
-        newXPos=(playerPosition->x-=2);
+    if(getSoldierSpeedX(s)>0){
+        newXPos=(playerPosition->x-=getSoldierSpeed(s));
         setSoldierPositionX(s, newXPos);
     }
-    if (getSoldierSpeedX(s)<0){
-        newXPos=(playerPosition->x+=2);
+    if(getSoldierSpeedX(s)<0){
+        newXPos=(playerPosition->x+=getSoldierSpeed(s));
         setSoldierPositionX(s, newXPos);
     }
-    if (getSoldierSpeedY(s)<0){
-        newYPos=(playerPosition->y+=2);
+    if(getSoldierSpeedY(s)<0){
+        newYPos=(playerPosition->y+=getSoldierSpeed(s));
         setSoldierPositionY(s, newYPos);
     }
 }
@@ -237,10 +237,10 @@ PUBLIC void powersPlayerCollision(Soldier soldiers[], PowerUps powers){
     for (int j = 0; j < MAX_PLAYERS; j++){
 
         //Rect Player
-        leftB = (getSoldierPositionX(soldiers[j]));
-        rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth()));
-        topB = (getSoldierPositionY(soldiers[j]));
-        bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight()));
+        leftB = (getSoldierPositionX(soldiers[j])+8);
+        rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth())-8);
+        topB = (getSoldierPositionY(soldiers[j])+6);
+        bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight())-8);
     
                         //Rect Player
         leftA = getPowerUpsPositionX(powers);
@@ -249,7 +249,7 @@ PUBLIC void powersPlayerCollision(Soldier soldiers[], PowerUps powers){
         bottomA = getPowerUpsPositionY(powers) + getPowerUpsHeight(powers);
         
         if(! ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
-            printf("Funkar?!?");
+            powerUpTouched(soldiers[j], powers);
         }
     }
 }

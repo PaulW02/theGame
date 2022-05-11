@@ -150,8 +150,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect gTiles[16];
     
     PowerUps powers;
-    createPowerUps(220,220);
-    setPowerUpsPosition(powers, 220, 220, 16, 16);
+    powers = createPowerUps(220,220);
+    
 
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
@@ -212,7 +212,7 @@ PUBLIC void applicationUpdate(Application theApp){
         renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
-        timerUpdate(gameInfo->soldiers[gameInfo->id]);
+        timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
 
         Uint64 end = SDL_GetPerformanceCounter();
         float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);

@@ -48,7 +48,10 @@ void setSoldierFrameTimer(Soldier s, int timer);
 int getSoldierFrameTimer(Soldier s);
 void setSoldierHealth(Soldier s, int health);
 int getSoldierHealth(Soldier s);
-
+void setSoldierPowerUp(Soldier s, int powerUp);
+int getSoldierPowerUp(Soldier s);
+void setSoldierPowerUpTimer(Soldier s, int powerUpTimer);
+int getSoldierPowerUpTimer(Soldier s);
 #endif
 
 
