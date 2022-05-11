@@ -16,6 +16,7 @@ struct playersData{
 	int y;
     int frame;
     int shotFired;
+    int health;
     int connected;
 };
 typedef struct playersData PlayersData;
@@ -76,7 +77,7 @@ int main(int argc,char** argv)
 }
 
 void *handlePlayer(void *ptr) {
-    int playerInfo[6];
+    int playerInfo[7];
     int currentPlayerId = ((GameInfo *)ptr)->id;
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
@@ -105,6 +106,7 @@ void *handlePlayer(void *ptr) {
     setSoldierFileName(newSoldier,"resources/Karaktarer/BOY/BOYpistol.png");
     setSoldierShotFired(newSoldier, 0);
     setSoldierConnected(newSoldier, 1);
+    setSoldierHealth(newSoldier, 100);
     weaponChoiceHandler(newSoldier);
     ((GameInfo *)ptr)->soldiers[currentPlayerId] = newSoldier;
     playerInfo[0] = currentPlayerId;
@@ -113,12 +115,11 @@ void *handlePlayer(void *ptr) {
     playerInfo[3] = getSoldierPositionY(newSoldier);
     playerInfo[4] = getSoldierConnected(newSoldier);
     playerInfo[5] = getSoldierShotFired(newSoldier);
+    playerInfo[6] = getSoldierHealth(newSoldier);
     if(SDLNet_TCP_Send(((GameInfo *)ptr)->playerConnections[currentPlayerId].sock, playerInfo, sizeof(playerInfo))< sizeof(playerInfo)){
         fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-
-
 
     int gameOver = 0;
     // While loop
@@ -132,6 +133,7 @@ void *handlePlayer(void *ptr) {
             ((GameInfo *)ptr)->playersData[currentPlayerId].y = receivedPlayersData.y;
             ((GameInfo *)ptr)->playersData[currentPlayerId].frame = receivedPlayersData.frame;
             ((GameInfo *)ptr)->playersData[currentPlayerId].shotFired = receivedPlayersData.shotFired;
+            ((GameInfo *)ptr)->playersData[currentPlayerId].health = receivedPlayersData.health;
             ((GameInfo *)ptr)->playersData[currentPlayerId].connected = receivedPlayersData.connected;
             
             //printf("%d %d %d\n", ((GameInfo *)ptr)->playersMovement[currentPlayerId].id, ((GameInfo *)ptr)->playersMovement[currentPlayerId].x, ((GameInfo *)ptr)->playersMovement[currentPlayerId].y);

@@ -51,6 +51,7 @@ struct playersData{
 	int y;
     int frame;
     int shotFired;
+    int health;
     int connected;
 };
 typedef struct playersData PlayersData;
@@ -64,7 +65,6 @@ struct gameInfo{
 typedef struct gameInfo GameInfo;
 
 PUBLIC void *handleNetwork(void *ptr);
-PUBLIC void *checkConnectedPlayers(void *ptr);
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -217,7 +217,7 @@ PUBLIC void destoryApplication(Application theApp){
 PUBLIC void *handleNetwork(void *ptr) {
 
     PlayersData clientPlayersData;
-    int connParams[6];
+    int connParams[7];
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
     setSoldierId(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[0]);
     setSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[1]);
@@ -227,6 +227,7 @@ PUBLIC void *handleNetwork(void *ptr) {
     setSoldierPosition(((GameInfo *)ptr)->soldiers[connParams[0]],getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]), getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]), 32, 32);
     setSoldierFileName(((GameInfo *)ptr)->soldiers[connParams[0]], "resources/Karaktarer/BOY/BOYpistol.png");
     setSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[5]);
+    setSoldierHealth(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[6]);
     ((GameInfo *)ptr)->id = connParams[0];
 
     int gameOver = 0;
@@ -239,6 +240,7 @@ PUBLIC void *handleNetwork(void *ptr) {
         clientPlayersData.frame = getSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]]);
         clientPlayersData.shotFired = getSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]]);
         clientPlayersData.connected = getSoldierConnected(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.health = getSoldierHealth(((GameInfo *)ptr)->soldiers[connParams[0]]);
 
 		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientPlayersData, sizeof(struct playersData)) < sizeof(struct playersData))
 		{
@@ -257,6 +259,7 @@ PUBLIC void *handleNetwork(void *ptr) {
                 setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].frame);
                 setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].shotFired);
                 setSoldierConnected(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].connected);
+                setSoldierHealth(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].health);
             }
         }
     }
