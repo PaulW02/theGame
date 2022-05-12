@@ -73,7 +73,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
     }
 }
 
-PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect *ammoPosition){
+PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect *ammoPosition, SDL_Rect *bulletIndicator){
     int newYPos, newXPos;
     if((getSoldierFrameTimer(s))>2){
         if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
@@ -105,11 +105,13 @@ PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect
     setSoldierPositionY(s, newYPos);
     healthBarPosition->y = getSoldierPositionY(s) - 12;
     ammoPosition->y = healthBarPosition->y - 8;
+    bulletIndicator->y = healthBarPosition->y - 9;
 
     newXPos=(getSoldierPositionX(s))+(getSoldierSpeedX(s));
     setSoldierPositionX(s, newXPos); 
     healthBarPosition->x = getSoldierPositionX(s) - 4;
-    ammoPosition->x = healthBarPosition->x + 12;
+    ammoPosition->x = healthBarPosition->x + 8;
+    bulletIndicator->x = healthBarPosition->x;
     setSoldierFrame(s, (*pframe));
 
     SDL_Delay(0);

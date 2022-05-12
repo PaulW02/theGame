@@ -9,6 +9,6 @@
 #include "../player/soldier.h"
 
 void movementInput(SDL_Event theApp, Soldier s);
-void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect *ammoPosition);
+void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect *ammoPosition, SDL_Rect *bulletIndicator);
 
 #endif

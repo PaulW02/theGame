@@ -26,9 +26,10 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mReloadDisplay, SDL_Rect reloadClips[], SDL_Rect reloadPosition){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mBulletType, SDL_Rect bulletIndicator, SDL_Texture *mReloadDisplay){
     SDL_Rect playerPosition;
     int frame, healthImage;
+    Weapon weapon = getSoldierWeapon(soldiers[id]);
     for (int i = 0; i < MAX_PLAYERS; i++){
         frame = getSoldierFrame(soldiers[i]);
         if (frame > 7)
@@ -54,18 +55,25 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     ammoPosition.x = healthBarPositions[id].x + 8;
     ammoPosition.h = 7;
     ammoPosition.w = 5;
-    reloadPosition.y = healthBarPositions[id].y - 8;
-    reloadPosition.x = healthBarPositions[id].x;
-    reloadPosition.h = 8;
-    reloadPosition.w = 36;
+    bulletIndicator.y = healthBarPositions[id].y - 9;
+    bulletIndicator.x = healthBarPositions[id].x;
+    bulletIndicator.h = 8;
+    bulletIndicator.w = 5;
+    SDL_Rect test;
+    test.y = 0;
+    test.x = 0;
+    test.h = 8;
+    test.w = 5;
+    setReloadPosition(weapon, healthBarPositions[id].x + 10, healthBarPositions[id].y - 8, 27, 7);
     if(!getWeaponReload(getSoldierWeapon(soldiers[id])))
     {
         drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
     }
     else
     {
-        drawReloadDisplay(gRenderer, soldiers[id], mReloadDisplay, reloadClips, reloadPosition);
+        drawReloadDisplay(gRenderer, weapon, mReloadDisplay);
     }
+    SDL_RenderCopyEx(gRenderer, mBulletType, &test, &bulletIndicator, 0, NULL, SDL_FLIP_NONE);
 }
 
 // Handles bullets
@@ -107,39 +115,24 @@ PUBLIC void drawAmmoDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mAm
     SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
 }
 
-PUBLIC void drawReloadDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mReloadDisplay, SDL_Rect reloadClips[], SDL_Rect reloadPosition)
+PUBLIC void drawReloadDisplay(SDL_Renderer *gRenderer, Weapon w, SDL_Texture *mReloadDisplay)
 {
-    SDL_Rect clip;
-    Weapon w = getSoldierWeapon(s);
     int reloadTime = getWeaponReloadTime(w);
     int timer = getWeaponBulletTimer(w);
-
-    if(timer<(reloadTime/5))
+    if((timer%10)==1)
     {
-        clip = reloadClips[5];
+        if(getReloadClip(w)>=3)
+        {
+            setReloadClip(w, 0);
+        }
+        else
+        {
+            setReloadClip(w, getReloadClip(w) + 1);
+        }
     }
-    else if(timer<((2*reloadTime)/5))
-    {
-        clip = reloadClips[4];
-    }
-    else if(timer<((3*reloadTime)/5))
-    {
-        clip = reloadClips[3];
-    }
-    else if(timer<((4*reloadTime)/5))
-    {
-        clip = reloadClips[2];
-    }
-    else if(timer<reloadTime)
-    {
-        clip = reloadClips[1];
-    }
-    else
-    {
-        clip = reloadClips[0];
-    }
-    
-    SDL_RenderCopyEx(gRenderer, mReloadDisplay, &clip, &reloadPosition, 0, NULL, SDL_FLIP_NONE);
+    SDL_Rect clip = getReloadClips(w, getReloadClip(w));
+    SDL_Rect pos = getReloadPosition(w);
+    SDL_RenderCopyEx(gRenderer, mReloadDisplay, &clip, &pos, 0, NULL, SDL_FLIP_NONE);
 }
 
 PUBLIC void renderBackground(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES]){

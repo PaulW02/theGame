@@ -111,8 +111,11 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect ammoClips[11];
     SDL_Rect ammoPosition;
     SDL_Texture *mReloadDisplay = NULL;
-    SDL_Rect reloadClips[6];
+    SDL_Rect reloadClips[5];
+    int reloadClip = 0;
     SDL_Rect reloadPosition;
+    SDL_Texture *mBulletType = NULL;
+    SDL_Rect bulletIndicator;
 
     int weaponSpeed;
     int maxRange;
@@ -172,8 +175,8 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadHealthMedia(gRenderer, &mHealthBar, healthClips);
-    loadAmmoMedia(gRenderer, &mAmmoCounter, ammoClips);
-    loadReloadMedia(gRenderer, &mReloadDisplay, reloadClips);
+    loadAmmoMedia(gRenderer, &mAmmoCounter, ammoClips, &mBulletType);
+    loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
@@ -188,7 +191,7 @@ PUBLIC void applicationUpdate(Application theApp){
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
-        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id], &ammoPosition);
+        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id], &ammoPosition, &bulletIndicator);
 
         // Send and retrive information UDP
         //clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
@@ -203,7 +206,7 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
-        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mReloadDisplay, reloadClips, reloadPosition);
+        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, bulletIndicator, mReloadDisplay);
         bulletsRenderer(gRenderer, bullets, &bulletTexture, &amountOfBullets, weaponSpeed, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);
