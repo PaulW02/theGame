@@ -111,9 +111,6 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect ammoClips[11];
     SDL_Rect ammoPosition;
     SDL_Texture *mReloadDisplay = NULL;
-    SDL_Rect reloadClips[5];
-    int reloadClip = 0;
-    SDL_Rect reloadPosition;
     SDL_Texture *mBulletType = NULL;
     SDL_Rect bulletIndicator;
 

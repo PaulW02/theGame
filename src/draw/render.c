@@ -59,11 +59,7 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     bulletIndicator.x = healthBarPositions[id].x;
     bulletIndicator.h = 8;
     bulletIndicator.w = 5;
-    SDL_Rect test;
-    test.y = 0;
-    test.x = 0;
-    test.h = 8;
-    test.w = 5;
+    SDL_Rect bullettype = {0,0,5,8};
     setReloadPosition(weapon, healthBarPositions[id].x + 10, healthBarPositions[id].y - 8, 27, 7);
     if(!getWeaponReload(getSoldierWeapon(soldiers[id])))
     {
@@ -73,7 +69,7 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     {
         drawReloadDisplay(gRenderer, weapon, mReloadDisplay);
     }
-    SDL_RenderCopyEx(gRenderer, mBulletType, &test, &bulletIndicator, 0, NULL, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(gRenderer, mBulletType, &bullettype, &bulletIndicator, 0, NULL, SDL_FLIP_NONE);
 }
 
 // Handles bullets
