@@ -20,27 +20,14 @@
 PUBLIC void initPlayers(Soldier soldiers[]){
     for (int i = 0; i < MAX_PLAYERS; i++)
     {   
-        if(i == 0){
-            soldiers[i] = createSoldier(10, 10);
-            setSoldierFrame(soldiers[i], 2);
-            setSoldierFileName(soldiers[i],"resources/Karaktarer/PUMPKIN/PUMPKINpistol.png");
-        }else if(i == 1){
-            soldiers[i] = createSoldier(470, 10);
-            setSoldierFrame(soldiers[i], 6);
-            setSoldierFileName(soldiers[i],"resources/Karaktarer/FEMALEwizard/FEMALEpistol.png");
-        }else if(i == 2){
-            soldiers[i] = createSoldier(470, 470);
-            setSoldierFrame(soldiers[i], 6);
-            setSoldierFileName(soldiers[i],"resources/Karaktarer/GHOST/GHOSTpistol.png");
-        }else{
-            soldiers[i] = createSoldier(10, 470);
-            setSoldierFrame(soldiers[i], 2);
-            setSoldierFileName(soldiers[i],"resources/Karaktarer/BOY/BOYpistol.png");
-        }
+        soldiers[i] = createSoldier(-50, -50);
+        setSoldierFrame(soldiers[i], 2);
+        setSoldierFileName(soldiers[i],"resources/Karaktarer/PUMPKIN/PUMPKINpistol.png");
 
         setSoldierId(soldiers[i], i);
         setSoldierShotFired(soldiers[i], 0);
-        setSoldierPosition(soldiers[i], getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i]), 32, 32);
+        setSoldierPosition(soldiers[i], -50, -50, 32, 32);
+        setSoldierConnected(soldiers[i], 0);
         
         weaponChoiceHandler(soldiers[i]);
     }

@@ -105,7 +105,7 @@ PUBLIC int checkBulletRangeMax(Bullet b, SDL_Rect bulletPosition, int maxRange, 
 
 PUBLIC void manageFireRateAndAmmo(Soldier soldiers[])
 {
-    for(int i=0;i<MAX_PLAYERS;i++)
+    for(int i=0;i< MAX_PLAYERS;i++)
     {
         Weapon weapon = getSoldierWeapon(soldiers[i]);
         manageFireRate(weapon);
