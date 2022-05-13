@@ -73,7 +73,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
     }
 }
 
-PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition){
+PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect *ammoPosition){
     int newYPos, newXPos;
     if((getSoldierFrameTimer(s))>2){
         if(getSoldierSpeedX(s)>0 || (getSoldierSpeedX(s)>0 && getSoldierSpeedY(s)!=0)){
