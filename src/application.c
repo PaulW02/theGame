@@ -112,7 +112,6 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect ammoPosition;
     SDL_Texture *mReloadDisplay = NULL;
     SDL_Texture *mBulletType = NULL;
-    SDL_Rect bulletIndicator;
 
     int weaponSpeed;
     int maxRange;
@@ -188,7 +187,7 @@ PUBLIC void applicationUpdate(Application theApp){
             movementInput(theApp->window_event, gameInfo->soldiers[gameInfo->id]);
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
-        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id], &ammoPosition, &bulletIndicator);
+        motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id]);
 
         // Send and retrive information UDP
         //clientPacketSender(soldiers, &soldierXPos, &soldierYPos, &oldX, &oldY, &playerId, bulletsActive, sd, srvadd, p, &packetType);
