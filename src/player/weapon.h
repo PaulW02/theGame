@@ -35,5 +35,9 @@ typedef struct weapon *Weapon;
     void setReloadClips(Weapon weapon, int index, int x, int y, int w, int h);
     int getReloadClip(Weapon w);
     void setReloadClip(Weapon w, int x);
+    SDL_Rect getWeaponBulletIndicatorPos(Weapon w);
+    void setWeaponBulletIndicatorPos(Weapon weapon, int x, int y, int w, int h);
+    SDL_Rect getWeaponBulletTypeRect(Weapon w);
+    void setWeaponBulletTypeRect(Weapon weapon, int x, int y, int w, int h);
 
 #endif
