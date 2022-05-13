@@ -118,6 +118,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mAmmoCounter = NULL;
     SDL_Rect ammoClips[11];
     SDL_Rect ammoPosition;
+    SDL_Texture *mReloadDisplay = NULL;
+    SDL_Texture *mBulletType = NULL;
 
     int weaponSpeed;
     int maxRange;
@@ -172,7 +174,8 @@ PUBLIC void applicationUpdate(Application theApp){
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
     loadHealthMedia(gRenderer, &mHealthBar, healthClips);
-    loadAmmoMedia(gRenderer, &mAmmoCounter, ammoClips);
+    loadAmmoMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
+    loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
     loadTiles(gRenderer, &mTiles, gTiles);
     while(keep_window_open)
     {
@@ -192,11 +195,11 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gRenderer);
         renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
-        manageFireRateAndAmmo(gameInfo->soldiers);    //Manages firerate and reload for all soldiers
+        manageFireRateAndAmmo(gameInfo->soldiers);
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
-        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition);
+        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, mReloadDisplay);
         bulletsRenderer(gRenderer, gameInfo->soldiers, bullets, &bulletTexture, &amountOfBullets, &bulletsActive);
         SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);
