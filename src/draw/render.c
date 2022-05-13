@@ -64,6 +64,7 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     if(!getWeaponReload(getSoldierWeapon(soldiers[id])))
     {
         drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
+        setReloadClip(weapon, 0);
     }
     else
     {
