@@ -36,8 +36,6 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
-#define CONN_PARAMS_LENGTH 20
-
 struct application{
     SDL_Window  *window;
     SDL_Surface *window_surface;
@@ -168,6 +166,10 @@ PUBLIC void applicationUpdate(Application theApp){
     
     bool keep_window_open = true;
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
+    
+    setSoldierFileName(gameInfo->soldiers[gameInfo->id], getPathToCharacter(m));
+    weaponChoiceHandler(gameInfo->soldiers[gameInfo->id]);
+   
 
     loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
     loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
@@ -225,7 +227,6 @@ PUBLIC void *handleNetwork(void *ptr) {
     setSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[3]);
     setSoldierConnected(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[4]);
     setSoldierPosition(((GameInfo *)ptr)->soldiers[connParams[0]],getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]), getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]), 32, 32);
-    setSoldierFileName(((GameInfo *)ptr)->soldiers[connParams[0]], "resources/Karaktarer/BOY/BOYpistol.png");
     setSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[5]);
     setSoldierHealth(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[6]);
     ((GameInfo *)ptr)->id = connParams[0];
@@ -251,7 +252,7 @@ PUBLIC void *handleNetwork(void *ptr) {
         SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playersData, 4*sizeof(struct playersData));
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
-            
+
             if(i != clientPlayersData.id){
                 setSoldierId(((GameInfo *)ptr)->soldiers[i],((GameInfo *)ptr)->playersData[i].id);
                 setSoldierPositionX(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].x);
