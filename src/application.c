@@ -166,18 +166,10 @@ PUBLIC void applicationUpdate(Application theApp){
 
     
 
-<<<<<<< HEAD
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
-    loadAmmoMedia(gameInfo->gRenderer, &mAmmoCounter, ammoClips);
+    loadReloadMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
+    loadAmmoMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
-=======
-    loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
-    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
-    loadHealthMedia(gRenderer, &mHealthBar, healthClips);
-    loadAmmoMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
-    loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
-    loadTiles(gRenderer, &mTiles, gTiles);
->>>>>>> master
     while(keep_window_open)
     {
         Uint64 start = SDL_GetPerformanceCounter();  

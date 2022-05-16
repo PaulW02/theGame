@@ -24,6 +24,8 @@ PUBLIC void setupPlayerAndWeapon(GameInfo *gameInfo){
         weaponChoiceHandler(gameInfo->soldiers[i]);
         loadSoldierMedia(gameInfo->gRenderer, &gameInfo->mSoldier[i], gameInfo->gSpriteClips[i], gameInfo->soldiers[i]);
         loadBulletMedia(gameInfo->gRenderer, &gameInfo->bulletTexture[i], getSoldierWeapon(gameInfo->soldiers[i]));
+        loadReloadMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
+        loadAmmoMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
     }
 }
 
