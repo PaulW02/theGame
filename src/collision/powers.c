@@ -18,6 +18,7 @@ PRIVATE int HEIGHT = 32;
 struct powers{
     SDL_Rect position;
     int powerUpTimer;
+    int powerUpsRespawn;
     
 };
 
@@ -75,12 +76,24 @@ PUBLIC int getPowerUpTimer(PowerUps p){
     return p->powerUpTimer;
 }
 
+PUBLIC void setPowerUpsRespawn(PowerUps p, int preset){
+    p->powerUpsRespawn = preset;
+}
+
+PUBLIC int getPowerUpsRespawn(PowerUps p){
+    return p->powerUpsRespawn;
+}
+
+
 PUBLIC void powerUpTouched(Soldier s, PowerUps p){
     setSoldierPowerUp(s, 1);
     setSoldierPowerUpTimer(s, 700);
     setSoldierSpeed(s,3);
+
+    //Sätter Poweruppen utanför mappen
     setPowerUpsPositionX(p, 600);
     setPowerUpsPositionY(p, 600);
+
     setPowerUpTimer(p, 400);
     
 }
@@ -90,7 +103,32 @@ PUBLIC void powerUpTimedOut(Soldier s){
 }
 
 PUBLIC void powerUpRespawn(PowerUps p){
-    setPowerUpsPositionX(p, 220);
-    setPowerUpsPositionY(p, 220);
+    switch(getPowerUpsRespawn(p)){
+        case 0:
+            setPowerUpsPositionX(p, 50);
+            setPowerUpsPositionY(p, 100);
+            setPowerUpsRespawn(p, 1);
+            break;
+        case 1:
+            setPowerUpsPositionX(p, 100);
+            setPowerUpsPositionY(p, 440);
+            setPowerUpsRespawn(p, 2);
+            break;
+        case 2:
+            setPowerUpsPositionX(p, 370);
+            setPowerUpsPositionY(p, 290);
+            setPowerUpsRespawn(p, 3);
+            break;
+        case 3:
+            setPowerUpsPositionX(p, 360);
+            setPowerUpsPositionY(p, 90);
+            setPowerUpsRespawn(p, 4);
+            break;
+        case 4:
+            setPowerUpsPositionX(p, 220);
+            setPowerUpsPositionY(p, 220);
+            setPowerUpsRespawn(p, 0);
+            break;
+    }
 
 }

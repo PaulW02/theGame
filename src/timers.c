@@ -14,7 +14,7 @@ PUBLIC void timerUpdate(Soldier s, PowerUps p){
         powerUpTimedOut(s);
         setSoldierPowerUp(s,0);
     }
-    if(getPowerUpTimer(p) <1){
+    if(getPowerUpTimer(p)==0){
         powerUpRespawn(p);
     }
 }
