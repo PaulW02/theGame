@@ -21,6 +21,11 @@ struct weapon{
     int bulletTimer;
     bool shotCooldown;
     bool reload;
+    SDL_Rect reloadClips[5];
+    SDL_Rect reloadPosition;
+    int reloadClip;
+    SDL_Rect bulletIndicator;
+    SDL_Rect bulletType;
     Bullet bullet;
     SDL_Texture *weaponTexture;
     SDL_Rect weapon;
@@ -41,6 +46,7 @@ PUBLIC Weapon createWeapon(int range, int power, int speed, int magazine_size, i
     w->bulletTimer = 0;
     w->shotCooldown = false;
     w->reload = false;
+    w->reloadClip = 0;
     return w;
 }
 
@@ -167,4 +173,56 @@ PUBLIC void setWeaponReload(Weapon w, bool reload){
 
 PUBLIC bool getWeaponReload(Weapon w){
     return w->reload;
+}
+
+PUBLIC SDL_Rect getReloadPosition(Weapon w){
+    return w->reloadPosition;
+}
+
+PUBLIC void setReloadPosition(Weapon weapon, int x, int y, int w, int h){
+    weapon->reloadPosition.x = x;
+    weapon->reloadPosition.y = y;
+    weapon->reloadPosition.w = w;
+    weapon->reloadPosition.h = h;
+}
+
+PUBLIC SDL_Rect getReloadClips(Weapon w, int index){
+    return w->reloadClips[index];
+}
+
+PUBLIC void setReloadClips(Weapon weapon, int index, int x, int y, int w, int h){
+    weapon->reloadClips[index].x = x;
+    weapon->reloadClips[index].y = y;
+    weapon->reloadClips[index].w = w;
+    weapon->reloadClips[index].h = h;
+}
+
+PUBLIC int getReloadClip(Weapon w){
+    return w->reloadClip;
+}
+
+PUBLIC void setReloadClip(Weapon w, int x){
+    w->reloadClip = x;
+}
+
+PUBLIC SDL_Rect getWeaponBulletIndicatorPos(Weapon w){
+    return w->bulletIndicator;
+}
+
+PUBLIC void setWeaponBulletIndicatorPos(Weapon weapon, int x, int y, int w, int h){
+    weapon->bulletIndicator.x = x;
+    weapon->bulletIndicator.y = y;
+    weapon->bulletIndicator.w = w;
+    weapon->bulletIndicator.h = h;
+}
+
+PUBLIC SDL_Rect getWeaponBulletTypeRect(Weapon w){
+    return w->bulletType;
+}
+
+PUBLIC void setWeaponBulletTypeRect(Weapon weapon, int x, int y, int w, int h){
+    weapon->bulletType.x = x;
+    weapon->bulletType.y = y;
+    weapon->bulletType.w = w;
+    weapon->bulletType.h = h;
 }

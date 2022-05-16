@@ -103,6 +103,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mAmmoCounter = NULL;
     SDL_Rect ammoClips[11];
     SDL_Rect ammoPosition;
+    SDL_Texture *mReloadDisplay = NULL;
+    SDL_Texture *mBulletType = NULL;
 
     int weaponSpeed;
     int maxRange;
@@ -164,9 +166,18 @@ PUBLIC void applicationUpdate(Application theApp){
 
     
 
+<<<<<<< HEAD
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadAmmoMedia(gameInfo->gRenderer, &mAmmoCounter, ammoClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
+=======
+    loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
+    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
+    loadHealthMedia(gRenderer, &mHealthBar, healthClips);
+    loadAmmoMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
+    loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
+    loadTiles(gRenderer, &mTiles, gTiles);
+>>>>>>> master
     while(keep_window_open)
     {
         Uint64 start = SDL_GetPerformanceCounter();  
@@ -185,11 +196,11 @@ PUBLIC void applicationUpdate(Application theApp){
         SDL_RenderClear(gameInfo->gRenderer);
         renderBackground(gameInfo->gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
-        manageFireRateAndAmmo(gameInfo->soldiers);    //Manages firerate and reload for all soldiers
+        manageFireRateAndAmmo(gameInfo->soldiers);
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
 
-        renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition);
+        renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, mReloadDisplay);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         SDL_RenderPresent(gameInfo->gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id]);

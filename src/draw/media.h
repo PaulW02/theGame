@@ -17,7 +17,8 @@
 void loadSoldierMedia(SDL_Renderer *gRenderer, SDL_Texture **mSoldier, SDL_Rect gSoldierFrames[], Soldier s);
 void loadBulletMedia(SDL_Renderer *gRenderer, SDL_Texture **bulletTexture, Weapon w);
 void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, SDL_Rect healthClips[]);
-void loadAmmoMedia(SDL_Renderer *gRenderer, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[]);
+void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[], SDL_Texture **mBulletType);
+void loadReloadMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mReloadDisplay);
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 
 #endif
