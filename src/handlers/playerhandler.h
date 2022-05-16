@@ -11,6 +11,7 @@
 #include "../player/soldier.h"
 
 void initPlayers(Soldier soldiers[]);
+void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[]);
 void weaponChoiceHandler(Soldier soldier);
 int getHealthImageBasedOnCurrentHealth(int currentHealth);
 void respawnPlayer(Soldier soldierToRespawn);

@@ -5,6 +5,6 @@
 #include "player/soldier.h"
 
 void timerUpdate(Soldier s);
-
+int countDown();
 
 #endif
