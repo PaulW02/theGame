@@ -7,6 +7,7 @@
 PUBLIC void timerUpdate(Soldier s, PowerUps p){
     //Frame timer
     setSoldierFrameTimer(s, getSoldierFrameTimer(s) + 1);
+
     // Timer for powerUp
     setSoldierPowerUpTimer(s, getSoldierPowerUpTimer(s) - 1);
     setPowerUpTimer(p, getPowerUpTimer(p)-1);
@@ -17,4 +18,7 @@ PUBLIC void timerUpdate(Soldier s, PowerUps p){
     if(getPowerUpTimer(p)==0){
         powerUpRespawn(p);
     }
+
+    //Timer for respawn
+    setSoldierRespawnTimer(s, getSoldierRespawnTimer(s) - 1);
 }

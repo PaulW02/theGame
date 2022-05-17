@@ -41,14 +41,23 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
         healthBarPositions[i].x = getSoldierPositionX(soldiers[i]) - 4;
         healthBarPositions[i].h = 8;           // kolla här också!
         healthBarPositions[i].w = 36;
-        checkPlayerOutOfBoundaries(soldiers[i]); 
+        if(getSoldierRespawnTimer(soldiers[i]) < 0){
+            checkPlayerOutOfBoundaries(soldiers[i]); 
+        }
         soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
         healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
+        if(healthImage == 10){
+            setSoldierPositionX(soldiers[i], 2000);
+            setSoldierPositionY(soldiers[i], 2000);
+            if(getSoldierRespawnTimer(soldiers[i]) < 0){
+                setSoldierRespawnTimer(soldiers[i], 200);
+            }
+            if(getSoldierRespawnTimer(soldiers[i]) == 0){
+                respawnPlayer(soldiers[i]);
+            }
+        }
         SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
-        if(healthImage == 10){
-            respawnPlayer(soldiers[i]);
-        }
     }
     // powerUp display
     SDL_Rect powerupsPosition;
