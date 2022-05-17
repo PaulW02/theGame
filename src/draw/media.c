@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 
@@ -130,7 +131,7 @@ PUBLIC void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, S
     healthClips[ 10 ].h =8;
 }
 
-PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[])
+PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[], SDL_Texture **mBulletType)
 {
     SDL_Surface* gAmmoSurface = IMG_Load("resources/ammo_numbers.PNG");
     *mAmmoCounter = SDL_CreateTextureFromSurface(gRenderer, gAmmoSurface);
@@ -189,6 +190,39 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, SDL_Texture **mAmmoCounter, S
     ammoClips[ 10 ].y =0;
     ammoClips[ 10 ].w =5;
     ammoClips[ 10 ].h =7;
+
+    SDL_Surface* gBulletTypeSurface;
+    //Bullet indicator
+    if(strstr(getWeaponBullet(w), "pistolbullet"))
+    {
+        gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.PNG");
+        setWeaponBulletTypeRect(w, 0, 0, 5, 8);
+    }
+    /*else if(strstr(getWeaponBullet(w), "bow"))
+    {
+
+    }
+    else if(strstr(getWeaponBullet(w), "spear"))
+    {
+
+    }
+    else if(strstr(getWeaponBullet(w), "rod"))
+    {
+
+    }*/
+    *mBulletType = SDL_CreateTextureFromSurface(gRenderer, gBulletTypeSurface);
+}
+
+PUBLIC void loadReloadMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mReloadDisplay)
+{
+    setReloadClips(w, 0, 0, 0, 27, 7);
+    setReloadClips(w, 1, 30, 0, 27, 7);
+    setReloadClips(w, 2, 60, 0, 27, 7);
+    setReloadClips(w, 3, 90, 0, 27, 7);
+    setReloadClips(w, 4, 120, 0, 27, 7);
+
+    SDL_Surface* gReloadSurface = IMG_Load("resources/reload_dots.PNG");
+    *mReloadDisplay = SDL_CreateTextureFromSurface(gRenderer, gReloadSurface);
 }
 
 PUBLIC void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]){

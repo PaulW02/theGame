@@ -16,6 +16,8 @@ struct playersData{
 	int y;
     int frame;
     int shotFired;
+    int health;
+    int connected;
 };
 typedef struct playersData PlayersData;
 
@@ -29,7 +31,6 @@ typedef struct playerConnDetails PlayerConnDetails;
 struct gameInfo {
     PlayerConnDetails playerConnections[MAX_PLAYERS];
     PlayersData playersData[MAX_PLAYERS];
-    int connectedPlayers[MAX_PLAYERS];
     Soldier soldiers[MAX_PLAYERS];
     int id;
 };
@@ -49,13 +50,7 @@ int main(int argc,char** argv)
     TCPsocket client;
     //PlayerConnDetails players[4] = (struct playerConnDetails*)malloc(4*sizeof(PlayerConnDetails));
     GameInfo *gameInfo = (struct gameInfo *)malloc(sizeof(struct gameInfo));
-    int *number;
-    char text[100];
     int threadNr = 0;
-    
-    for (int i = 0; i < MAX_PLAYERS; i++){
-        gameInfo->connectedPlayers[i] = 0;
-    }
     
 
     pthread_t threads[MAX_PLAYERS];
@@ -82,8 +77,13 @@ int main(int argc,char** argv)
 }
 
 void *handlePlayer(void *ptr) {
-    int playerInfo[6];
+    int playerInfo[7];
     int currentPlayerId = ((GameInfo *)ptr)->id;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        ((GameInfo *)ptr)->playersData[i].x = -50;
+        ((GameInfo *)ptr)->playersData[i].y = -50;
+    }
     
     Soldier newSoldier;
     PlayersData receivedPlayersData;
@@ -105,21 +105,21 @@ void *handlePlayer(void *ptr) {
     setSoldierPosition(newSoldier, getSoldierPositionX(newSoldier), getSoldierPositionY(newSoldier), 32, 32);
     setSoldierFileName(newSoldier,"resources/Karaktarer/BOY/BOYpistol.png");
     setSoldierShotFired(newSoldier, 0);
+    setSoldierConnected(newSoldier, 1);
+    setSoldierHealth(newSoldier, 100);
     weaponChoiceHandler(newSoldier);
     ((GameInfo *)ptr)->soldiers[currentPlayerId] = newSoldier;
-    ((GameInfo *)ptr)->connectedPlayers[currentPlayerId] = 1;
     playerInfo[0] = currentPlayerId;
     playerInfo[1] = getSoldierFrame(newSoldier);
     playerInfo[2] = getSoldierPositionX(newSoldier);
     playerInfo[3] = getSoldierPositionY(newSoldier);
-    playerInfo[4] = ((GameInfo *)ptr)->connectedPlayers[currentPlayerId];
+    playerInfo[4] = getSoldierConnected(newSoldier);
     playerInfo[5] = getSoldierShotFired(newSoldier);
+    playerInfo[6] = getSoldierHealth(newSoldier);
     if(SDLNet_TCP_Send(((GameInfo *)ptr)->playerConnections[currentPlayerId].sock, playerInfo, sizeof(playerInfo))< sizeof(playerInfo)){
         fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-
-
 
     int gameOver = 0;
     // While loop
@@ -133,9 +133,10 @@ void *handlePlayer(void *ptr) {
             ((GameInfo *)ptr)->playersData[currentPlayerId].y = receivedPlayersData.y;
             ((GameInfo *)ptr)->playersData[currentPlayerId].frame = receivedPlayersData.frame;
             ((GameInfo *)ptr)->playersData[currentPlayerId].shotFired = receivedPlayersData.shotFired;
+            ((GameInfo *)ptr)->playersData[currentPlayerId].health = receivedPlayersData.health;
+            ((GameInfo *)ptr)->playersData[currentPlayerId].connected = receivedPlayersData.connected;
             
             //printf("%d %d %d\n", ((GameInfo *)ptr)->playersMovement[currentPlayerId].id, ((GameInfo *)ptr)->playersMovement[currentPlayerId].x, ((GameInfo *)ptr)->playersMovement[currentPlayerId].y);
-            
         }
 
         //printf("%d Will be sending now... \n", currentPlayerId);

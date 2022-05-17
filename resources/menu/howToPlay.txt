@@ -1,0 +1,5 @@
+THIS IS HOW YOU PLAY THE GAME!
+
+You play online, up to 4 people, and shoot eachother until only one is left.
+
+There's a scoreboard which all players can see their score on.
