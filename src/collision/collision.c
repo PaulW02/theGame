@@ -199,7 +199,7 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
     int rightA, rightB;
     int topA, topB;
     int bottomA, bottomB;
-
+    int healthImage, currentKills = 0;
     for (int i = 0; i < (*amountOfBullets); i++){
         for (int j = 0; j < MAX_PLAYERS; j++){
                //Rect Bullet
@@ -219,7 +219,13 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
                 if(((getBulletSoldierId(bullets[i])) != (j))){
                     deleteBullet(amountOfBullets, bullets, i);
                     setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
-
+                    healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[j]));
+                    if(healthImage == 10){
+                        printf("SoldierPast: %d kills", currentKills);
+                        currentKills=getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]);      // kollar antal kills
+                        setSoldierKills(soldiers[getBulletSoldierId(bullets[i])], currentKills++);   // ökar antal kills
+                        printf("SoldierPresent: %d kills", currentKills);
+                    }
                 }
             }   
         }

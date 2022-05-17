@@ -10,6 +10,7 @@
 #include "../player/soldier.h"
 #include "../map/tile.h"
 #include "../player/bullet.h"
+#include "../handlers/playerhandler.h"
 
 #define AMOUNT_TILES 32
 

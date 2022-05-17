@@ -26,7 +26,7 @@
 
 PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition){
     SDL_Rect playerPosition;
-    int frame, healthImage;
+    int frame, healthImage, currentKills;
     for (int i = 0; i < MAX_PLAYERS; i++){
         frame = getSoldierFrame(soldiers[i]);
         if (frame > 7)

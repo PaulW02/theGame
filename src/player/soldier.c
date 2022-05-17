@@ -33,6 +33,7 @@ struct soldier{
     int connected;
     int frameTimer;
     int health;
+    int kills;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -46,6 +47,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->connected = 0;
     s->frameTimer=0;
     s->health = 100;
+    s->kills = 0;
     return s;
 }
 
@@ -174,4 +176,12 @@ PUBLIC void setSoldierHealth(Soldier s, int health){
 
 PUBLIC int getSoldierHealth(Soldier s){
     return s->health;
+}
+
+PUBLIC void setSoldierKills(Soldier s, int kills){
+    s->kills = kills;
+}
+
+PUBLIC int getSoldierKills(Soldier soldiers[]){
+    return soldiers[]->kills;
 }
