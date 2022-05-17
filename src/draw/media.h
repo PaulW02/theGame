@@ -20,5 +20,6 @@ void loadHealthMedia(SDL_Renderer *gRenderer, SDL_Texture **mHealthBar, SDL_Rect
 void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmoCounter, SDL_Rect ammoClips[], SDL_Texture **mBulletType);
 void loadReloadMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mReloadDisplay);
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
+void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersClips[]);
 
 #endif

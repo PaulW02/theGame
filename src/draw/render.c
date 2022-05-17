@@ -4,6 +4,7 @@
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "../collision/powers.h"
 
 #include "render.h"
 
@@ -26,7 +27,7 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mBulletType, SDL_Texture *mReloadDisplay){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mBulletType, SDL_Texture *mReloadDisplay, SDL_Rect powersPosition, SDL_Texture *mPowers, SDL_Rect powersClips[], PowerUps powers){
     SDL_Rect playerPosition;
     int frame, healthImage;
     for (int i = 0; i < MAX_PLAYERS; i++){
@@ -49,6 +50,11 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
             respawnPlayer(soldiers[i]);
         }
     }
+    // powerUp display
+    SDL_Rect powerupsPosition;
+    powerupsPosition = getPowerUpsPosition(powers);
+    SDL_RenderCopyEx(gRenderer, mPowers, &powersClips[0],&powerupsPosition, 0, NULL, SDL_FLIP_NONE);
+
     Weapon weapon = getSoldierWeapon(soldiers[id]);
     // ammunition display
     ammoPosition.y = healthBarPositions[id].y - 8;

@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "collision/collision.h"
 #include "timers.h"
+#include "collision/powers.h"
 
 #include "sounds/soundeffects.h"
 
@@ -121,6 +122,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mReloadDisplay = NULL;
     SDL_Texture *mBulletType = NULL;
 
+    SDL_Texture *mPowers = NULL;
+    SDL_Rect powersClips[1];
+    SDL_Rect powersPosition;
+
     int weaponSpeed;
     int maxRange;
     int oldX, oldY, soldierXPos, soldierYPos;
@@ -152,8 +157,10 @@ PUBLIC void applicationUpdate(Application theApp){
      // Background
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
-   
-
+    
+    PowerUps powers;
+    powers = createPowerUps(220,220);
+    
 
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
@@ -177,6 +184,7 @@ PUBLIC void applicationUpdate(Application theApp){
     loadAmmoMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
     loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
     loadTiles(gRenderer, &mTiles, gTiles);
+    loadPowers(gRenderer, &mPowers, powersClips);
     while(keep_window_open)
     {
         Uint64 start = SDL_GetPerformanceCounter();  
@@ -198,11 +206,13 @@ PUBLIC void applicationUpdate(Application theApp){
         manageFireRateAndAmmo(gameInfo->soldiers);
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
+        powersPlayerCollision(gameInfo->soldiers, powers);
+        
+        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, mReloadDisplay, powersPosition, mPowers, powersClips, powers);
 
-        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, mReloadDisplay);
         bulletsRenderer(gRenderer, gameInfo->soldiers, bullets, &bulletTexture, &amountOfBullets, &bulletsActive);
         SDL_RenderPresent(gRenderer);
-        timerUpdate(gameInfo->soldiers[gameInfo->id]);
+        timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
 
         Uint64 end = SDL_GetPerformanceCounter();
         float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
