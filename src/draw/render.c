@@ -27,7 +27,7 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier[], SDL_Rect gSoldierFrames[][8], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mBulletType, SDL_Texture *mReloadDisplay, SDL_Rect powersPosition, SDL_Texture *mPowers, SDL_Rect powersClips[], PowerUps powers){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier[], SDL_Rect gSoldierFrames[][8], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter[], SDL_Rect ammoClips[][11], SDL_Rect ammoPosition, SDL_Texture *mBulletType[], SDL_Texture *mReloadDisplay[], SDL_Rect powersPosition, SDL_Texture *mPowers, SDL_Rect powersClips[], PowerUps powers){
     SDL_Rect playerPosition;
     int frame, healthImage;
 
@@ -71,14 +71,14 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
 
     if(!getWeaponReload(weapon))
     {
-        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
+        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter[id], ammoClips[id], ammoPosition);
         setReloadClip(weapon, 0);
     }
     else
     {
-        drawReloadDisplay(gRenderer, weapon, mReloadDisplay);
+        drawReloadDisplay(gRenderer, weapon, mReloadDisplay[id]);
     }
-    drawBulletIndicator(gRenderer, weapon, mBulletType);
+    drawBulletIndicator(gRenderer, weapon, mBulletType[id]);
 
 }
 
