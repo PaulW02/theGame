@@ -165,8 +165,8 @@ PUBLIC void applicationUpdate(Application theApp){
     strcpy(soldierImagePath, getSoldierFileName(gameInfo->soldiers[gameInfo->id]));
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
 
-    loadReloadMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &gameInfo->mReloadDisplay[gameInfo->id]);
-    loadAmmoMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &gameInfo->mAmmoCounter[gameInfo->id], gameInfo->ammoClips[gameInfo->id], &gameInfo->mBulletType[gameInfo->id]);
+
+
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
@@ -221,7 +221,12 @@ PUBLIC void *handleNetwork(void *ptr) {
     setupPlayerAndWeapon(((GameInfo *)ptr));
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
+    
+
     setReceivedValuesForCurrentPlayer(((GameInfo *)ptr), connParams);
+    loadReloadMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mReloadDisplay[connParams[0]]);
+    loadAmmoMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mAmmoCounter[connParams[0]], ((GameInfo *)ptr)->ammoClips[connParams[0]], &((GameInfo *)ptr)->mBulletType[connParams[0]]);
+
     int gameOver = 0;
     
     while (!gameOver)
