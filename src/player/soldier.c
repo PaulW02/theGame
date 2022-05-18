@@ -35,6 +35,7 @@ struct soldier{
     int health;
     int powerUp;
     int powerUpTimer;
+    int respawnTimer;
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -50,6 +51,7 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->health = 100;
     s->powerUp = 0;
     s->powerUpTimer = 0;
+    s->respawnTimer = 0;
     return s;
 }
 
@@ -194,4 +196,12 @@ PUBLIC void setSoldierPowerUpTimer(Soldier s, int powerUpTimer){
 
 PUBLIC int getSoldierPowerUpTimer(Soldier s){
     return s->powerUpTimer;
+}
+
+PUBLIC int setSoldierRespawnTimer(Soldier s, int timer){
+    s->respawnTimer = timer;
+}
+
+PUBLIC int getSoldierRespawnTimer(Soldier s){
+    return s->respawnTimer;
 }

@@ -99,6 +99,22 @@ PUBLIC int getHealthImageBasedOnCurrentHealth(int currentHealth){
 PUBLIC void respawnPlayer(Soldier soldierToRespawn){
     setSoldierHealth(soldierToRespawn, 100);
     setWeaponMagazine(getSoldierWeapon(soldierToRespawn), getWeaponMagazine_Size(getSoldierWeapon(soldierToRespawn)));
-    setSoldierPositionX(soldierToRespawn, 256);
-    setSoldierPositionY(soldierToRespawn, 200);
+    switch(getSoldierId(soldierToRespawn)){
+        case 0:
+            setSoldierPositionX(soldierToRespawn, 16);
+            setSoldierPositionY(soldierToRespawn, 24);        
+            break;
+        case 1:
+            setSoldierPositionX(soldierToRespawn, 470);
+            setSoldierPositionY(soldierToRespawn, 24);
+            break;
+        case 2:
+            setSoldierPositionX(soldierToRespawn, 440);
+            setSoldierPositionY(soldierToRespawn, 460);
+            break;
+        case 3:
+            setSoldierPositionX(soldierToRespawn, 38);
+            setSoldierPositionY(soldierToRespawn, 460);
+            break;
+    }
 }
