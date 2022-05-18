@@ -3,8 +3,8 @@
 
 #include "application.h"
 #include "player/soldier.h"
-
-void timerUpdate(Soldier s);
+#include "collision/powers.h"
+void timerUpdate(Soldier s, PowerUps p);
 
 
 #endif

@@ -50,6 +50,12 @@ void setSoldierHealth(Soldier s, int health);
 int getSoldierHealth(Soldier s);
 void setSoldierKills(Soldier s, int kills);
 int getSoldierKills(Soldier s);
+void setSoldierPowerUp(Soldier s, int powerUp);
+int getSoldierPowerUp(Soldier s);
+void setSoldierPowerUpTimer(Soldier s, int powerUpTimer);
+int getSoldierPowerUpTimer(Soldier s);
+int setSoldierRespawnTimer(Soldier s, int timer);
+int getSoldierRespawnTimer(Soldier s);
 #endif
 
 
