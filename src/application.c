@@ -160,16 +160,16 @@ PUBLIC void applicationUpdate(Application theApp){
     
     setSoldierFileName(gameInfo->soldiers[gameInfo->id], getPathToCharacter(m));
     weaponChoiceHandler(gameInfo->soldiers[gameInfo->id]);
-    printf("%d id FIRST\n",gameInfo->id);
     // Send to lobby character
     char soldierImagePath[PATHLENGTH];
     strcpy(soldierImagePath, getSoldierFileName(gameInfo->soldiers[gameInfo->id]));
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
 
+    loadReloadMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &gameInfo->mReloadDisplay[gameInfo->id]);
+    loadAmmoMedia(gameInfo->gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &gameInfo->mAmmoCounter[gameInfo->id], gameInfo->ammoClips[gameInfo->id], &gameInfo->mBulletType[gameInfo->id]);
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
-    printf("%d id SECOND\n",gameInfo->id);
     while(keep_window_open)
     {
         Uint64 start = SDL_GetPerformanceCounter();  
@@ -219,7 +219,7 @@ PUBLIC void *handleNetwork(void *ptr) {
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->soldierImagePaths, 4*(PATHLENGTH+1));
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
     setupPlayerAndWeapon(((GameInfo *)ptr));
-    printf("TEST\n");
+
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
     setReceivedValuesForCurrentPlayer(((GameInfo *)ptr), connParams);
     int gameOver = 0;
@@ -227,13 +227,13 @@ PUBLIC void *handleNetwork(void *ptr) {
     while (!gameOver)
     {   
         getCurrentPlayerInfo(((GameInfo *)ptr), &clientPlayersData, connParams[0]);
-        printf("TEST1\n");
+
 		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientPlayersData, sizeof(struct playersData)) < sizeof(struct playersData))
 		{
 			fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 			exit(EXIT_FAILURE);
 		}
-        printf("TEST2\n");
+
         SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playersData, 4*sizeof(struct playersData));
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
@@ -247,6 +247,6 @@ PUBLIC void *handleNetwork(void *ptr) {
                 //setWeaponMagazine(getSoldierWeapon(((GameInfo *)ptr)->soldiers[i]), ((GameInfo *)ptr)->playersData[i].magazine);
             }
         }
-        printf("TEST3\n");
+
     }
 }
