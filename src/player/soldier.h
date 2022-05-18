@@ -52,6 +52,8 @@ void setSoldierPowerUp(Soldier s, int powerUp);
 int getSoldierPowerUp(Soldier s);
 void setSoldierPowerUpTimer(Soldier s, int powerUpTimer);
 int getSoldierPowerUpTimer(Soldier s);
+int setSoldierRespawnTimer(Soldier s, int timer);
+int getSoldierRespawnTimer(Soldier s);
 #endif
 
 
