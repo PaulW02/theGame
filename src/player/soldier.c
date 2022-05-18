@@ -182,6 +182,6 @@ PUBLIC void setSoldierKills(Soldier s, int kills){
     s->kills = kills;
 }
 
-PUBLIC int getSoldierKills(Soldier soldiers[]){
-    return soldiers[]->kills;
+PUBLIC int getSoldierKills(Soldier s){
+    return s->kills;
 }
