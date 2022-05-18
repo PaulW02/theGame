@@ -31,6 +31,10 @@ struct gameInfo{
     SDL_Renderer *gRenderer;
     SDL_Rect gSpriteClips[MAX_PLAYERS][8];
     SDL_Texture *bulletTexture[MAX_PLAYERS];
+    SDL_Texture *mAmmoCounter[MAX_PLAYERS];
+    SDL_Rect ammoClips[MAX_PLAYERS][11];
+    SDL_Texture *mReloadDisplay[MAX_PLAYERS];
+    SDL_Texture *mBulletType[MAX_PLAYERS];
 };
 typedef struct gameInfo GameInfo;
 
