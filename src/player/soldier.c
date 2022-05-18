@@ -45,6 +45,8 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->speedY = 0;
     s->position.x = x; 
     s->position.y = y;
+    s->position.w = WIDTH;
+    s->position.h = HEIGHT;
     s->frame = 0;
     s->connected = 0;
     s->frameTimer=0;
