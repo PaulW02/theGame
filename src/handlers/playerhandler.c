@@ -26,36 +26,13 @@ PUBLIC void initPlayers(Soldier soldiers[]){
 
         setSoldierId(soldiers[i], i);
         setSoldierShotFired(soldiers[i], 0);
+        setSoldierPosition(soldiers[i], -50, -50, 32, 32);
         setSoldierConnected(soldiers[i], 0);
         
         weaponChoiceHandler(soldiers[i]);
     }
 }
 
-PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[]){
-    
-    if(id == 0){
-        *newSoldier = createSoldier(10, 10);
-        setSoldierFrame(*newSoldier, 2);
-    }else if(id == 1){
-        *newSoldier = createSoldier(470, 10);
-        setSoldierFrame(*newSoldier, 6);
-    }else if(id == 2){
-        *newSoldier = createSoldier(10, 470);
-        setSoldierFrame(*newSoldier, 2);
-    }else{
-        *newSoldier = createSoldier(470, 470);
-        setSoldierFrame(*newSoldier, 6);
-    }
-
-    setSoldierId(*newSoldier, id);
-    setSoldierFileName(*newSoldier,soldierImagePath);
-    printf("%s \n", getSoldierFileName(*newSoldier));
-    setSoldierShotFired(*newSoldier, 0);
-    setSoldierConnected(*newSoldier, 1);
-    setSoldierHealth(*newSoldier, 100);
-    weaponChoiceHandler(*newSoldier);
-}
 
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {

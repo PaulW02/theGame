@@ -37,6 +37,8 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
+#define CONN_PARAMS_LENGTH 20
+
 struct application{
     SDL_Window  *window;
     SDL_Surface *window_surface;
@@ -44,7 +46,24 @@ struct application{
 
 };
 
+struct playersData{
+    int id;
+	int x;
+	int y;
+    int frame;
+    int shotFired;
+    int health;
+    int connected;
+};
+typedef struct playersData PlayersData;
 
+struct gameInfo{
+    PlayersData playersData[MAX_PLAYERS];
+    Soldier soldiers[MAX_PLAYERS];
+    TCPsocket tcp_sd;
+    int id;
+};
+typedef struct gameInfo GameInfo;
 
 PUBLIC void *handleNetwork(void *ptr);
 
@@ -77,6 +96,7 @@ PUBLIC Application createApplication(){
 
 PUBLIC void applicationUpdate(Application theApp){
 
+    SDL_Renderer *gRenderer = NULL;
 
     //Create player and set start position
     GameInfo *gameInfo = (struct gameInfo *)malloc(sizeof(struct gameInfo));
@@ -88,13 +108,8 @@ PUBLIC void applicationUpdate(Application theApp){
         gameInfo->playersData[i].y = -50;
     }
 
-    gameInfo->gRenderer = NULL;
-    for (int i = 0; i < MAX_PLAYERS; i++){
-        gameInfo->mSoldier[i] = NULL;
-    }
-    
-    
-
+    SDL_Texture *mSoldier = NULL;
+    SDL_Rect gSpriteClips[8];
     SDL_Rect playerPosition;
     
     SDL_Texture *mHealthBar = NULL;
@@ -123,6 +138,8 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect bullet;
     SDL_Rect bulletPosition;
 
+
+
     Bullet bullets[MAX_BULLETS];
     
     int bulletFrame = 0;
@@ -137,42 +154,41 @@ PUBLIC void applicationUpdate(Application theApp){
 
     int packetType = 0;
 
-    // Background
+     // Background
     SDL_Texture *mTiles = NULL;
     SDL_Rect gTiles[16];
     
     PowerUps powers;
     powers = createPowerUps(220,220);
     
+
     Tile tiles[AMOUNT_TILES][AMOUNT_TILES];
 
 	IPaddress srvadd;
 
-    gameInfo->gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
-    Menu m = createMenu(gameInfo->gRenderer);
+    gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+    Menu m = createMenu(gRenderer);
     if(menuApplication(m) == -1) return;
     initSoundEffects();
     initConnection(&gameInfo->tcp_sd, &srvadd, m);  
     pthread_t networkThread;
 
+
+    
     bool keep_window_open = true;
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
-    
-    setSoldierFileName(gameInfo->soldiers[gameInfo->id], getPathToCharacter(m));
-    weaponChoiceHandler(gameInfo->soldiers[gameInfo->id]);
-    // Send to lobby character
-    char soldierImagePath[PATHLENGTH];
-    strcpy(soldierImagePath, getSoldierFileName(gameInfo->soldiers[gameInfo->id]));
-    SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
 
-
-
-    loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
-    loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
-    loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
+    loadSoldierMedia(gRenderer, &mSoldier, gSpriteClips, gameInfo->soldiers[gameInfo->id]);
+    loadBulletMedia(gRenderer, &bulletTexture, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]));
+    loadHealthMedia(gRenderer, &mHealthBar, healthClips);
+    loadAmmoMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mAmmoCounter, ammoClips, &mBulletType);
+    loadReloadMedia(gRenderer, getSoldierWeapon(gameInfo->soldiers[gameInfo->id]), &mReloadDisplay);
+    loadTiles(gRenderer, &mTiles, gTiles);
+    loadPowers(gRenderer, &mPowers, powersClips);
     while(keep_window_open)
     {
         Uint64 start = SDL_GetPerformanceCounter();  
+
         while(SDL_PollEvent(&theApp->window_event))
         {
             if(theApp->window_event.type == SDL_QUIT){
@@ -183,18 +199,19 @@ PUBLIC void applicationUpdate(Application theApp){
         }  
         frame = getSoldierFrame(gameInfo->soldiers[gameInfo->id]);
         motion(gameInfo->soldiers[gameInfo->id], &frame, &healthBarPositions[gameInfo->id], &ammoPosition);
-        SDL_SetRenderDrawColor(gameInfo->gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-        SDL_RenderClear(gameInfo->gRenderer);
-        renderBackground(gameInfo->gRenderer, mTiles, gTiles, tiles);
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(gRenderer);
+        renderBackground(gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
         manageFireRateAndAmmo(gameInfo->soldiers);
         bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         powersPlayerCollision(gameInfo->soldiers, powers);
         
-        renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
-        bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
-        SDL_RenderPresent(gameInfo->gRenderer);
+        renderPlayers(gRenderer, gameInfo->soldiers, gameInfo->id, mSoldier, gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, mAmmoCounter, ammoClips, ammoPosition, mBulletType, mReloadDisplay, powersPosition, mPowers, powersClips, powers);
+
+        bulletsRenderer(gRenderer, gameInfo->soldiers, bullets, &bulletTexture, &amountOfBullets, &bulletsActive);
+        SDL_RenderPresent(gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
 
         Uint64 end = SDL_GetPerformanceCounter();
@@ -214,24 +231,29 @@ PUBLIC void *handleNetwork(void *ptr) {
 
     PlayersData clientPlayersData;
     int connParams[7];
-    
-
-    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->soldierImagePaths, 4*(PATHLENGTH+1));
-    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
-    setupPlayerAndWeapon(((GameInfo *)ptr));
-
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
+    setSoldierId(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[0]);
+    setSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[1]);
+    setSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[2]);
+    setSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[3]);
+    setSoldierConnected(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[4]);
+    setSoldierPosition(((GameInfo *)ptr)->soldiers[connParams[0]],getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]), getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]), 32, 32);
+    setSoldierFileName(((GameInfo *)ptr)->soldiers[connParams[0]], "resources/Karaktarer/BOY/BOYpistol.png");
+    setSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[5]);
+    setSoldierHealth(((GameInfo *)ptr)->soldiers[connParams[0]], connParams[6]);
     ((GameInfo *)ptr)->id = connParams[0];
 
-    setReceivedValuesForCurrentPlayer(((GameInfo *)ptr), connParams);
-    loadReloadMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mReloadDisplay[connParams[0]]);
-    loadAmmoMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mAmmoCounter[connParams[0]], ((GameInfo *)ptr)->ammoClips[connParams[0]], &((GameInfo *)ptr)->mBulletType[connParams[0]]);
-    
     int gameOver = 0;
     
     while (!gameOver)
     {   
-        getCurrentPlayerInfo(((GameInfo *)ptr), &clientPlayersData, connParams[0]);
+        clientPlayersData.id = connParams[0];
+        clientPlayersData.x = getSoldierPositionX(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.y = getSoldierPositionY(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.frame = getSoldierFrame(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.shotFired = getSoldierShotFired(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.connected = getSoldierConnected(((GameInfo *)ptr)->soldiers[connParams[0]]);
+        clientPlayersData.health = getSoldierHealth(((GameInfo *)ptr)->soldiers[connParams[0]]);
 
 		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientPlayersData, sizeof(struct playersData)) < sizeof(struct playersData))
 		{
@@ -242,16 +264,16 @@ PUBLIC void *handleNetwork(void *ptr) {
         SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playersData, 4*sizeof(struct playersData));
         for (int i = 0; i < MAX_PLAYERS; i++)
         {
+            
             if(i != clientPlayersData.id){
                 setSoldierId(((GameInfo *)ptr)->soldiers[i],((GameInfo *)ptr)->playersData[i].id);
                 setSoldierPositionX(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].x);
                 setSoldierPositionY(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].y);
                 setSoldierFrame(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].frame);
                 setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].shotFired);
+                setSoldierConnected(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].connected);
                 setSoldierHealth(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].health);
-                //setWeaponMagazine(getSoldierWeapon(((GameInfo *)ptr)->soldiers[i]), ((GameInfo *)ptr)->playersData[i].magazine);
             }
         }
-
     }
 }

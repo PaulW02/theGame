@@ -11,7 +11,6 @@ int menuApplication(Menu m);
 char* getIpAddress(Menu m);
 char getGameType(Menu m);
 int getCharacter(Menu m);
-char* getPathToCharacter(Menu m);
 int getWeapon(Menu m);
 
 #endif
