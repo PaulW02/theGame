@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 #include "menu.h"
+#include "lobby.h"
 #include "collision/collision.h"
 #include "timers.h"
 
@@ -160,8 +161,21 @@ PUBLIC void applicationUpdate(Application theApp){
 	IPaddress srvadd;
 
     gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+    
+    //Menu
     Menu m = createMenu(gRenderer);
-    if(menuApplication(m) == -1) return;
+    if(menuApplication(m,1) == -1) return;
+
+    //Lobby
+    Lobby l = createLobby(gRenderer);
+    pushLobbyPlayer(l,getPathToCharacter(m),getPlayerName(m));
+    pushLobbyPlayer(l,"resources/Karaktarer/MALE/MALEbow.png","Male");
+    pushLobbyPlayer(l,"resources/Karaktarer/SKELETON/SKELETONpistol.png","Skelington");
+    pushLobbyPlayer(l,"resources/Karaktarer/WIZARD/WIZARDrodBLUE.png","Wizard Oz");
+
+    if(lobbyApplication(l) == -1) return;
+    
+    
     initSoundEffects();
     initConnection(&gameInfo->tcp_sd, &srvadd, m);  
     pthread_t networkThread;
