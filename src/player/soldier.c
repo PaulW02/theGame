@@ -1,11 +1,3 @@
-//
-//  spaceman.c
-//  F4
-//
-//  Created by Jonas Wåhslén on 2016-02-26.
-//  Copyright © 2016 Jonas Wåhslén. All rights reserved.
-//
-
 #include <string.h>
 #include "soldier.h"
 #include "SDL2/SDL.h"
