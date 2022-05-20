@@ -21,18 +21,6 @@
 #define CLOSEREQUSTED -1
 #define LOBBYMENU 1
 
-
-//Function declarations
-PUBLIC Lobby createLobby(SDL_Renderer *gRenderer);
-PUBLIC int lobbyApplication(Lobby l);
-PRIVATE int lobbyMenu(Lobby l);
-PRIVATE void destroyLobby(Lobby l);
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
-
-
-PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[]);
-
-
 struct player{
     char playerPath[PATHLENGTH];
     char playerName[WORDLENGTH];
@@ -45,6 +33,16 @@ struct lobby{
     int numberOfPlayers;
     Player players[MAXNUMBEROFPLAYERS];
 };
+
+
+//Function declarations
+PUBLIC Lobby createLobby(SDL_Renderer *gRenderer);
+PUBLIC int lobbyApplication(Lobby l);
+PRIVATE int lobbyMenu(Lobby l);
+PRIVATE void destroyLobby(Lobby l);
+PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
+
+PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[]);
 
 
 PUBLIC Lobby createLobby(SDL_Renderer *gRenderer)
@@ -108,21 +106,21 @@ PRIVATE int lobbyMenu(Lobby l)
     int posX = 0, padding = 70;
     int posY[4] = {275,300,300,275};
 
-    //Countdown [WIP]
-    //Uint32 ticks, seconds, startTimeValue;
-    //char countdownNumber[3];
-    //int countdown = 30;
-    
-    //Countdown [WIP]
-    //startTimeValue = SDL_GetTicks() / 1000;
+    Uint32 ticks, currentTimeElapsed, startTime, currentTime, prevTimeElapsed;
+
+    startTime = SDL_GetTicks() / 1000;
+    prevTimeElapsed=startTime;
 
     while(!closeRequested)
     {
-        /*
-        //Countdown [WIP]
         ticks = SDL_GetTicks();
-        seconds = (ticks/1000)% 2 + 1;
-        */
+        currentTimeElapsed = ticks / 1000; //From [ms] -> [s]
+        if(prevTimeElapsed!=currentTimeElapsed)
+        {
+            currentTime = (currentTimeElapsed - startTime) % 30;
+            prevTimeElapsed=currentTimeElapsed;
+            printf("Time: %d\n", 31 - currentTime);
+        }
 
         while(SDL_PollEvent(&l->windowEvent))
         {
@@ -143,28 +141,21 @@ PRIVATE int lobbyMenu(Lobby l)
                     }
                     break;
             }
+        }
+        if(l->players[0].playerPath[0] != '\0')
+        {
+            SDL_RenderClear(l->gRenderer);
+            renderImage(l->gRenderer,"lobby.png",-1,150,1,255);
 
-            if(l->players[0].playerPath[0] != '\0')
+            for(int i = 0; i < l->numberOfPlayers; i++)
             {
-                SDL_RenderClear(l->gRenderer);
-                renderImage(l->gRenderer,"lobby.png",-1,150,1,255);
-                
-                /*
-                //Countdown [WIP]
-                sprintf(countdownNumber,"%d",countdown);
-                renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
-                */
+                posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
 
-                for(int i = 0; i < l->numberOfPlayers; i++)
-                {
-                    posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
-
-                    renderImageEx(l->gRenderer,l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
-                    renderCharacterText(l->gRenderer,l->players[i].playerName,colors[i],posX,posY[i]-50,24);
-                }
-                SDL_RenderPresent(l->gRenderer);
-
+                renderImageEx(l->gRenderer,l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+                renderCharacterText(l->gRenderer,l->players[i].playerName,colors[i],posX,posY[i]-50,24);
             }
+            SDL_RenderPresent(l->gRenderer);
+
         }
     }
     return CLOSEREQUSTED;

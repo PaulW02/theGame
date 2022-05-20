@@ -558,7 +558,7 @@ PRIVATE int pickCharacterMenu(Menu m)
     Uint8 alpha[5] = {255,255,255,255,255};
     SDL_Color color = {0xFF,0xFF,0xFF}; //White
     
-    bool hovering[5]={false};
+    bool hovering[5] = {false};
 
     //Names & Weapons
     PRIVATE char characters[7][10] = {"Boy","Female","Ghost","Male","Pumpkin","Skeleton","Wizard"};
