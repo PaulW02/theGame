@@ -5,13 +5,51 @@
 #include <stdlib.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-
+#include "../application.h"
+#include "../draw/media.h"
 #include "../player/soldier.h"
+#include "../lobby.h"
 
-void sendStarterPacket(Soldier soldier, TCPsocket tcp_sd);
-void clientPacketSender(Soldier soldiers[], int *soldierXPos, int *soldierYPos, int *oldX, int *oldY, int *playerId, int bulletsActive, UDPsocket sd, IPaddress srvadd, UDPpacket *p, int *packetType);
-void UDPPacketSender(Soldier soldier, UDPsocket sd, IPaddress srvadd, UDPpacket *p, int packetType);
-void UDPPacketReceiver(Soldier soldiers[], int *playerId, UDPsocket sd, UDPpacket *p2, int packetType);
-void insertValuesToAllPlayers(Soldier soldiers[], int connParams[], int playerId, int packetType);
+struct playersData{
+    int id;
+	int x;
+	int y;
+    int frame;
+    int shotFired;
+    int health;
+    int magazine;
+};
+typedef struct playersData PlayersData;
 
+struct playerLobbyInformation{
+    char soldierName[MAX_NAME];
+    char soldierImagePath[PATHLENGTH];
+};
+typedef struct playerLobbyInformation PlayerLobbyInformation;
+
+struct gameInfo{
+    Lobby l;
+    PlayersData playersData[MAX_PLAYERS];
+    Soldier soldiers[MAX_PLAYERS];
+    PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
+    TCPsocket tcp_sd;
+    int id;
+    int amountOfPlayersConnected;
+    char soldierNames[MAX_PLAYERS][MAX_NAME];
+    char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
+    SDL_Texture *mSoldier[MAX_PLAYERS];
+    SDL_Renderer *gRenderer;
+    SDL_Rect gSpriteClips[MAX_PLAYERS][8];
+    SDL_Texture *bulletTexture[MAX_PLAYERS];
+    SDL_Texture *mAmmoCounter[MAX_PLAYERS];
+    SDL_Rect ammoClips[MAX_PLAYERS][11];
+    SDL_Texture *mReloadDisplay[MAX_PLAYERS];
+    SDL_Texture *mBulletType[MAX_PLAYERS];
+};
+typedef struct gameInfo GameInfo;
+
+void setupPlayerAndWeapon(GameInfo *gameInfo);
+void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams[]);
+void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
+void setReceivedValuesForAllPlayers(GameInfo *gameInfo, PlayersData clientPlayersData);
 #endif

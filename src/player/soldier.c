@@ -1,11 +1,3 @@
-//
-//  spaceman.c
-//  F4
-//
-//  Created by Jonas Wåhslén on 2016-02-26.
-//  Copyright © 2016 Jonas Wåhslén. All rights reserved.
-//
-
 #include <string.h>
 #include "soldier.h"
 #include "SDL2/SDL.h"
@@ -16,6 +8,7 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 #define MAXCHAR 100
+#define MAX_NAME 30
 
 PRIVATE int WIDTH = 32;
 PRIVATE int HEIGHT = 32;
@@ -33,6 +26,11 @@ struct soldier{
     int connected;
     int frameTimer;
     int health;
+    int kills;
+    int powerUp;
+    int powerUpTimer;
+    int respawnTimer;
+    char soldierName[MAX_NAME];
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -42,10 +40,16 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->speedY = 0;
     s->position.x = x; 
     s->position.y = y;
+    s->position.w = WIDTH;
+    s->position.h = HEIGHT;
     s->frame = 0;
     s->connected = 0;
     s->frameTimer=0;
     s->health = 100;
+    s->kills = 0;
+    s->powerUp = 0;
+    s->powerUpTimer = 0;
+    s->respawnTimer = 0;
     return s;
 }
 
@@ -174,4 +178,46 @@ PUBLIC void setSoldierHealth(Soldier s, int health){
 
 PUBLIC int getSoldierHealth(Soldier s){
     return s->health;
+}
+
+PUBLIC void setSoldierKills(Soldier s, int kills){
+    s->kills = kills;
+}
+
+PUBLIC int getSoldierKills(Soldier s){
+    return s->kills;
+}
+
+PUBLIC void setSoldierPowerUp(Soldier s, int powerUp){
+    s->powerUp = powerUp;
+}
+
+PUBLIC int getSoldierPowerUp(Soldier s){
+    return s->powerUp;
+}
+
+PUBLIC void setSoldierPowerUpTimer(Soldier s, int powerUpTimer){
+    s->powerUpTimer = powerUpTimer;
+}
+
+PUBLIC int getSoldierPowerUpTimer(Soldier s){
+    return s->powerUpTimer;
+}
+
+PUBLIC int setSoldierRespawnTimer(Soldier s, int timer){
+    s->respawnTimer = timer;
+}
+
+PUBLIC int getSoldierRespawnTimer(Soldier s){
+    return s->respawnTimer;
+}
+
+PUBLIC void setSoldierName(Soldier s, char soldierName[MAX_NAME])
+{
+    strcpy(s->soldierName,soldierName);
+}
+
+PUBLIC char* getSoldierName(Soldier s)
+{
+    return  s->soldierName;
 }

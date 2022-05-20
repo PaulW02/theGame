@@ -1,5 +1,3 @@
-
-
 #include "world.h"
 
 #define PUBLIC /* empty */
