@@ -523,6 +523,10 @@ PRIVATE void renderRect(Menu m, int x, int y, int w, int h)
     return;
 }
 
+/*Renders the text you put in as 'char *textToRender'
+  Color:      The color, could be ex 'SDL_Color color = {0xFF,0xFF,0xFF}' for white
+  X and Y:    The upper left most corner
+  Size:       The size of the text*/
 PUBLIC void renderText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
 {        
     TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);

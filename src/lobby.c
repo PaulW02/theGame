@@ -105,13 +105,16 @@ PRIVATE int lobbyMenu(Lobby l)
                           {0x00,0xFF,0x00},  //Green
                           {0x00,0x00,0xFF},  //Blue
                           {0xFF,0x00,0xFF}}; //Pink
-    int posX = 0, padding = 70, countdown = 30;
+    int posX = 0, padding = 70;
     int posY[4] = {275,300,300,275};
-    char countdownNumber[3];
 
-    Uint32 ticks, seconds, startTimeValue;
-
-    startTimeValue = SDL_GetTicks() / 1000;
+    //Countdown [WIP]
+    //Uint32 ticks, seconds, startTimeValue;
+    //char countdownNumber[3];
+    //int countdown = 30;
+    
+    //Countdown [WIP]
+    //startTimeValue = SDL_GetTicks() / 1000;
 
     while(!closeRequested)
     {
