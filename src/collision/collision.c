@@ -4,7 +4,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 
-
 #include "collision.h"
 
 #include "../player/soldier.h"
@@ -58,8 +57,8 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
                 //Rect Player
                 leftA = (getSoldierPositionX(s)+4);
                 rightA = (getSoldierPositionX(s) + (getSoldierWidth()-6));
-                topA = (getSoldierPositionY(s)+10);
-                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-2));
+                topA = (getSoldierPositionY(s)+4);
+                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-6));
 
                 //Rect Tile
                 leftB = getTilePositionX(tiles[i][j]);
@@ -110,20 +109,20 @@ PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet b
 
 PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
     int newYPos, newXPos;
-    if(getSoldierSpeedY(s)>0){
-        newYPos=(playerPosition->y-=getSoldierSpeed(s));
+    if (getSoldierSpeedY(s)>0){
+        newYPos=(playerPosition->y-=2);
         setSoldierPositionY(s, newYPos);
     }
-    if(getSoldierSpeedX(s)>0){
-        newXPos=(playerPosition->x-=getSoldierSpeed(s));
+    if (getSoldierSpeedX(s)>0){
+        newXPos=(playerPosition->x-=2);
         setSoldierPositionX(s, newXPos);
     }
-    if(getSoldierSpeedX(s)<0){
-        newXPos=(playerPosition->x+=getSoldierSpeed(s));
+    if (getSoldierSpeedX(s)<0){
+        newXPos=(playerPosition->x+=2);
         setSoldierPositionX(s, newXPos);
     }
-    if(getSoldierSpeedY(s)<0){
-        newYPos=(playerPosition->y+=getSoldierSpeed(s));
+    if (getSoldierSpeedY(s)<0){
+        newYPos=(playerPosition->y+=2);
         setSoldierPositionY(s, newYPos);
     }
 }
@@ -200,7 +199,7 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
     int rightA, rightB;
     int topA, topB;
     int bottomA, bottomB;
-    int healthImage, currentScore=0;
+
     for (int i = 0; i < (*amountOfBullets); i++){
         for (int j = 0; j < MAX_PLAYERS; j++){
                //Rect Bullet
@@ -220,41 +219,9 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
                 if(((getBulletSoldierId(bullets[i])) != (j))){
                     deleteBullet(amountOfBullets, bullets, i);
                     setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
-                    healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[j]));
-                    if(healthImage == 10){                        
-                        setSoldierKills(soldiers[getBulletSoldierId(bullets[i])], getSoldierKills(soldiers[getBulletSoldierId(bullets[i])])+1);   // ökar antal kills
-                        currentScore = getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]);
-                        printf("SoldierPresent: %d kills", currentScore);
-                    }
+
                 }
             }   
-        }
-    }
-}
-
-PUBLIC void powersPlayerCollision(Soldier soldiers[], PowerUps powers){
-
-   int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-
-    for (int j = 0; j < MAX_PLAYERS; j++){
-
-        //Rect Player
-        leftB = (getSoldierPositionX(soldiers[j])+8);
-        rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth())-8);
-        topB = (getSoldierPositionY(soldiers[j])+6);
-        bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight())-8);
-    
-                        //Rect Player
-        leftA = getPowerUpsPositionX(powers);
-        rightA = getPowerUpsPositionX(powers) + getPowerUpsWidth(powers);
-        topA = getPowerUpsPositionY(powers);
-        bottomA = getPowerUpsPositionY(powers) + getPowerUpsHeight(powers);
-        
-        if(! ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
-            powerUpTouched(soldiers[j], powers);
         }
     }
 }

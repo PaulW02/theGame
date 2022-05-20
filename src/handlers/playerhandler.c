@@ -26,37 +26,13 @@ PUBLIC void initPlayers(Soldier soldiers[]){
 
         setSoldierId(soldiers[i], i);
         setSoldierShotFired(soldiers[i], 0);
+        setSoldierPosition(soldiers[i], -50, -50, 32, 32);
         setSoldierConnected(soldiers[i], 0);
         
         weaponChoiceHandler(soldiers[i]);
     }
 }
 
-PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[], char soldierName[]){
-    
-    if(id == 0){
-        *newSoldier = createSoldier(10, 10);
-        setSoldierFrame(*newSoldier, 2);
-    }else if(id == 1){
-        *newSoldier = createSoldier(470, 10);
-        setSoldierFrame(*newSoldier, 6);
-    }else if(id == 2){
-        *newSoldier = createSoldier(10, 470);
-        setSoldierFrame(*newSoldier, 2);
-    }else{
-        *newSoldier = createSoldier(470, 470);
-        setSoldierFrame(*newSoldier, 6);
-    }
-
-    setSoldierId(*newSoldier, id);
-    setSoldierName(*newSoldier, soldierName);
-    setSoldierFileName(*newSoldier,soldierImagePath);
-    printf("%s \n", getSoldierFileName(*newSoldier));
-    setSoldierShotFired(*newSoldier, 0);
-    setSoldierConnected(*newSoldier, 1);
-    setSoldierHealth(*newSoldier, 100);
-    weaponChoiceHandler(*newSoldier);
-}
 
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
@@ -123,22 +99,6 @@ PUBLIC int getHealthImageBasedOnCurrentHealth(int currentHealth){
 PUBLIC void respawnPlayer(Soldier soldierToRespawn){
     setSoldierHealth(soldierToRespawn, 100);
     setWeaponMagazine(getSoldierWeapon(soldierToRespawn), getWeaponMagazine_Size(getSoldierWeapon(soldierToRespawn)));
-    switch(getSoldierId(soldierToRespawn)){
-        case 0:
-            setSoldierPositionX(soldierToRespawn, 16);
-            setSoldierPositionY(soldierToRespawn, 24);        
-            break;
-        case 1:
-            setSoldierPositionX(soldierToRespawn, 470);
-            setSoldierPositionY(soldierToRespawn, 24);
-            break;
-        case 2:
-            setSoldierPositionX(soldierToRespawn, 440);
-            setSoldierPositionY(soldierToRespawn, 460);
-            break;
-        case 3:
-            setSoldierPositionX(soldierToRespawn, 38);
-            setSoldierPositionY(soldierToRespawn, 460);
-            break;
-    }
+    setSoldierPositionX(soldierToRespawn, 256);
+    setSoldierPositionY(soldierToRespawn, 200);
 }

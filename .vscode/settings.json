@@ -15,8 +15,6 @@
         "eventhandler.h": "c",
         "playerhandler.h": "c",
         "collision.h": "c",
-        "soundeffects.h": "c",
-        "media.h": "c",
-        "clientmanager.h": "c"
+        "soundeffects.h": "c"
     }
 }

@@ -114,14 +114,6 @@ PUBLIC void motion(Soldier s, int *pframe, SDL_Rect *healthBarPosition, SDL_Rect
         setSoldierSpeedY(s, -getSoldierSpeed(s));
     }
 
-    //Fixar problemet med att vid beröring av speedup knasar
-        if(getSoldierSpeedX(s)==1 || getSoldierSpeedX(s)==-1){
-            setSoldierSpeedX(s, 0);
-        }else if(getSoldierSpeedY(s)==1 || getSoldierSpeedY(s)==-1){
-            setSoldierSpeedY(s, 0);
-        }
-
-
     //Moving character and Health pool
     newYPos=(getSoldierPositionY(s))+(getSoldierSpeedY(s));
     setSoldierPositionY(s, newYPos);

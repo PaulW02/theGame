@@ -8,7 +8,7 @@ typedef struct lobby *Lobby;
 //Functions
 Lobby createLobby(SDL_Renderer *gRenderer);
 int lobbyApplication(Lobby l);
-void pushLobbyPlayer(Lobby l, char path[], char name[], int id);
+void pushLobbyPlayer(Lobby l, char path[], char name[]);
 
 
 #endif

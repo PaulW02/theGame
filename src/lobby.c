@@ -36,16 +36,6 @@ struct lobby{
 };
 
 
-//Function declarations
-PUBLIC Lobby createLobby(SDL_Renderer *gRenderer);
-PUBLIC int lobbyApplication(Lobby l);
-PRIVATE int lobbyMenu(Lobby l);
-PRIVATE void destroyLobby(Lobby l);
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
-
-PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[], int id);
-
-
 PUBLIC Lobby createLobby(SDL_Renderer *gRenderer)
 {
     Lobby l = malloc(sizeof(struct lobby));
@@ -60,12 +50,12 @@ PUBLIC Lobby createLobby(SDL_Renderer *gRenderer)
     - Path should be something in the style of :'resources/Karaktarer/SKELETON/SKELETONpistol.png'.
     - Name should be below 16 character which it will be if code is executed correctly
 */
-PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[], int id)
+PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[])
 {
-    if(id<MAXNUMBEROFPLAYERS)
+    if(l->numberOfPlayers<MAXNUMBEROFPLAYERS)
     {
-        strcpy(l->players[id].playerPath,path);
-        strcpy(l->players[id].playerName,name);
+        strcpy(l->players[l->numberOfPlayers].playerPath,path);
+        strcpy(l->players[l->numberOfPlayers].playerName,name);
         l->numberOfPlayers++;
         return;
     }
