@@ -27,7 +27,6 @@ struct serverGameInfo {
     Soldier soldiers[MAX_PLAYERS];
     int id;
     int amountOfPlayersConnected;
-    int gameOver;
     char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
 };
 typedef struct serverGameInfo ServerGameInfo;
@@ -47,14 +46,13 @@ int main(int argc,char** argv)
     //PlayerConnDetails players[4] = (struct playerConnDetails*)malloc(4*sizeof(PlayerConnDetails));
     ServerGameInfo *serverGameInfo = (struct serverGameInfo *)malloc(sizeof(struct serverGameInfo));
     int threadNr = 0;
-    int gameStarted = 0;
+    int gameOver = 0, gameStarted = 0;
     Uint32 matchTimer = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
-    serverGameInfo->gameOver = 0;
     char soldierImagePath[PATHLENGTH];
 
     pthread_t threads[MAX_PLAYERS];
-    while(!(serverGameInfo->gameOver))
+    while(!gameOver)
     {
         client=SDLNet_TCP_Accept(server);
         if(client)
@@ -77,16 +75,19 @@ int main(int argc,char** argv)
             printf("%d Threads\n", threadNr);
 
         }
-        if(threadNr == 4) gameStarted = 1;
+        if(serverGameInfo->amountOfPlayersConnected == 4)
+        {
+            gameStarted = 1;
+        }
         if(gameStarted)
         {
             if (!matchTimer) 
             {
-                matchTimer = SDL_GetTicks() + 180000;
+                matchTimer = SDL_GetTicks() + 180000; //3 minutes
             }
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
             {
-                serverGameInfo->gameOver = 1;
+                gameOver = 1;
             }
         }
     }
