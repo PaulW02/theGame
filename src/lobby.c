@@ -22,6 +22,17 @@
 #define LOBBYMENU 1
 
 
+//Function declarations
+PUBLIC Lobby createLobby(SDL_Renderer *gRenderer);
+PUBLIC int lobbyApplication(Lobby l);
+PRIVATE int lobbyMenu(Lobby l);
+PRIVATE void destroyLobby(Lobby l);
+PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
+
+
+PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[]);
+
+
 struct player{
     char playerPath[PATHLENGTH];
     char playerName[WORDLENGTH];
