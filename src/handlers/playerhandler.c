@@ -102,3 +102,13 @@ PUBLIC void respawnPlayer(Soldier soldierToRespawn){
     setSoldierPositionX(soldierToRespawn, 256);
     setSoldierPositionY(soldierToRespawn, 200);
 }
+
+PUBLIC void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer){
+    SDL_Color black = {0x00,0x00,0x00}; //Black
+    char score[1024];
+    char score2[1024];
+    sprintf(score, "| 1: %d | 2: %d |", getSoldierKills(soldiers[0]), getSoldierKills(soldiers[1]));
+    sprintf(score2,"| 3: %d | 4: %d |", getSoldierKills(soldiers[2]), getSoldierKills(soldiers[3]));
+    renderText(gRenderer, score, black, 210, 10, 16);
+    renderText(gRenderer, score2, black, 210, 30, 16);
+}

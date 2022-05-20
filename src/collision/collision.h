@@ -10,7 +10,7 @@
 #include "../player/soldier.h"
 #include "../map/tile.h"
 #include "../player/bullet.h"
-
+#include "../handlers/playerhandler.h"
 #define AMOUNT_TILES 32
 
 bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame, SDL_Rect *healthBarPosition);

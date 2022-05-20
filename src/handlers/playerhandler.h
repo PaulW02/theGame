@@ -9,9 +9,10 @@
 #include "SDL2/SDL_net.h"
 
 #include "../player/soldier.h"
-
+#include "../menu.h"
 void initPlayers(Soldier soldiers[]);
 void weaponChoiceHandler(Soldier soldier);
 int getHealthImageBasedOnCurrentHealth(int currentHealth);
 void respawnPlayer(Soldier soldierToRespawn);
+void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer);
 #endif
