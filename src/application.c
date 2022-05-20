@@ -158,6 +158,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     initSoundEffects();
     initConnection(&gameInfo->tcp_sd, &srvadd, m); 
+    
     //Lobby
     gameInfo->l = createLobby(gameInfo->gRenderer);
     pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m), 0);

@@ -21,6 +21,7 @@
 #define CLOSEREQUSTED -1
 #define LOBBYMENU 1
 
+
 struct player{
     char playerPath[PATHLENGTH];
     char playerName[WORDLENGTH];
@@ -106,21 +107,21 @@ PRIVATE int lobbyMenu(Lobby l)
     int posX = 0, padding = 70;
     int posY[4] = {275,300,300,275};
 
-    Uint32 ticks, currentTimeElapsed, startTime, currentTime, prevTimeElapsed;
-
-    startTime = SDL_GetTicks() / 1000;
-    prevTimeElapsed=startTime;
+    //Countdown [WIP]
+    //Uint32 ticks, seconds, startTimeValue;
+    //char countdownNumber[3];
+    //int countdown = 30;
+    
+    //Countdown [WIP]
+    //startTimeValue = SDL_GetTicks() / 1000;
 
     while(!closeRequested)
     {
+        /*
+        //Countdown [WIP]
         ticks = SDL_GetTicks();
-        currentTimeElapsed = ticks / 1000; //From [ms] -> [s]
-        if(prevTimeElapsed!=currentTimeElapsed)
-        {
-            currentTime = (currentTimeElapsed - startTime) % 30;
-            prevTimeElapsed=currentTimeElapsed;
-            printf("Time: %d\n", 31 - currentTime);
-        }
+        seconds = (ticks/1000)% 2 + 1;
+        */
 
         while(SDL_PollEvent(&l->windowEvent))
         {
@@ -141,21 +142,28 @@ PRIVATE int lobbyMenu(Lobby l)
                     }
                     break;
             }
-        }
-        if(l->players[0].playerPath[0] != '\0')
-        {
-            SDL_RenderClear(l->gRenderer);
-            renderImage(l->gRenderer,"lobby.png",-1,150,1,255);
 
-            for(int i = 0; i < l->numberOfPlayers; i++)
+            if(l->players[0].playerPath[0] != '\0')
             {
-                posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+                SDL_RenderClear(l->gRenderer);
+                renderImage(l->gRenderer,"lobby.png",-1,150,1,255);
+                
+                /*
+                //Countdown [WIP]
+                sprintf(countdownNumber,"%d",countdown);
+                renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
+                */
 
-                renderImageEx(l->gRenderer,l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
-                renderCharacterText(l->gRenderer,l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+                for(int i = 0; i < l->numberOfPlayers; i++)
+                {
+                    posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+
+                    renderImageEx(l->gRenderer,l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+                    renderCharacterText(l->gRenderer,l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+                }
+                SDL_RenderPresent(l->gRenderer);
+
             }
-            SDL_RenderPresent(l->gRenderer);
-
         }
     }
     return CLOSEREQUSTED;
