@@ -166,9 +166,6 @@ PUBLIC void applicationUpdate(Application theApp){
     Menu m = createMenu(gRenderer);
     if(menuApplication(m,1) == -1) return;
 
-    initSoundEffects();
-    initConnection(&gameInfo->tcp_sd, &srvadd, m); 
-    
     //Lobby
     Lobby l = createLobby(gRenderer);
     pushLobbyPlayer(l,getPathToCharacter(m),getPlayerName(m));
