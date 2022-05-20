@@ -1,5 +1,3 @@
-
-
 #ifndef world_h
 #define world_h
 #include <stdio.h>

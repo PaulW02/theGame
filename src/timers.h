@@ -3,8 +3,9 @@
 
 #include "application.h"
 #include "player/soldier.h"
+#include "collision/powers.h"
 
-void timerUpdate(Soldier s);
-
+void timerUpdate(Soldier s, PowerUps p);
+int countDown();
 
 #endif

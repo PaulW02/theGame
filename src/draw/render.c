@@ -4,6 +4,7 @@
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "../collision/powers.h"
 
 #include "render.h"
 
@@ -26,9 +27,10 @@
 #define MAX_PLAYERS 4
 #define AMOUNT_TILES 32
 
-PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier, SDL_Rect gSoldierFrames[], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition, SDL_Texture *mBulletType, SDL_Texture *mReloadDisplay){
+PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, SDL_Texture *mSoldier[], SDL_Rect gSoldierFrames[][8], Tile tiles[AMOUNT_TILES][AMOUNT_TILES], SDL_Texture *mHealthBar, SDL_Rect healthClips[], SDL_Rect healthBarPositions[], SDL_Texture *mAmmoCounter[], SDL_Rect ammoClips[][11], SDL_Rect ammoPosition, SDL_Texture *mBulletType[], SDL_Texture *mReloadDisplay[], SDL_Rect powersPosition, SDL_Texture *mPowers, SDL_Rect powersClips[], PowerUps powers){
     SDL_Rect playerPosition;
     int frame, healthImage;
+
     for (int i = 0; i < MAX_PLAYERS; i++){
         frame = getSoldierFrame(soldiers[i]);
         if (frame > 7)
@@ -40,15 +42,30 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
         healthBarPositions[i].x = getSoldierPositionX(soldiers[i]) - 4;
         healthBarPositions[i].h = 8;           // kolla här också!
         healthBarPositions[i].w = 36;
-        checkPlayerOutOfBoundaries(soldiers[i]); 
+        if(getSoldierRespawnTimer(soldiers[i]) < 0){
+            checkPlayerOutOfBoundaries(soldiers[i]); 
+        }
         soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
         healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
-        SDL_RenderCopyEx(gRenderer, mSoldier, &gSoldierFrames[frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
-        SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
         if(healthImage == 10){
-            respawnPlayer(soldiers[i]);
+            setSoldierPositionX(soldiers[i], 2000);
+            setSoldierPositionY(soldiers[i], 2000);
+            if(getSoldierRespawnTimer(soldiers[i]) < 0){
+                setSoldierRespawnTimer(soldiers[i], 200);
+            }
+            if(getSoldierRespawnTimer(soldiers[i]) == 0){
+                respawnPlayer(soldiers[i]);
+            }
         }
+        SDL_RenderCopyEx(gRenderer, mSoldier[i], &gSoldierFrames[i][frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);
     }
+
+    // powerUp display
+    SDL_Rect powerupsPosition;
+    powerupsPosition = getPowerUpsPosition(powers);
+    SDL_RenderCopyEx(gRenderer, mPowers, &powersClips[0],&powerupsPosition, 0, NULL, SDL_FLIP_NONE);
+
     Weapon weapon = getSoldierWeapon(soldiers[id]);
     // ammunition display
     ammoPosition.y = healthBarPositions[id].y - 8;
@@ -61,18 +78,19 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
 
     if(!getWeaponReload(weapon))
     {
-        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter, ammoClips, ammoPosition);
+        drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter[id], ammoClips[id], ammoPosition);
         setReloadClip(weapon, 0);
     }
     else
     {
-        drawReloadDisplay(gRenderer, weapon, mReloadDisplay);
+        drawReloadDisplay(gRenderer, weapon, mReloadDisplay[id]);
     }
-    drawBulletIndicator(gRenderer, weapon, mBulletType);
+    drawBulletIndicator(gRenderer, weapon, mBulletType[id]);
+
 }
 
 // Handles bullets
-PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet bullets[], SDL_Texture **bulletTexture, int *amountOfBullets, int *bulletsActive){
+PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet bullets[], SDL_Texture *bulletTexture[], int *amountOfBullets, int *bulletsActive){
     SDL_Rect bulletPosition, bullet;
     int maxRange, weaponSpeed;
 
@@ -85,7 +103,7 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet 
         weaponSpeed = getWeaponSpeed(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
         maxRange = getWeaponRange(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])]));
         move(&bulletPosition, getBulletFrame(bullets[i]), weaponSpeed);
-        SDL_RenderCopyEx(gRenderer, *bulletTexture, &bullet, &bulletPosition, getBulletAngle(bullets[i]), NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(gRenderer, bulletTexture[getBulletSoldierId(bullets[i])], &bullet, &bulletPosition, getBulletAngle(bullets[i]), NULL, SDL_FLIP_NONE);
         if(checkBulletOutOfBoundaries(bullets[i], bulletPosition)){
             free(bullets[i]);
             *amountOfBullets = deleteBullet(amountOfBullets,bullets, i);
