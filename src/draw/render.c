@@ -4,6 +4,7 @@
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../collision/powers.h"
 
 #include "render.h"
@@ -69,24 +70,23 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     Weapon weapon = getSoldierWeapon(soldiers[id]);
     // ammunition display
     ammoPosition.y = healthBarPositions[id].y - 8;
-    ammoPosition.x = healthBarPositions[id].x + 8;
+    ammoPosition.x = healthBarPositions[id].x + 32;
     ammoPosition.h = 7;
     ammoPosition.w = 5;
 
-    setWeaponBulletIndicatorPos(weapon, healthBarPositions[id].x, healthBarPositions[id].y - 9, 5, 8);
-    setReloadPosition(weapon, healthBarPositions[id].x + 10, healthBarPositions[id].y - 8, 27, 7);
+    setWeaponBulletIndicatorPos(weapon, healthBarPositions[id].x, healthBarPositions[id].y - 9, getWeaponBulletTypeRectW(weapon), getWeaponBulletTypeRectH(weapon));
+    setReloadPosition(weapon, healthBarPositions[id].x + 6, healthBarPositions[id].y - 8, 27, 7);
 
     if(!getWeaponReload(weapon))
     {
         drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter[id], ammoClips[id], ammoPosition);
         setReloadClip(weapon, 0);
+        drawBulletIndicator(gRenderer, weapon, mBulletType[id]);
     }
     else
     {
         drawReloadDisplay(gRenderer, weapon, mReloadDisplay[id]);
     }
-    drawBulletIndicator(gRenderer, weapon, mBulletType[id]);
-
 }
 
 // Handles bullets
@@ -118,17 +118,19 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet 
 PUBLIC void drawAmmoDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition)
 {
     Weapon w = getSoldierWeapon(s);
-    //Prints current magazine size
-    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
-    ammoPosition.x += 6;
+    if(strstr(getWeaponBullet(w), "pistolbullet"))
+    {
+        SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+        ammoPosition.x -= 6;
+        SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+        ammoPosition.x -= 6;
+        SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+        ammoPosition.x -= 6;
+    }
     SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
-    //Prints "/ max ammo"
-    ammoPosition.x += 6;
-    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
-    ammoPosition.x += 6;
-    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
-    ammoPosition.x += 6;
-    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine_Size(w)%10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    ammoPosition.x -= 6;
+    SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
+    
 }
 
 PUBLIC void drawReloadDisplay(SDL_Renderer *gRenderer, Weapon w, SDL_Texture *mReloadDisplay)

@@ -195,21 +195,30 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmo
     //Bullet indicator
     if(strstr(getWeaponBullet(w), "pistolbullet"))
     {
-        gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.PNG");
+        gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.png");
         setWeaponBulletTypeRect(w, 0, 0, 5, 8);
     }
-    /*else if(strstr(getWeaponBullet(w), "bow"))
+    else if(strstr(getWeaponBullet(w), "bow"))
     {
-
+        gBulletTypeSurface = IMG_Load("resources/bowbullet.png");
+        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
     }
     else if(strstr(getWeaponBullet(w), "spear"))
     {
-
+        gBulletTypeSurface = IMG_Load("resources/spearbullet.png");
+        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
     }
-    else if(strstr(getWeaponBullet(w), "rod"))
+    else if(strstr(getWeaponBullet(w), "redrod"))
     {
+        gBulletTypeSurface = IMG_Load("resources/redrodbullet.png");
+        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+    }
+    else if(strstr(getWeaponBullet(w), "bluerod"))
+    {
+        gBulletTypeSurface = IMG_Load("resources/bluerodbullet.png");
+        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+    }
 
-    }*/
     *mBulletType = SDL_CreateTextureFromSurface(gRenderer, gBulletTypeSurface);
 }
 

@@ -38,6 +38,8 @@ typedef struct weapon *Weapon;
     SDL_Rect getWeaponBulletIndicatorPos(Weapon w);
     void setWeaponBulletIndicatorPos(Weapon weapon, int x, int y, int w, int h);
     SDL_Rect getWeaponBulletTypeRect(Weapon w);
+    int getWeaponBulletTypeRectW(Weapon w);
+    int getWeaponBulletTypeRectH(Weapon w);
     void setWeaponBulletTypeRect(Weapon weapon, int x, int y, int w, int h);
 
 #endif

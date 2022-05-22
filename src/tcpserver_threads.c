@@ -87,6 +87,7 @@ int main(int argc,char** argv)
             }
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
             {
+                printf("Game Over!\n");
                 gameOver = 1;
             }
         }
