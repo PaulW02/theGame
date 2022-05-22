@@ -60,11 +60,11 @@ PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldie
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
                             //range, power, speed, mag_size, firerate, reloadtime
-    Weapon pistol = createWeapon(200,10,10,25,5,100);
-    Weapon bow = createWeapon(5,6,7,1,50,50);
-    Weapon spear = createWeapon(5,6,7,1,50,50);
-    Weapon rodBlue = createWeapon(5,6,7,1,50,50);
-    Weapon rodRed = createWeapon(5,6,7,1,50,50);
+    Weapon pistol = createWeapon(200,5,10,25,5,100);
+    Weapon bow = createWeapon(5,10,7,1,20,20);
+    Weapon spear = createWeapon(5,20,4,1,50,50);
+    Weapon rodBlue = createWeapon(5,40,5,1,200,200);
+    Weapon rodRed = createWeapon(5,40,5,1,200,200);
     
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
