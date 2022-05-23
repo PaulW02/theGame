@@ -132,11 +132,11 @@ PUBLIC void respawnPlayer(Soldier soldierToRespawn){
             setSoldierPositionY(soldierToRespawn, 24);
             break;
         case 2:
-            setSoldierPositionX(soldierToRespawn, 440);
+            setSoldierPositionX(soldierToRespawn, 38);
             setSoldierPositionY(soldierToRespawn, 460);
             break;
         case 3:
-            setSoldierPositionX(soldierToRespawn, 38);
+            setSoldierPositionX(soldierToRespawn, 440);
             setSoldierPositionY(soldierToRespawn, 460);
             break;
     }

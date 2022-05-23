@@ -47,15 +47,12 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
         }
         soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
         healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
-        if(healthImage == 10){
+        if((healthImage == 10) && (getSoldierDead(soldiers[i]) == 0)){
+            printf("hello");
             setSoldierPositionX(soldiers[i], 2000);
             setSoldierPositionY(soldiers[i], 2000);
-            if(getSoldierRespawnTimer(soldiers[i]) < 0){
-                setSoldierRespawnTimer(soldiers[i], 200);
-            }
-            if(getSoldierRespawnTimer(soldiers[i]) == 0){
-                respawnPlayer(soldiers[i]);
-            }
+            setSoldierDead(soldiers[i], 1);
+            setSoldierRespawnTimer(soldiers[i], 200);
         }
         SDL_RenderCopyEx(gRenderer, mSoldier[i], &gSoldierFrames[i][frame],&playerPosition, 0, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(gRenderer, mHealthBar, &healthClips[healthImage],&healthBarPositions[i], 0, NULL, SDL_FLIP_NONE);

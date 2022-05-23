@@ -151,7 +151,7 @@ PUBLIC void applicationUpdate(Application theApp){
     gameInfo->gRenderer = SDL_CreateRenderer(theApp->window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
     Menu m = createMenu(gameInfo->gRenderer);
     if(menuApplication(m) == -1) return;
-    initSoundEffects();
+    //initSoundEffects();
     initConnection(&gameInfo->tcp_sd, &srvadd, m);  
     pthread_t networkThread;
 
