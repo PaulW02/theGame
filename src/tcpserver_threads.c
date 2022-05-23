@@ -68,6 +68,8 @@ int main(int argc,char** argv)
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierImagePath, getSoldierFileName(serverGameInfo->soldiers[threadNr]));
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
             serverGameInfo->amountOfPlayersConnected++;
+            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, &serverGameInfo->amountOfPlayersConnected, sizeof(serverGameInfo->amountOfPlayersConnected));
+            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, serverGameInfo->playerLobbyInformation, sizeof(serverGameInfo->playerLobbyInformation));
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);
@@ -96,8 +98,8 @@ void *handlePlayer(void *ptr) {
     
     //countDown();
     //usleep(20000000);
-    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
+    //SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
+    //SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
 
 
     playerInfo[0] = currentPlayerId;

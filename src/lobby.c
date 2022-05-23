@@ -23,7 +23,7 @@
 
 
 //Function declarations
-PRIVATE int lobbyMenu(Lobby l);
+PUBLIC int lobbyMenu(Lobby l);
 PRIVATE void destroyLobby(Lobby l);
 PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
@@ -56,12 +56,12 @@ PUBLIC Lobby createLobby(SDL_Renderer *gRenderer)
     - Path should be something in the style of :'resources/Karaktarer/SKELETON/SKELETONpistol.png'.
     - Name should be below 16 character which it will be if code is executed correctly
 */
-PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[], int id)
+PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[])
 {
-    if(id<MAXNUMBEROFPLAYERS)
+    if(l->numberOfPlayers<MAXNUMBEROFPLAYERS)
     {
-        strcpy(l->players[id].playerPath,path);
-        strcpy(l->players[id].playerName,name);
+        strcpy(l->players[l->numberOfPlayers].playerPath,path);
+        strcpy(l->players[l->numberOfPlayers].playerName,name);
         l->numberOfPlayers++;
         return;
     }
@@ -92,7 +92,7 @@ PUBLIC int lobbyApplication(Lobby l)
     return result;
 }
 
-PRIVATE int lobbyMenu(Lobby l)
+PUBLIC int lobbyMenu(Lobby l)
 {
     bool closeRequested = false;
     SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
@@ -160,6 +160,42 @@ PRIVATE int lobbyMenu(Lobby l)
         }
     }
     return CLOSEREQUSTED;
+}
+
+PUBLIC void showCurrentLobbyPlayers(Lobby l){
+    SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
+    SDL_Color colors[] = {{0xFF,0x00,0x00},  //Red
+                          {0x00,0xFF,0x00},  //Green
+                          {0x00,0x00,0xFF},  //Blue
+                          {0xFF,0x00,0xFF}}; //Pink
+    int posX = 0, padding = 70, countdown = 30;
+    int posY[4] = {275,300,300,275};
+    char countdownNumber[3];
+
+    Uint32 ticks, seconds, startTimeValue;
+
+    startTimeValue = SDL_GetTicks() / 1000;
+    if(l->players[0].playerPath[0] != '\0')
+    {
+        SDL_RenderClear(l->gRenderer);
+        renderImage(l->gRenderer,"lobby.png",-1,150,1,255);
+        
+        /*
+        //Countdown [WIP]
+        sprintf(countdownNumber,"%d",countdown);
+        renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
+        */
+
+        for(int i = 0; i < l->numberOfPlayers; i++)
+        {
+            posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+
+            renderImageEx(l->gRenderer,l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+            renderCharacterText(l->gRenderer,l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+        }
+        SDL_RenderPresent(l->gRenderer);
+
+    }
 }
 
 PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
