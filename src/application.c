@@ -160,7 +160,7 @@ PUBLIC void applicationUpdate(Application theApp){
     initConnection(&gameInfo->tcp_sd, &srvadd, m); 
     //Lobby
     gameInfo->l = createLobby(gameInfo->gRenderer);
-    pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m));
+    pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m), 0);
     showCurrentLobbyPlayers(gameInfo->l);
     pthread_t networkThread;
 
@@ -183,7 +183,7 @@ PUBLIC void applicationUpdate(Application theApp){
     for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
     {
         if(strcmp(gameInfo->playerLobbyInformation[i].soldierImagePath, getPathToCharacter(m)) != 0 && strcmp(gameInfo->playerLobbyInformation[i].soldierName, getPlayerName(m)) != 0){
-            pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName);   
+            pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName, i);   
         }else{
             gameInfo->id = i;
         }
@@ -247,6 +247,13 @@ PUBLIC void *handleNetwork(void *ptr) {
     int connParams[7];
     
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
+    for (int i = 0; i < ((GameInfo *)ptr)->amountOfPlayersConnected; i++)
+    {
+        pushLobbyPlayer(((GameInfo *)ptr)->l, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierImagePath, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierName, i);
+    }
+
+    lobbyApplication(((GameInfo *)ptr)->l);
+    
     setupPlayerAndWeapon(((GameInfo *)ptr));
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
