@@ -42,7 +42,8 @@ int main(int argc,char** argv)
     TCPsocket client;
     //PlayerConnDetails players[4] = (struct playerConnDetails*)malloc(4*sizeof(PlayerConnDetails));
     ServerGameInfo *serverGameInfo = (struct serverGameInfo *)malloc(sizeof(struct serverGameInfo));
-    int threadNr = 0;
+    int threadNr = 0, gameStarted = 0;
+    Uint32 matchTimer = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
     char soldierImagePath[PATHLENGTH];
     char soldierName[MAX_NAME];
@@ -74,6 +75,21 @@ int main(int argc,char** argv)
             threadNr++;
             printf("%d Threads\n", threadNr);
         }
+        if(serverGameInfo->amountOfPlayersConnected == 4)
+        {
+            gameStarted = 1;
+        }
+        if(gameStarted)
+        {
+            if (!matchTimer) 
+            {
+                matchTimer = SDL_GetTicks() + 180000; //3 minutes
+            }
+            else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
+            {
+                gameOver = 1;
+            }
+        }
     }
     SDLNet_TCP_Close(server);
     
@@ -94,7 +110,9 @@ void *handlePlayer(void *ptr) {
     }
     
     PlayersData receivedPlayersData;
-    while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < 4);
+    while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < 4){
+
+    }
     
     //countDown();
     //usleep(20000000);
@@ -134,5 +152,6 @@ void *handlePlayer(void *ptr) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) { // sometimes blank!
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }
+
     }
 }
