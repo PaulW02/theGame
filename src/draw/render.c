@@ -48,7 +48,6 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
         soldierWallCollision(tiles, soldiers[i], &playerPosition, frame, &healthBarPositions[i]);
         healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[i]));
         if((healthImage == 10) && (getSoldierDead(soldiers[i]) == 0)){
-            printf("hello");
             setSoldierPositionX(soldiers[i], 2000);
             setSoldierPositionY(soldiers[i], 2000);
             setSoldierDead(soldiers[i], 1);

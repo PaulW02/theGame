@@ -11,20 +11,25 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 
+//Window values
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512
 #define SCROLL_SPEED 5
+
+//Menu options
 #define TITLECARD 1
 #define MAINMENU 2
 #define CLOSEREQUSTED -1
 #define HOWTOPLAYMENU 3
 #define ONLINEMENU 4
 #define PICKCHARACTERMENU 5
+
+//Size defines
 #define IPWORDLENGTH 16
 #define NUMBEROFWEAPONS 5
 #define NUMBEROFCHARACTERS 7
 #define PATHLENGTH 64
-#define WORDLENGTH 16
+#define WORDLENGTH 10
 
 struct menu{
     SDL_Renderer *gRenderer;
@@ -35,21 +40,20 @@ struct menu{
     int character;
     int weapon; 
     char name[WORDLENGTH];
-    //Implement type of gamemode, ex 2v2 or free for all
 };
 
 //Function declarations
-PUBLIC int menuApplication(Menu m);
+PUBLIC int menuApplication(Menu m, int menuIndex);
 PUBLIC void destroyMenu(Menu m);
-PRIVATE void renderImage(Menu m, char *imageName, int posX, int posY, int scaleModifier,Uint8 alpha);
+PUBLIC void renderImage(SDL_Renderer *gRenderer, char *imageName, int posX, int posY, int scaleModifier,Uint8 alpha);
 PRIVATE int startPage(Menu m);
 PRIVATE int mainMenu(Menu m);
 PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int size);
+PUBLIC void renderText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 PRIVATE int pickCharacterMenu(Menu m);
-PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha);
+PUBLIC void renderImageEx(SDL_Renderer *gRenderer, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha);
 PRIVATE void renderRect(Menu m, int x, int y, int w, int h);
 PRIVATE void renderCharacter(Menu m, Uint32 sprite, int characterIndex, int weaponIndex);
 
@@ -64,6 +68,8 @@ PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
 
     //Initilizing TTF
     if(TTF_Init()<0) printf("Error with init!\n");
+   
+    //Declaring the values of the struct
     m->gRenderer = gRenderer;
     m->gameModeType = '\0';
     m->event = windowEvent;
@@ -71,12 +77,23 @@ PUBLIC Menu createMenu(SDL_Renderer *gRenderer)
     m->weapon=0;
     strcpy(m->ipAddress,"\0");
     strcpy(m->pathToCharacter,"\0");
+
     return m;
 }
 
-PUBLIC int menuApplication(Menu m)
+//menuIndex -Indicates which of the pages of the whole menu that you decide to start on.
+//          menuIndex values:
+//          - 0 Returns instantly
+//          - 1 Title card
+//          - 2 Main menu
+//          - 3 How to play
+//          - 4 Enter ip menu
+//          - 5 Pick a character menu
+PUBLIC int menuApplication(Menu m, int menuIndex)
 {      
     int result = 1;
+    result = menuIndex;
+
     bool closeRequested = false;
     while(!closeRequested)
     {
@@ -116,7 +133,6 @@ PUBLIC int menuApplication(Menu m)
 
 }
 
-//Isn't implemented yet
 PUBLIC void destroyMenu(Menu m)
 {
     SDL_DestroyRenderer(m->gRenderer);
@@ -207,7 +223,7 @@ PRIVATE int startPage(Menu m)
         }
         else if(!titleAppearing && !pressAnyButtonVisible)
         {
-            renderImage(m,"pressAnyButton.png",-1,300,2,SDL_ALPHA_OPAQUE);
+            renderImage(m->gRenderer,"pressAnyButton.png",-1,300,2,SDL_ALPHA_OPAQUE);
             SDL_RenderPresent(m->gRenderer);
             pressAnyButtonVisible=true;
         }
@@ -216,13 +232,15 @@ PRIVATE int startPage(Menu m)
 
 }
 
-PRIVATE void renderImage(Menu m, char *imageName,int posX,int posY, int scaleModifier, Uint8 alpha)
+/*Can only render from the 'resource/menu/' path, will need
+  modification if it's to be used elsewear */
+PUBLIC void renderImage(SDL_Renderer *gRenderer, char *imageName,int posX,int posY, int scaleModifier, Uint8 alpha)
 {
     char path[42] = "resources/menu/";
     strcat(path,imageName);
     SDL_Surface* s = IMG_Load(path);
 
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(m->gRenderer,s);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(gRenderer,s);
     SDL_FreeSurface(s);
     SDL_SetTextureAlphaMod(tex,alpha);
 
@@ -240,7 +258,7 @@ PRIVATE void renderImage(Menu m, char *imageName,int posX,int posY, int scaleMod
     
     dest.y=posY;
 
-    SDL_RenderCopy(m->gRenderer,tex,NULL,&dest);
+    SDL_RenderCopy(gRenderer,tex,NULL,&dest);
     SDL_DestroyTexture(tex);
     return;
 }
@@ -295,18 +313,20 @@ PRIVATE int mainMenu(Menu m)
 
         SDL_RenderClear(m->gRenderer);
 
-        renderImage(m,"theGame.png",-1,20,1,SDL_ALPHA_OPAQUE);
+        renderImage(m->gRenderer,"theGame.png",-1,20,1,SDL_ALPHA_OPAQUE);
         
-        renderImage(m,"onlineOption.png",-1,225,1,alpha[0]);
-        renderImage(m,"howToPlay.png",-1,325,1,alpha[1]);
-        renderImage(m,"co_op.png",-1,425,1,alpha[2]);
+        renderImage(m->gRenderer,"onlineOption.png",-1,225,1,alpha[0]);
+        renderImage(m->gRenderer,"howToPlay.png",-1,325,1,alpha[1]);
+        renderImage(m->gRenderer,"co_op.png",-1,425,1,alpha[2]);
 
         SDL_RenderPresent(m->gRenderer);
     }
     return CLOSEREQUSTED;
 }
 
-/*Checks if the cursor is withing the image paramater*/
+/*Checks if the cursor is within the image paramater*/
+/*Can only check from the 'resource/menu/' path, will need
+  modification if it's to be used elsewear */
 PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button)
 {
     int cursorX, cursorY;
@@ -369,7 +389,7 @@ PRIVATE int howToPlayMenu(Menu m)
         if(firstLoop)
         {
             SDL_RenderClear(m->gRenderer);
-            renderImage(m,"howToPlay.png",-1,100,1,SDL_ALPHA_OPAQUE);
+            renderImage(m->gRenderer,"howToPlay.png",-1,100,1,SDL_ALPHA_OPAQUE);
             firstLoop=false;
         }
         if(!userInterfaceAppeard)
@@ -384,7 +404,7 @@ PRIVATE int howToPlayMenu(Menu m)
                 }
                 else
                 {
-                    renderText(m,c,color,(WINDOW_WIDTH-400+xDisplacement)/2,200+yDisplacement,18);
+                    renderText(m->gRenderer,c,color,(WINDOW_WIDTH-400+xDisplacement)/2,200+yDisplacement,18);
                     xDisplacement+=25;
                     if(xDisplacement>650 && c[0]==' ')
                     {
@@ -467,16 +487,16 @@ PRIVATE int onlineMenuConfig(Menu m)
         SDL_RenderClear(m->gRenderer);
 
         //Render title   
-        renderImage(m,"onlineOption.png",-1,100,1,SDL_ALPHA_OPAQUE);
+        renderImage(m->gRenderer,"onlineOption.png",-1,100,1,SDL_ALPHA_OPAQUE);
 
         //Renders a centered rectangle with white border with text in it
         renderRect(m,(WINDOW_WIDTH-300)/2,250,300,50);
-        renderText(m,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,250,30);
+        renderText(m->gRenderer,ipPlaceholder,color,(WINDOW_WIDTH-300)/2,250,30);
 
         //Renders "Continue" and changes ALPHA
         if(hovering=checkImageBoxForCursor("continue.png",-1,330,&button)) alpha=144;
         else alpha=255;
-        renderImage(m,"continue.png",-1,330,1,alpha);
+        renderImage(m->gRenderer,"continue.png",-1,330,1,alpha);
 
         if(hovering && button)
         {
@@ -503,11 +523,11 @@ PRIVATE void renderRect(Menu m, int x, int y, int w, int h)
     return;
 }
 
-PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int y, int size)
+PUBLIC void renderText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
 {        
     TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
     SDL_Surface* text = TTF_RenderText_Solid(font,textToRender,color);
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m->gRenderer,text);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer,text);
  
     SDL_Rect rect;
     SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
@@ -516,7 +536,7 @@ PRIVATE void renderText(Menu m, char *textToRender, SDL_Color color, int x, int 
     else rect.x=x;
     rect.y=y;
 
-    SDL_RenderCopy(m->gRenderer,textTexture,NULL,&rect);
+    SDL_RenderCopy(gRenderer,textTexture,NULL,&rect);
             
     //Cleans up resources
     SDL_DestroyTexture(textTexture);
@@ -606,11 +626,11 @@ PRIVATE int pickCharacterMenu(Menu m)
             SDL_RenderClear(m->gRenderer);
 
             //Title
-            renderImage(m,"pickCharacter.png",-1,20,1,SDL_ALPHA_OPAQUE);
+            renderImage(m->gRenderer,"pickCharacter.png",-1,20,1,SDL_ALPHA_OPAQUE);
             
             //Name input
             renderRect(m,(WINDOW_WIDTH-275)/2,125,280,35);
-            renderText(m,namePlaceholder,color,-1,125,24);
+            renderText(m->gRenderer,namePlaceholder,color,-1,125,24);
             
             //Animation
             renderCharacter(m,sprite, characterIndex,weaponIndex);
@@ -626,31 +646,31 @@ PRIVATE int pickCharacterMenu(Menu m)
             else alpha[option]=144;
 
             //Arrow options
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,350,SDL_FLIP_HORIZONTAL,-1, alpha[0]);
+            renderImageEx(m->gRenderer,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,350,SDL_FLIP_HORIZONTAL,-1, alpha[0]);
             if(button==1 && hovering[0] && mouseButtonDown && characterIndex>0)
             {
                 characterIndex--;
                 mouseButtonDown=0;
             }
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,350,SDL_FLIP_NONE,-1,alpha[1]);
+            renderImageEx(m->gRenderer,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,350,SDL_FLIP_NONE,-1,alpha[1]);
             if(button==1 && hovering[1] && mouseButtonDown && characterIndex<NUMBEROFCHARACTERS-1)
             {
                 characterIndex++;
                 mouseButtonDown=0;
             }
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,400,SDL_FLIP_HORIZONTAL,-1,alpha[2]);
+            renderImageEx(m->gRenderer,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)-100,400,SDL_FLIP_HORIZONTAL,-1,alpha[2]);
             if(button==1 && hovering[2] && mouseButtonDown && weaponIndex>0)
             {
                 weaponIndex--;
                 mouseButtonDown=0;
             }
-            renderImageEx(m,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,400,SDL_FLIP_NONE,-1,alpha[3]);
+            renderImageEx(m->gRenderer,"resources/menu/arrow.png",((WINDOW_WIDTH-16)/2)+100,400,SDL_FLIP_NONE,-1,alpha[3]);
             if(button==1 && hovering[3] && mouseButtonDown && weaponIndex<NUMBEROFWEAPONS-1)
             {
                 weaponIndex++;
                 mouseButtonDown=0;
             }
-            renderImage(m,"continue.png",-1,450,1,alpha[4]);
+            renderImage(m->gRenderer,"continue.png",-1,450,1,alpha[4]);
             if(button==1 && hovering[4] && mouseButtonDown)
             {
                 m->character=characterIndex;
@@ -661,8 +681,8 @@ PRIVATE int pickCharacterMenu(Menu m)
                 return 0;
             }
 
-            renderText(m,characters[characterIndex],color,-1,340,30);
-            renderText(m,weapons[weaponIndex],color,-1,390,30);
+            renderText(m->gRenderer,characters[characterIndex],color,-1,340,30);
+            renderText(m->gRenderer,weapons[weaponIndex],color,-1,390,30);
 
             SDL_RenderPresent(m->gRenderer);
         }
@@ -671,11 +691,11 @@ PRIVATE int pickCharacterMenu(Menu m)
     return CLOSEREQUSTED;
 }
 
-PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha)
+PUBLIC void renderImageEx(SDL_Renderer *gRenderer, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha)
 {
     SDL_Surface* s = IMG_Load(path);
 
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(m->gRenderer,s);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(gRenderer,s);
     SDL_FreeSurface(s);
     SDL_SetTextureAlphaMod(tex,alpha);
 
@@ -690,16 +710,16 @@ PRIVATE void renderImageEx(Menu m, char *path,int posX,int posY, int flip, int d
                                     {66,32,32,32}};
 
     SDL_QueryTexture(tex, NULL,NULL,&dest.w,&dest.h);
-    
+
     //Defines the position of the images top-left corner
     if(posX==-1) dest.x=(WINDOW_WIDTH-dest.w)/2;
     else dest.x=posX;  
     
     dest.y=posY;
     if(directionFrame==-1)
-        SDL_RenderCopyEx(m->gRenderer,tex,NULL,&dest,0,NULL,flip);
+        SDL_RenderCopyEx(gRenderer,tex,NULL,&dest,0,NULL,flip);
     else
-        SDL_RenderCopyEx(m->gRenderer,tex,&sourceDest[directionFrame],&dest,0,NULL,flip);
+        SDL_RenderCopyEx(gRenderer,tex,&sourceDest[directionFrame],&dest,0,NULL,flip);
 
     SDL_DestroyTexture(tex);
     return;  
@@ -716,7 +736,7 @@ PRIVATE void renderCharacter(Menu m, Uint32 sprite, int characterIndex, int weap
     strcat(path,characterPaths[characterIndex]);
     strcat(path,weaponPaths[weaponIndex]);
 
-    renderImageEx(m,path,-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
+    renderImageEx(m->gRenderer,path,-1,175,SDL_FLIP_NONE,sprite,SDL_ALPHA_OPAQUE);
     strcpy(m->pathToCharacter,path);
     return;
 }

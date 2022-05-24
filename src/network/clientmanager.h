@@ -8,6 +8,7 @@
 #include "../application.h"
 #include "../draw/media.h"
 #include "../player/soldier.h"
+#include "../lobby.h"
 
 struct playersData{
     int id;
@@ -20,12 +21,22 @@ struct playersData{
 };
 typedef struct playersData PlayersData;
 
+struct playerLobbyInformation{
+    char soldierName[MAX_NAME];
+    char soldierImagePath[PATHLENGTH];
+};
+typedef struct playerLobbyInformation PlayerLobbyInformation;
+
 struct gameInfo{
+    Lobby l;
     PlayersData playersData[MAX_PLAYERS];
     Soldier soldiers[MAX_PLAYERS];
+    PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     TCPsocket tcp_sd;
     int id;
     int amountOfPlayersConnected;
+    int gameState;
+    char soldierNames[MAX_PLAYERS][MAX_NAME];
     char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
     SDL_Texture *mSoldier[MAX_PLAYERS];
     SDL_Renderer *gRenderer;

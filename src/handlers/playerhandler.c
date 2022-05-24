@@ -32,7 +32,7 @@ PUBLIC void initPlayers(Soldier soldiers[]){
     }
 }
 
-PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[]){
+PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[], char soldierName[]){
     
     if(id == 0){
         *newSoldier = createSoldier(10, 10);
@@ -49,6 +49,7 @@ PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldie
     }
 
     setSoldierId(*newSoldier, id);
+    setSoldierName(*newSoldier, soldierName);
     setSoldierFileName(*newSoldier,soldierImagePath);
     printf("%s \n", getSoldierFileName(*newSoldier));
     setSoldierShotFired(*newSoldier, 0);
