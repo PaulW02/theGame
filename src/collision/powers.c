@@ -29,7 +29,8 @@ PUBLIC PowerUps createPowerUps(int x, int y){
     p->position.y = y;
     p->position.h = 16;
     p->position.w = 16;
-    p->powerUpTimer = 0;
+    p->powerUpTimer = -1;
+    p->powerUpsRespawn = 0;
     return p;
 }
 

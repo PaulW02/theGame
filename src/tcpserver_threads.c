@@ -77,6 +77,22 @@ int main(int argc,char** argv)
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);
+
+        }
+        if(serverGameInfo->amountOfPlayersConnected == 4)
+        {
+            gameStarted = 1;
+        }
+        if(gameStarted)
+        {
+            if (!matchTimer) 
+            {
+                matchTimer = SDL_GetTicks() + 180000; //3 minutes
+            }
+            else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
+            {
+                gameOver = 1;
+            }
         }
 
         if(serverGameInfo->gameState == 2)
