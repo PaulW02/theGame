@@ -1,7 +1,10 @@
 #ifndef lobby_h
 #define lobby_h
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_net.h"
 
+#define MAX_NAME 16
+#define PATHLENGTH 64
 
 typedef struct lobby *Lobby;
 

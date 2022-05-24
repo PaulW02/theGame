@@ -35,6 +35,7 @@ struct gameInfo{
     TCPsocket tcp_sd;
     int id;
     int amountOfPlayersConnected;
+    int gameState;
     char soldierNames[MAX_PLAYERS][MAX_NAME];
     char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
     SDL_Texture *mSoldier[MAX_PLAYERS];

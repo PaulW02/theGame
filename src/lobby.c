@@ -1,11 +1,15 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_net.h"
 #include "SDL2/SDL_ttf.h"
 #include "lobby.h"
 #include "menu.h"
+#include "network/clientmanager.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -23,7 +27,7 @@
 
 
 //Function declarations
-PUBLIC int lobbyMenu(Lobby l);
+
 PRIVATE void destroyLobby(Lobby l);
 PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
@@ -62,8 +66,9 @@ PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[], int id)
     {
         strcpy(l->players[id].playerPath,path);
         strcpy(l->players[id].playerName,name);
-        l->numberOfPlayers++;
-        return;
+        if(id == l->numberOfPlayers){
+            l->numberOfPlayers++;
+        }
     }
 }
 
@@ -83,7 +88,8 @@ PUBLIC int lobbyApplication(Lobby l)
             case LOBBYMENU:
                 result = lobbyMenu(l);
                 break;
-            
+            case MAX_PLAYERS:
+                destroyLobby(l);
             default:
                 return 0;
                 break;
@@ -118,6 +124,7 @@ PUBLIC int lobbyMenu(Lobby l)
 
         while(SDL_PollEvent(&l->windowEvent))
         {
+
             switch(l->windowEvent.type)
             {
                 case SDL_QUIT:
@@ -129,7 +136,6 @@ PUBLIC int lobbyMenu(Lobby l)
                     case SDL_SCANCODE_RETURN:
                         return 0; 
                         break;
-                    
                     default:
                         break;
                     }
@@ -157,6 +163,11 @@ PUBLIC int lobbyMenu(Lobby l)
                 SDL_RenderPresent(l->gRenderer);
 
             }
+            usleep(100000);
+            /*if(l->numberOfPlayers == MAX_PLAYERS){
+                return MAX_PLAYERS;
+            }*/
+            
         }
     }
     return CLOSEREQUSTED;

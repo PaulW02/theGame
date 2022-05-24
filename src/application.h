@@ -10,7 +10,7 @@
 #define WINDOW_HEIGHT 512
 #define MAX_PLAYERS 4
 #define PATHLENGTH 64
-#define MAX_NAME 30
+#define MAX_NAME 16
 
 typedef struct application *Application;
 
