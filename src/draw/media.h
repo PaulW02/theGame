@@ -21,5 +21,6 @@ void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmoCounter
 void loadReloadMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mReloadDisplay);
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersClips[]);
+void updateTime(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect pos, Uint32 currentTime);
 
 #endif

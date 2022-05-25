@@ -1,6 +1,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -115,6 +116,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Rect powersClips[1];
     SDL_Rect powersPosition;
 
+    SDL_Texture *timeTexture = NULL;
+    SDL_Rect timePos;
+    Uint32 currentTime = 0;
+
     int weaponSpeed;
     int maxRange;
     int oldX, oldY, soldierXPos, soldierYPos;
@@ -196,17 +201,25 @@ PUBLIC void applicationUpdate(Application theApp){
     gameInfo->gameState = 2;
 
     currentPlayers = gameInfo->amountOfPlayersConnected;
-    
-    
 
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
-    
-    Uint32 currentTime, passedTime, displayTime, timeMinutes, timeSeconds, startTime = SDL_GetTicks()/1000;
-    char timeDisplay[3];
-    SDL_Color colorWhite = {0x00,0x00,0x00};
+    updateTime(gameInfo->gRenderer, &timeTexture, timePos, currentTime);
+    //TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
+
+    Uint32 passedTime, displayTime, timeMinutes, timeSeconds, startTime = SDL_GetTicks()/1000;
+    Uint32 nextTime = SDL_GetTicks()/1000;
+    /*SDL_Color colorWhite = {0x00,0x00,0x00};
+
+    sprintf(timeDisplay,"%d:%d%d",1, 1, 1);
+    SDL_Surface* text = TTF_RenderText_Solid(font,timeDisplay,colorWhite);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gameInfo->gRenderer,text);
+    SDL_Rect rect;
+    SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
+    rect.x=(WINDOW_WIDTH-rect.w)/2;
+    rect.y=50;*/
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -234,10 +247,10 @@ PUBLIC void applicationUpdate(Application theApp){
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         passedTime = SDL_GetTicks()/1000;
-        currentTime = passedTime - startTime;
-        displayTime = 180 - currentTime;
+        currentTime = 180 - (passedTime - startTime);
+        //displayTime = 180 - currentTime;
         
-        if(displayTime < 60)
+        /*if(displayTime < 60)
         {
             timeMinutes = 0;
         }
@@ -254,8 +267,28 @@ PUBLIC void applicationUpdate(Application theApp){
             timeMinutes = 3;
         }
         timeSeconds = displayTime%60;
-        sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
-        renderText(gameInfo->gRenderer,timeDisplay,colorWhite,-1,50,24);
+        
+        if(passedTime >= nextTime)
+        {
+            sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
+            text = TTF_RenderText_Solid(font,timeDisplay,colorWhite);
+            textTexture = SDL_CreateTextureFromSurface(gameInfo->gRenderer,text);
+            SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
+            rect.x=(WINDOW_WIDTH-rect.w)/2;
+            rect.y=50;
+        }*/
+
+        //renderText(gameInfo->gRenderer,timeDisplay,colorWhite,-1,50,24);
+        if(passedTime >= nextTime)
+        {
+            updateTime(gameInfo->gRenderer, &timeTexture, timePos, currentTime);
+            SDL_QueryTexture(timeTexture,NULL,NULL,&timePos.w,&timePos.h);
+            timePos.x=(WINDOW_WIDTH-timePos.w)/2;
+            timePos.y=50;
+        }
+        
+        SDL_RenderCopy(gameInfo->gRenderer,timeTexture,NULL,&timePos);
+        nextTime = passedTime + 1;
         
         SDL_RenderPresent(gameInfo->gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
