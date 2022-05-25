@@ -203,6 +203,10 @@ PUBLIC void applicationUpdate(Application theApp){
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
+    
+    Uint32 currentTime, passedTime, displayTime, timeMinutes, timeSeconds, startTime = SDL_GetTicks()/1000;
+    char timeDisplay[3];
+    SDL_Color colorWhite = {0x00,0x00,0x00};
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -229,6 +233,30 @@ PUBLIC void applicationUpdate(Application theApp){
         
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
+        passedTime = SDL_GetTicks()/1000;
+        currentTime = passedTime - startTime;
+        displayTime = 180 - currentTime;
+        
+        if(displayTime < 60)
+        {
+            timeMinutes = 0;
+        }
+        else if(displayTime < 120)
+        {
+            timeMinutes = 1;
+        }
+        else if (displayTime <180)
+        {
+            timeMinutes = 2;
+        }
+        else
+        {
+            timeMinutes = 3;
+        }
+        timeSeconds = displayTime%60;
+        sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
+        renderText(gameInfo->gRenderer,timeDisplay,colorWhite,-1,50,24);
+        
         SDL_RenderPresent(gameInfo->gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
 
