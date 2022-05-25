@@ -250,7 +250,7 @@ void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersC
     PowersClips[ 0 ].h =16;
 }
 
-PUBLIC void updateTime(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect pos, Uint32 currentTime)
+PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect *pos, Uint32 currentTime)
 {
     Uint32 timeMinutes, timeSeconds;
     char timeDisplay[3];
@@ -279,7 +279,7 @@ PUBLIC void updateTime(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_R
     SDL_Surface* text = TTF_RenderText_Solid(font,timeDisplay, color);
     *timeTexture = SDL_CreateTextureFromSurface(gRenderer,text);
 
-    SDL_QueryTexture(*timeTexture,NULL,NULL,&pos.w,&pos.h);
-    pos.x=(WINDOW_WIDTH-pos.w)/2;
-    pos.y=50;
+    SDL_QueryTexture(*timeTexture,NULL,NULL,&pos->w,&pos->h);
+    pos->x=(WINDOW_WIDTH-pos->w)/2;
+    pos->y=50;
 }

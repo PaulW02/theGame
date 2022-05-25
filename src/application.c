@@ -118,7 +118,7 @@ PUBLIC void applicationUpdate(Application theApp){
 
     SDL_Texture *timeTexture = NULL;
     SDL_Rect timePos;
-    Uint32 currentTime = 0;
+    Uint32 nextSecond, passedTime, currentTime = 0;
 
     int weaponSpeed;
     int maxRange;
@@ -206,20 +206,9 @@ PUBLIC void applicationUpdate(Application theApp){
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
-    updateTime(gameInfo->gRenderer, &timeTexture, timePos, currentTime);
-    //TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
+    updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
 
-    Uint32 passedTime, displayTime, timeMinutes, timeSeconds, startTime = SDL_GetTicks()/1000;
-    Uint32 nextTime = SDL_GetTicks()/1000;
-    /*SDL_Color colorWhite = {0x00,0x00,0x00};
-
-    sprintf(timeDisplay,"%d:%d%d",1, 1, 1);
-    SDL_Surface* text = TTF_RenderText_Solid(font,timeDisplay,colorWhite);
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gameInfo->gRenderer,text);
-    SDL_Rect rect;
-    SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
-    rect.x=(WINDOW_WIDTH-rect.w)/2;
-    rect.y=50;*/
+    Uint32 startTime = SDL_GetTicks()/1000;
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -246,49 +235,15 @@ PUBLIC void applicationUpdate(Application theApp){
         
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
+        
         passedTime = SDL_GetTicks()/1000;
         currentTime = 180 - (passedTime - startTime);
-        //displayTime = 180 - currentTime;
-        
-        /*if(displayTime < 60)
+        if(passedTime >= nextSecond)
         {
-            timeMinutes = 0;
+            updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
+            nextSecond = passedTime + 1;
         }
-        else if(displayTime < 120)
-        {
-            timeMinutes = 1;
-        }
-        else if (displayTime <180)
-        {
-            timeMinutes = 2;
-        }
-        else
-        {
-            timeMinutes = 3;
-        }
-        timeSeconds = displayTime%60;
-        
-        if(passedTime >= nextTime)
-        {
-            sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
-            text = TTF_RenderText_Solid(font,timeDisplay,colorWhite);
-            textTexture = SDL_CreateTextureFromSurface(gameInfo->gRenderer,text);
-            SDL_QueryTexture(textTexture,NULL,NULL,&rect.w,&rect.h);
-            rect.x=(WINDOW_WIDTH-rect.w)/2;
-            rect.y=50;
-        }*/
-
-        //renderText(gameInfo->gRenderer,timeDisplay,colorWhite,-1,50,24);
-        if(passedTime >= nextTime)
-        {
-            updateTime(gameInfo->gRenderer, &timeTexture, timePos, currentTime);
-            SDL_QueryTexture(timeTexture,NULL,NULL,&timePos.w,&timePos.h);
-            timePos.x=(WINDOW_WIDTH-timePos.w)/2;
-            timePos.y=50;
-        }
-        
         SDL_RenderCopy(gameInfo->gRenderer,timeTexture,NULL,&timePos);
-        nextTime = passedTime + 1;
         
         SDL_RenderPresent(gameInfo->gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
