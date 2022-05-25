@@ -8,6 +8,7 @@
 #include <math.h>
 #include "menu.h"
 #include "lobby.h"
+#include "endScreen.h"
 #include "collision/collision.h"
 #include "timers.h"
 #include "collision/powers.h"
@@ -79,7 +80,6 @@ PUBLIC Application createApplication(){
 }
 
 PUBLIC void applicationUpdate(Application theApp){
-
 
     //Create player and set start position
     GameInfo *gameInfo = (struct gameInfo *)malloc(sizeof(struct gameInfo));
@@ -236,6 +236,10 @@ PUBLIC void applicationUpdate(Application theApp){
         float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
         SDL_Delay(floor(16.666f - elapsedMS));
     }
+    //End Screen
+    EndScreen es = createEndScreen(gameInfo->gRenderer, gameInfo->soldiers);
+    if(endScreenApplication(es) == -1) return;
+
     SDLNet_TCP_Close(gameInfo->tcp_sd);
 }
 

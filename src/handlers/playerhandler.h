@@ -15,4 +15,5 @@ void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImageP
 void weaponChoiceHandler(Soldier soldier);
 int getHealthImageBasedOnCurrentHealth(int currentHealth);
 void respawnPlayer(Soldier soldierToRespawn);
+void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer);
 #endif
