@@ -14,11 +14,7 @@
 #define PATHLENGTH 64
 
 
-struct playerLobbyInformation{
-    char soldierName[MAX_NAME];
-    char soldierImagePath[PATHLENGTH];
-};
-typedef struct playerLobbyInformation PlayerLobbyInformation;
+
 
 void initPlayers(Soldier soldiers[]);
 void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[], char soldierName[]);
