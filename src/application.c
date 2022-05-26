@@ -45,6 +45,18 @@ struct application{
 
 };
 
+struct player{
+    char playerPath[PATHLENGTH];
+    char playerName[MAX_NAME];
+};
+typedef struct player Player;
+
+struct lobby{
+    SDL_Renderer *gRenderer;
+    SDL_Event windowEvent;
+    int numberOfPlayers;
+    Player players[MAX_PLAYERS];
+};
 
 
 PUBLIC void *handleNetwork(void *ptr);
@@ -179,12 +191,82 @@ PUBLIC void applicationUpdate(Application theApp){
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
 
-        
-    lobbyApplication(gameInfo->l, 0);
-    
-    
-
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
+    //lobbyApplication(gameInfo->l, 0);
+    bool closeRequested = false;
+    SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
+    SDL_Color colors[] = {{0xFF,0x00,0x00},  //Red
+                          {0x00,0xFF,0x00},  //Green
+                          {0x00,0x00,0xFF},  //Blue
+                          {0xFF,0x00,0xFF}}; //Pink
+    int posX = 0, padding = 70, countdown = 30;
+    int posY[4] = {275,300,300,275};
+    char countdownNumber[3];
+
+    Uint32 ticks, seconds, startTimeValue;
+
+    startTimeValue = SDL_GetTicks() / 1000;
+
+    while(!closeRequested)
+    {
+        /*
+        //Countdown [WIP]
+        ticks = SDL_GetTicks();
+        seconds = (ticks/1000)% 2 + 1;
+        */
+       if (gameInfo->amountOfPlayersConnected == MAX_PLAYERS)
+       {
+           closeRequested = true;
+           break;
+       }
+       
+        while(SDL_PollEvent(&gameInfo->l->windowEvent))
+        {
+            switch(gameInfo->l->windowEvent.type)
+            {
+                case SDL_QUIT:
+                    closeRequested=true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch (gameInfo->l->windowEvent.key.keysym.scancode)
+                    {
+                    case SDL_SCANCODE_RETURN:
+                        closeRequested = true;
+                        break;
+                    
+                    default:
+                        break;
+                    }
+                    break;
+            }
+
+            if(gameInfo->l->players[0].playerPath[0] != '\0')
+            {
+                SDL_RenderClear(gameInfo->l->gRenderer);
+                renderImage(gameInfo->l->gRenderer,"lobby.png",-1,150,1,255);
+                
+                /*
+                //Countdown [WIP]
+                sprintf(countdownNumber,"%d",countdown);
+                renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
+                */
+
+                for(int i = 0; i < gameInfo->l->numberOfPlayers; i++)
+                {
+                    posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+
+                    renderImageEx(gameInfo->l->gRenderer,gameInfo->l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+                    renderCharacterText(gameInfo->l->gRenderer,gameInfo->l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+                }
+                SDL_RenderPresent(gameInfo->l->gRenderer);
+
+            }
+        }
+    }
+    
+    
+    usleep(1000000);
+
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
@@ -237,18 +319,6 @@ PUBLIC void *handleNetwork(void *ptr) {
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
-    printf("%d \n", ((GameInfo *)ptr)->amountOfPlayersConnected);
-    
-    ((GameInfo *)ptr)->l =createLobby(((GameInfo *)ptr)->gRenderer);
-
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        //Lägg till meny i GameInfo
-        pushLobbyPlayer(((GameInfo *)ptr)->l, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierImagePath, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierName);
-    }
-    
-
-    lobbyApplication(((GameInfo *)ptr)->l, 1);
 
     setupPlayerAndWeapon(((GameInfo *)ptr));
 

@@ -74,8 +74,6 @@ int main(int argc,char** argv)
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierImagePath, getSoldierFileName(serverGameInfo->soldiers[threadNr]));
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
             serverGameInfo->amountOfPlayersConnected++;
-            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, &serverGameInfo->amountOfPlayersConnected, sizeof(serverGameInfo->amountOfPlayersConnected));
-            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, serverGameInfo->playerLobbyInformation, sizeof(serverGameInfo->playerLobbyInformation));
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);

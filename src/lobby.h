@@ -12,6 +12,6 @@ void pushLobbyPlayer(Lobby l, char path[], char name[]);
 int lobbyMenu(Lobby l, int lobbyState);
 void destroyLobby(Lobby l);
 void showCurrentLobbyPlayers(Lobby l);
-
+void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
 #endif

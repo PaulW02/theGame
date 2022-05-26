@@ -26,7 +26,7 @@
 //Function declarations
 PUBLIC int lobbyMenu(Lobby l, int lobbyState);
 PUBLIC void destroyLobby(Lobby l);
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
+PUBLIC void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
 
 struct player{
@@ -210,7 +210,7 @@ PUBLIC void showCurrentLobbyPlayers(Lobby l){
     }
 }
 
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
+PUBLIC void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
 {
     TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
     SDL_Surface* text = TTF_RenderText_Solid(font,textToRender,color);
