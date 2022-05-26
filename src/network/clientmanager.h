@@ -6,6 +6,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "../application.h"
+#include "../handlers/playerhandler.h"
 #include "../draw/media.h"
 #include "../player/soldier.h"
 #include "../lobby.h"
@@ -21,11 +22,7 @@ struct playersData{
 };
 typedef struct playersData PlayersData;
 
-struct playerLobbyInformation{
-    char soldierName[MAX_NAME];
-    char soldierImagePath[PATHLENGTH];
-};
-typedef struct playerLobbyInformation PlayerLobbyInformation;
+
 
 struct gameInfo{
     Lobby l;

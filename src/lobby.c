@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -23,8 +24,8 @@
 
 
 //Function declarations
-PUBLIC int lobbyMenu(Lobby l);
-PRIVATE void destroyLobby(Lobby l);
+PUBLIC int lobbyMenu(Lobby l, int lobbyState);
+PUBLIC void destroyLobby(Lobby l);
 PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
 
@@ -67,7 +68,7 @@ PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[])
     }
 }
 
-PUBLIC int lobbyApplication(Lobby l)
+PUBLIC int lobbyApplication(Lobby l, int lobbyState)
 {
     int result = 1;
     bool closeRequested = false;
@@ -81,7 +82,7 @@ PUBLIC int lobbyApplication(Lobby l)
                 break;
             
             case LOBBYMENU:
-                result = lobbyMenu(l);
+                result = lobbyMenu(l, lobbyState);
                 break;
             
             default:
@@ -92,7 +93,7 @@ PUBLIC int lobbyApplication(Lobby l)
     return result;
 }
 
-PUBLIC int lobbyMenu(Lobby l)
+PUBLIC int lobbyMenu(Lobby l, int lobbyState)
 {
     bool closeRequested = false;
     SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
@@ -157,6 +158,17 @@ PUBLIC int lobbyMenu(Lobby l)
                 SDL_RenderPresent(l->gRenderer);
 
             }
+            if (l->numberOfPlayers == MAXNUMBEROFPLAYERS && !lobbyState)
+            {
+                return -1;
+            }
+            if (l->numberOfPlayers == MAXNUMBEROFPLAYERS && lobbyState)
+            {
+                usleep(20000000);
+                return -1;
+            }
+            
+            
         }
     }
     return CLOSEREQUSTED;
@@ -220,7 +232,7 @@ PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SD
     return;
 }
 
-PRIVATE void destroyLobby(Lobby l)
+PUBLIC void destroyLobby(Lobby l)
 {
         free(l);
 }

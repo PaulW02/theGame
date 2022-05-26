@@ -178,22 +178,9 @@ PUBLIC void applicationUpdate(Application theApp){
     strcpy(soldierName, getSoldierName(gameInfo->soldiers[gameInfo->id]));
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
-    if(SDLNet_TCP_Recv(gameInfo->tcp_sd, &gameInfo->amountOfPlayersConnected, sizeof(gameInfo->amountOfPlayersConnected)) > 0){
-        if(SDLNet_TCP_Recv(gameInfo->tcp_sd, gameInfo->playerLobbyInformation, sizeof(gameInfo->playerLobbyInformation)) > 0){
-            for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
-            {
-                if(strcmp(gameInfo->playerLobbyInformation[i].soldierImagePath, getPathToCharacter(m)) != 0 && strcmp(gameInfo->playerLobbyInformation[i].soldierName, getPlayerName(m)) != 0){
-                    pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName);   
-                }else{
-                    gameInfo->id = i;
-                }
-            }
+
         
-            lobbyApplication(gameInfo->l);
-            printf("AMOUNT %d \n", gameInfo->amountOfPlayersConnected);
-            currentPlayers = gameInfo->amountOfPlayersConnected;
-        }
-    }
+    lobbyApplication(gameInfo->l, 0);
     
     
 
@@ -247,8 +234,22 @@ PUBLIC void *handleNetwork(void *ptr) {
 
     PlayersData clientPlayersData;
     int connParams[7];
+
+    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
+    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
+    printf("%d \n", ((GameInfo *)ptr)->amountOfPlayersConnected);
     
+    ((GameInfo *)ptr)->l =createLobby(((GameInfo *)ptr)->gRenderer);
+
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        //Lägg till meny i GameInfo
+        pushLobbyPlayer(((GameInfo *)ptr)->l, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierImagePath, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierName);
+    }
     
+
+    lobbyApplication(((GameInfo *)ptr)->l, 1);
+
     setupPlayerAndWeapon(((GameInfo *)ptr));
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
