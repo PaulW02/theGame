@@ -188,6 +188,7 @@ PUBLIC void applicationUpdate(Application theApp){
     SDLNet_TCP_Recv(gameInfo->tcp_sd, &gameInfo->amountOfPlayersConnected, sizeof(gameInfo->amountOfPlayersConnected));
     SDLNet_TCP_Recv(gameInfo->tcp_sd, gameInfo->playerLobbyInformation, sizeof(gameInfo->playerLobbyInformation));
 
+    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     gameInfo->gameState = 1;
     //pthread_create(&lobbyCheckForPlayersThread, NULL, checkForNewPlayers, (void *)gameInfo);
     //pthread_create(&drawLobbyPlayersThread, NULL, drawLobbyPlayers, (void *)gameInfo);
@@ -202,7 +203,6 @@ PUBLIC void applicationUpdate(Application theApp){
 
     currentPlayers = gameInfo->amountOfPlayersConnected;
 
-    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
