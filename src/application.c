@@ -173,12 +173,9 @@ PUBLIC void applicationUpdate(Application theApp){
     initConnection(&gameInfo->tcp_sd, &srvadd, m); 
     //Lobby
     gameInfo->l = createLobby(gameInfo->gRenderer);
-    pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m));
+    pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m), 0);
  
     pthread_t networkThread;
-
-    
-    
 
     setSoldierFileName(gameInfo->soldiers[gameInfo->id], getPathToCharacter(m));
     setSoldierName(gameInfo->soldiers[gameInfo->id], getPlayerName(m));
@@ -192,9 +189,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
 
-    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
+
     //lobbyApplication(gameInfo->l, 0);
     bool closeRequested = false;
+    int oldAmountOfPlayersConnected = -1;
     SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
     SDL_Color colors[] = {{0xFF,0x00,0x00},  //Red
                           {0x00,0xFF,0x00},  //Green
@@ -207,7 +205,7 @@ PUBLIC void applicationUpdate(Application theApp){
     Uint32 ticks, seconds, startTimeValue;
 
     startTimeValue = SDL_GetTicks() / 1000;
-
+    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     while(!closeRequested)
     {
         /*
@@ -215,12 +213,17 @@ PUBLIC void applicationUpdate(Application theApp){
         ticks = SDL_GetTicks();
         seconds = (ticks/1000)% 2 + 1;
         */
+
        if (gameInfo->amountOfPlayersConnected == MAX_PLAYERS)
        {
+           for (int i = 0; i < MAX_PLAYERS; i++)
+           {
+               pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName, i);
+           }
+           
            closeRequested = true;
-           break;
        }
-       
+
         while(SDL_PollEvent(&gameInfo->l->windowEvent))
         {
             switch(gameInfo->l->windowEvent.type)
@@ -241,33 +244,33 @@ PUBLIC void applicationUpdate(Application theApp){
                     break;
             }
 
-            if(gameInfo->l->players[0].playerPath[0] != '\0')
-            {
-                SDL_RenderClear(gameInfo->l->gRenderer);
-                renderImage(gameInfo->l->gRenderer,"lobby.png",-1,150,1,255);
-                
-                /*
-                //Countdown [WIP]
-                sprintf(countdownNumber,"%d",countdown);
-                renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
-                */
-
-                for(int i = 0; i < gameInfo->l->numberOfPlayers; i++)
-                {
-                    posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
-
-                    renderImageEx(gameInfo->l->gRenderer,gameInfo->l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
-                    renderCharacterText(gameInfo->l->gRenderer,gameInfo->l->players[i].playerName,colors[i],posX,posY[i]-50,24);
-                }
-                SDL_RenderPresent(gameInfo->l->gRenderer);
-
-            }
         }
+        if(gameInfo->l->players[0].playerPath[0] != '\0')
+        {
+            SDL_RenderClear(gameInfo->l->gRenderer);
+            renderImage(gameInfo->l->gRenderer,"lobby.png",-1,150,1,255);
+            
+            /*
+            //Countdown [WIP]
+            sprintf(countdownNumber,"%d",countdown);
+            renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
+            */
+
+            for(int i = 0; i < gameInfo->l->numberOfPlayers; i++)
+            {
+                posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+
+                renderImageEx(gameInfo->l->gRenderer,gameInfo->l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+                renderCharacterText(gameInfo->l->gRenderer,gameInfo->l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+            }
+            SDL_RenderPresent(gameInfo->l->gRenderer);
+        }
+
+        usleep(10000000);
     }
     
-    
     usleep(1000000);
-
+    
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
