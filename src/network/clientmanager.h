@@ -6,6 +6,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "../application.h"
+#include "../handlers/playerhandler.h"
 #include "../draw/media.h"
 #include "../player/soldier.h"
 #include "../lobby.h"

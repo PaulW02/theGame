@@ -27,10 +27,13 @@ struct serverGameInfo {
     int gameState;
     PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     int amountOfPlayersConnected;
+    int allReceivedCheck[MAX_PLAYERS];
 };
 typedef struct serverGameInfo ServerGameInfo;
 
 void *handlePlayer(void *ptr);
+int checkAllPlayersReceived(int allReceivedCheck[], int amountOfPlayersConnected, int id);
+
 
 int main(int argc,char** argv)
 {
@@ -47,6 +50,7 @@ int main(int argc,char** argv)
     int threadNr = 0, gameOver = 0;
     Uint32 matchTimer = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
+    serverGameInfo->allReceivedCheck[MAX_PLAYERS] = 0,0,0,0;
     char soldierImagePath[PATHLENGTH];
     char soldierName[MAX_NAME];
 
@@ -72,8 +76,6 @@ int main(int argc,char** argv)
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierImagePath, getSoldierFileName(serverGameInfo->soldiers[threadNr]));
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
             serverGameInfo->amountOfPlayersConnected++;
-            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, &serverGameInfo->amountOfPlayersConnected, sizeof(serverGameInfo->amountOfPlayersConnected));
-            SDLNet_TCP_Send(serverGameInfo->playerConnections[threadNr].sock, serverGameInfo->playerLobbyInformation, sizeof(serverGameInfo->playerLobbyInformation));
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);
@@ -88,8 +90,21 @@ int main(int argc,char** argv)
             }
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
             {
-                serverGameInfo->gameState = 0;
+                gameOver = 1;
             }
+        }
+
+		
+        if(serverGameInfo->gameState == 2)	
+        {	
+            if (!matchTimer) 	
+            {	
+                matchTimer = SDL_GetTicks() + 180000; //3 minutes	
+            }	
+            else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))	
+            {	
+                serverGameInfo->gameState = 0;	
+            }	
         }
     }
     SDLNet_TCP_Close(server);
@@ -111,26 +126,12 @@ void *handlePlayer(void *ptr) {
     }
     
     PlayersData receivedPlayersData;
-    while (((ServerGameInfo *)ptr)->gameState == 1){
-       /* SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
-        SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-        for (int i = 0; i < ((ServerGameInfo *)ptr)->amountOfPlayersConnected; i++)
-        {
-            printf("%s %s SERVER\n", ((ServerGameInfo *)ptr)->playerLobbyInformation[i].soldierName, ((ServerGameInfo *)ptr)->playerLobbyInformation[i].soldierImagePath);
-        }
-        usleep(100000);*/        
-        if(((ServerGameInfo *)ptr)->amountOfPlayersConnected == MAX_PLAYERS){
-            ((ServerGameInfo *)ptr)->gameState = 2;
-        }
+    while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
 
-        
-    }
-    
-    //countDown();
-    //usleep(20000000);
+    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
 
-
+    ((ServerGameInfo *)ptr)->gameState = 2;
 
     playerInfo[0] = currentPlayerId;
     playerInfo[1] = getSoldierFrame(((ServerGameInfo *)ptr)->soldiers[currentPlayerId]);
@@ -166,4 +167,18 @@ void *handlePlayer(void *ptr) {
         }
 
     }
+}
+
+int checkAllPlayersReceived(int allReceivedCheck[], int amountOfPlayersConnected, int id){
+    int counter = 0;
+    allReceivedCheck[id] = amountOfPlayersConnected;
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (allReceivedCheck[i] != 0)
+        {
+            counter += allReceivedCheck[i];
+        }
+        
+    }
+    return counter;
 }

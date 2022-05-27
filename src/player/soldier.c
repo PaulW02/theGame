@@ -8,7 +8,7 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 #define MAXCHAR 100
-#define MAX_NAME 30
+#define MAX_NAME 16
 
 PRIVATE int WIDTH = 32;
 PRIVATE int HEIGHT = 32;

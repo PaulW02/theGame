@@ -1,14 +1,11 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-#include "SDL2/SDL_net.h"
 #include "SDL2/SDL_ttf.h"
 #include "lobby.h"
 #include "menu.h"
-#include "network/clientmanager.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 #define PUBLIC /* empty */
@@ -27,9 +24,9 @@
 
 
 //Function declarations
-
-PRIVATE void destroyLobby(Lobby l);
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
+PUBLIC int lobbyMenu(Lobby l, int lobbyState);
+PUBLIC void destroyLobby(Lobby l);
+PUBLIC void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 
 
 struct player{
@@ -60,19 +57,18 @@ PUBLIC Lobby createLobby(SDL_Renderer *gRenderer)
     - Path should be something in the style of :'resources/Karaktarer/SKELETON/SKELETONpistol.png'.
     - Name should be below 16 character which it will be if code is executed correctly
 */
-PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[], int id)
+PUBLIC void pushLobbyPlayer(Lobby l, char path[], char name[])
 {
-    if(id<MAXNUMBEROFPLAYERS)
+    if(l->numberOfPlayers<MAXNUMBEROFPLAYERS)
     {
-        strcpy(l->players[id].playerPath,path);
-        strcpy(l->players[id].playerName,name);
-        if(id == l->numberOfPlayers){
-            l->numberOfPlayers++;
-        }
+        strcpy(l->players[l->numberOfPlayers].playerPath,path);
+        strcpy(l->players[l->numberOfPlayers].playerName,name);
+        l->numberOfPlayers++;
+        return;
     }
 }
 
-PUBLIC int lobbyApplication(Lobby l)
+PUBLIC int lobbyApplication(Lobby l, int lobbyState)
 {
     int result = 1;
     bool closeRequested = false;
@@ -86,10 +82,9 @@ PUBLIC int lobbyApplication(Lobby l)
                 break;
             
             case LOBBYMENU:
-                result = lobbyMenu(l);
+                result = lobbyMenu(l, lobbyState);
                 break;
-            case MAX_PLAYERS:
-                destroyLobby(l);
+            
             default:
                 return 0;
                 break;
@@ -98,7 +93,7 @@ PUBLIC int lobbyApplication(Lobby l)
     return result;
 }
 
-PUBLIC int lobbyMenu(Lobby l)
+PUBLIC int lobbyMenu(Lobby l, int lobbyState)
 {
     bool closeRequested = false;
     SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
@@ -124,7 +119,6 @@ PUBLIC int lobbyMenu(Lobby l)
 
         while(SDL_PollEvent(&l->windowEvent))
         {
-
             switch(l->windowEvent.type)
             {
                 case SDL_QUIT:
@@ -136,6 +130,7 @@ PUBLIC int lobbyMenu(Lobby l)
                     case SDL_SCANCODE_RETURN:
                         return 0; 
                         break;
+                    
                     default:
                         break;
                     }
@@ -163,10 +158,16 @@ PUBLIC int lobbyMenu(Lobby l)
                 SDL_RenderPresent(l->gRenderer);
 
             }
-            usleep(100000);
-            /*if(l->numberOfPlayers == MAX_PLAYERS){
-                return MAX_PLAYERS;
-            }*/
+            if (l->numberOfPlayers == MAXNUMBEROFPLAYERS && !lobbyState)
+            {
+                return -1;
+            }
+            if (l->numberOfPlayers == MAXNUMBEROFPLAYERS && lobbyState)
+            {
+                usleep(20000000);
+                return -1;
+            }
+            
             
         }
     }
@@ -209,7 +210,7 @@ PUBLIC void showCurrentLobbyPlayers(Lobby l){
     }
 }
 
-PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
+PUBLIC void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size)
 {
     TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",size);
     SDL_Surface* text = TTF_RenderText_Solid(font,textToRender,color);
@@ -231,7 +232,7 @@ PRIVATE void renderCharacterText(SDL_Renderer *gRenderer, char *textToRender, SD
     return;
 }
 
-PRIVATE void destroyLobby(Lobby l)
+PUBLIC void destroyLobby(Lobby l)
 {
         free(l);
 }
