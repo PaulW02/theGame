@@ -337,7 +337,7 @@ PUBLIC void *handleNetwork(void *ptr) {
     
     while (!gameOver)
     {   
-        getCurrentPlayerInfo(((GameInfo *)ptr), &clientPlayersData, connParams[0]);
+        setCurrentPlayerInfo(((GameInfo *)ptr), &clientPlayersData, connParams[0]);
 
 		if (SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, &clientPlayersData, sizeof(struct playersData)) < sizeof(struct playersData))
 		{
