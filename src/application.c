@@ -8,6 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "menu.h"
+#include "endScreen.h"
 #include "lobby.h"
 #include "collision/collision.h"
 #include "timers.h"
@@ -46,11 +47,21 @@ struct application{
 
 };
 
+struct player{
+    char playerPath[PATHLENGTH];
+    char playerName[MAX_NAME];
+};
+typedef struct player Player;
+
+struct lobby{
+    SDL_Renderer *gRenderer;
+    SDL_Event windowEvent;
+    int numberOfPlayers;
+    Player players[MAX_PLAYERS];
+};
 
 
 PUBLIC void *handleNetwork(void *ptr);
-PUBLIC void *checkForNewPlayers(void *ptr);
-PUBLIC void *drawLobbyPlayers(void *ptr);
 
 PUBLIC Application createApplication(){
     Application s = malloc(sizeof(struct application));
@@ -167,12 +178,9 @@ PUBLIC void applicationUpdate(Application theApp){
     initConnection(&gameInfo->tcp_sd, &srvadd, m); 
     //Lobby
     gameInfo->l = createLobby(gameInfo->gRenderer);
-    //pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m), 0);
-
-    pthread_t networkThread, lobbyCheckForPlayersThread, drawLobbyPlayersThread;
-
-    
-    
+    pushLobbyPlayer(gameInfo->l, getPathToCharacter(m), getPlayerName(m), 0);
+ 
+    pthread_t networkThread;
 
     setSoldierFileName(gameInfo->soldiers[gameInfo->id], getPathToCharacter(m));
     setSoldierName(gameInfo->soldiers[gameInfo->id], getPlayerName(m));
@@ -185,24 +193,89 @@ PUBLIC void applicationUpdate(Application theApp){
     strcpy(soldierName, getSoldierName(gameInfo->soldiers[gameInfo->id]));
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
-    SDLNet_TCP_Recv(gameInfo->tcp_sd, &gameInfo->amountOfPlayersConnected, sizeof(gameInfo->amountOfPlayersConnected));
-    SDLNet_TCP_Recv(gameInfo->tcp_sd, gameInfo->playerLobbyInformation, sizeof(gameInfo->playerLobbyInformation));
 
-    gameInfo->gameState = 1;
-    //pthread_create(&lobbyCheckForPlayersThread, NULL, checkForNewPlayers, (void *)gameInfo);
-    //pthread_create(&drawLobbyPlayersThread, NULL, drawLobbyPlayers, (void *)gameInfo);
-    for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
-    {
-        pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName, i);   
-    }
-    if(lobbyApplication(gameInfo->l) == -1) return;
-    //pthread_join(drawLobbyPlayersThread, NULL);
-    //pthread_join(lobbyCheckForPlayersThread, NULL);
-    gameInfo->gameState = 2;
 
-    currentPlayers = gameInfo->amountOfPlayersConnected;
+    //lobbyApplication(gameInfo->l, 0);
+    bool closeRequested = false;
+    int oldAmountOfPlayersConnected = -1;
+    SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
+    SDL_Color colors[] = {{0xFF,0x00,0x00},  //Red
+                          {0x00,0xFF,0x00},  //Green
+                          {0x00,0x00,0xFF},  //Blue
+                          {0xFF,0x00,0xFF}}; //Pink
+    int posX = 0, padding = 70, countdown = 30;
+    int posY[4] = {275,300,300,275};
+    char countdownNumber[3];
 
+    Uint32 ticks, seconds, startTimeValue;
+
+    startTimeValue = SDL_GetTicks() / 1000;
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
+    while(!closeRequested)
+    {
+        /*
+        //Countdown [WIP]
+        ticks = SDL_GetTicks();
+        seconds = (ticks/1000)% 2 + 1;
+        */
+
+       if (gameInfo->amountOfPlayersConnected == MAX_PLAYERS)
+       {
+           for (int i = 0; i < MAX_PLAYERS; i++)
+           {
+               pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName, i);
+           }
+           
+           closeRequested = true;
+       }
+
+        while(SDL_PollEvent(&gameInfo->l->windowEvent))
+        {
+            switch(gameInfo->l->windowEvent.type)
+            {
+                case SDL_QUIT:
+                    closeRequested=true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch (gameInfo->l->windowEvent.key.keysym.scancode)
+                    {
+                    case SDL_SCANCODE_RETURN:
+                        closeRequested = true;
+                        break;
+                    
+                    default:
+                        break;
+                    }
+                    break;
+            }
+
+        }
+        if(gameInfo->l->players[0].playerPath[0] != '\0')
+        {
+            SDL_RenderClear(gameInfo->l->gRenderer);
+            renderImage(gameInfo->l->gRenderer,"lobby.png",-1,150,1,255);
+            
+            /*
+            //Countdown [WIP]
+            sprintf(countdownNumber,"%d",countdown);
+            renderText(l->gRenderer,countdownNumber,colorWhite,-1,50,24);
+            */
+
+            for(int i = 0; i < gameInfo->l->numberOfPlayers; i++)
+            {
+                posX = (WINDOW_WIDTH/2)-(WINDOW_WIDTH/5)*2 + (WINDOW_WIDTH/5)*i;
+
+                renderImageEx(gameInfo->l->gRenderer,gameInfo->l->players[i].playerPath,posX,300,SDL_FLIP_NONE,0,SDL_ALPHA_OPAQUE);
+                renderCharacterText(gameInfo->l->gRenderer,gameInfo->l->players[i].playerName,colors[i],posX,posY[i]-50,24);
+            }
+            SDL_RenderPresent(gameInfo->l->gRenderer);
+        }
+
+        usleep(5000000);
+    }
+    
+    usleep(1000000);
+    
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
@@ -252,6 +325,9 @@ PUBLIC void applicationUpdate(Application theApp){
         float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
         SDL_Delay(floor(16.666f - elapsedMS));
     }
+	//End Screen	
+    EndScreen es = createEndScreen(gameInfo->gRenderer, gameInfo->soldiers);	
+    if(endScreenApplication(es) == -1) return;
     SDLNet_TCP_Close(gameInfo->tcp_sd);
 }
 
@@ -261,42 +337,14 @@ PUBLIC void destoryApplication(Application theApp){
     //Mix_CloseAudio();
 }
 
-
-PUBLIC void *drawLobbyPlayers(void *ptr){
-    while (((GameInfo *)ptr)->gameState == 1)
-    {
-        for (int i = 0; i < ((GameInfo *)ptr)->amountOfPlayersConnected; i++)
-        {
-            
-            pushLobbyPlayer(((GameInfo *)ptr)->l, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierImagePath, ((GameInfo *)ptr)->playerLobbyInformation[i].soldierName, i); 
-
-        }
-        usleep(100000);
-    }
-    
-}
-
-PUBLIC void *checkForNewPlayers(void *ptr){
-    while (((GameInfo *)ptr)->gameState == 1)
-    {
-        if(SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected)) > 0){
-            if(SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation)) > 0){
-                usleep(100000);
-            }
-        }
-            
-        
-    }
-    
-}
-
 PUBLIC void *handleNetwork(void *ptr) {
 
     PlayersData clientPlayersData;
     int connParams[7];
-    
+
+    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
-    
+
     setupPlayerAndWeapon(((GameInfo *)ptr));
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, connParams, sizeof(connParams));
@@ -306,7 +354,9 @@ PUBLIC void *handleNetwork(void *ptr) {
     loadReloadMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mReloadDisplay[connParams[0]]);
     loadAmmoMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mAmmoCounter[connParams[0]], ((GameInfo *)ptr)->ammoClips[connParams[0]], &((GameInfo *)ptr)->mBulletType[connParams[0]]);
     
-    while (((GameInfo *)ptr)->gameState == 2)
+    int gameOver = 0;
+    
+    while (!gameOver)
     {   
         getCurrentPlayerInfo(((GameInfo *)ptr), &clientPlayersData, connParams[0]);
 
@@ -332,4 +382,3 @@ PUBLIC void *handleNetwork(void *ptr) {
 
     }
 }
-

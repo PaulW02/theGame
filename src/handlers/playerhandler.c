@@ -10,6 +10,8 @@
 #include "../player/soldier.h"
 #include "../player/weapon.h"
 
+#include "../menu.h"
+
 #define PUBLIC /* empty */
 #define PRIVATE static
 
@@ -141,4 +143,21 @@ PUBLIC void respawnPlayer(Soldier soldierToRespawn){
             setSoldierPositionY(soldierToRespawn, 460);
             break;
     }
+}
+
+PUBLIC void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer){
+    SDL_Color black = {0x00,0x00,0x00}; //Black
+    SDL_Color red = {0xFF,0x00,0x00}; // RED
+    char score[1024];
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[0]), getSoldierKills(soldiers[0]));
+    renderText(gRenderer, score, red, 30, 64, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[1]), getSoldierKills(soldiers[1]));
+    renderText(gRenderer, score, red, 30, 192, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[2]), getSoldierKills(soldiers[2]));
+    renderText(gRenderer, score, red, 30, 320, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[3]), getSoldierKills(soldiers[3]));
+    renderText(gRenderer, score, red, 30, 448, 24);
 }
