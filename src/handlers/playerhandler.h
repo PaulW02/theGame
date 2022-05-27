@@ -10,7 +10,7 @@
 
 #include "../player/soldier.h"
 
-#define MAX_NAME 30
+#define MAX_NAME 16
 #define PATHLENGTH 64
 
 
