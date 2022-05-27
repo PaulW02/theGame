@@ -309,6 +309,7 @@ PUBLIC void applicationUpdate(Application theApp){
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         
+        //Display for Game Timer
         passedTime = SDL_GetTicks()/1000;
         currentTime = 180 - (passedTime - startTime);
         if(passedTime >= nextSecond)
