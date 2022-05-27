@@ -22,7 +22,11 @@ struct playersData{
 };
 typedef struct playersData PlayersData;
 
-
+struct playerLobbyInformation{
+    char soldierName[MAX_NAME];
+    char soldierImagePath[PATHLENGTH];
+};
+typedef struct playerLobbyInformation PlayerLobbyInformation;
 
 struct gameInfo{
     Lobby l;
@@ -32,6 +36,7 @@ struct gameInfo{
     TCPsocket tcp_sd;
     int id;
     int amountOfPlayersConnected;
+    int gameState;
     char soldierNames[MAX_PLAYERS][MAX_NAME];
     char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
     SDL_Texture *mSoldier[MAX_PLAYERS];
