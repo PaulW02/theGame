@@ -10,6 +10,8 @@
 #include "../player/soldier.h"
 #include "../player/weapon.h"
 
+#include "../menu.h"
+
 #define PUBLIC /* empty */
 #define PRIVATE static
 
@@ -61,11 +63,11 @@ PUBLIC void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldie
 PUBLIC void weaponChoiceHandler(Soldier soldier)
 {
                             //range, power, speed, mag_size, firerate, reloadtime
-    Weapon pistol = createWeapon(200,10,10,25,5,100);
-    Weapon bow = createWeapon(5,6,7,1,50,50);
-    Weapon spear = createWeapon(5,6,7,1,50,50);
-    Weapon rodBlue = createWeapon(5,6,7,1,50,50);
-    Weapon rodRed = createWeapon(5,6,7,1,50,50);
+    Weapon pistol = createWeapon(200,5,10,25,5,100);
+    Weapon bow = createWeapon(5,10,7,1,20,20);
+    Weapon spear = createWeapon(5,20,4,1,50,50);
+    Weapon rodBlue = createWeapon(5,40,5,1,200,200);
+    Weapon rodRed = createWeapon(5,40,5,1,200,200);
     
     if (strstr(getSoldierFileName(soldier),"pistol"))
     {
@@ -133,12 +135,29 @@ PUBLIC void respawnPlayer(Soldier soldierToRespawn){
             setSoldierPositionY(soldierToRespawn, 24);
             break;
         case 2:
-            setSoldierPositionX(soldierToRespawn, 440);
-            setSoldierPositionY(soldierToRespawn, 460);
-            break;
-        case 3:
             setSoldierPositionX(soldierToRespawn, 38);
             setSoldierPositionY(soldierToRespawn, 460);
             break;
+        case 3:
+            setSoldierPositionX(soldierToRespawn, 440);
+            setSoldierPositionY(soldierToRespawn, 460);
+            break;
     }
+}
+
+PUBLIC void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer){
+    SDL_Color black = {0x00,0x00,0x00}; //Black
+    SDL_Color red = {0xFF,0x00,0x00}; // RED
+    char score[1024];
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[0]), getSoldierKills(soldiers[0]));
+    renderText(gRenderer, score, red, 30, 64, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[1]), getSoldierKills(soldiers[1]));
+    renderText(gRenderer, score, red, 30, 192, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[2]), getSoldierKills(soldiers[2]));
+    renderText(gRenderer, score, red, 30, 320, 24);
+
+    sprintf(score, "%s score: %d", getSoldierName(soldiers[3]), getSoldierKills(soldiers[3]));
+    renderText(gRenderer, score, red, 30, 448, 24);
 }

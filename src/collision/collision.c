@@ -220,8 +220,7 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
                 if(((getBulletSoldierId(bullets[i])) != (j))){
                     deleteBullet(amountOfBullets, bullets, i);
                     setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
-                    healthImage = getHealthImageBasedOnCurrentHealth(getSoldierHealth(soldiers[j]));
-                    if(healthImage == 10){                        
+                    if(getSoldierHealth(soldiers[j]) <= 0 && getSoldierDead(soldiers[j]) == 0){                        
                         setSoldierKills(soldiers[getBulletSoldierId(bullets[i])], getSoldierKills(soldiers[getBulletSoldierId(bullets[i])])+1);   // ökar antal kills
                         currentScore = getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]);
                         printf("SoldierPresent: %d kills", currentScore);

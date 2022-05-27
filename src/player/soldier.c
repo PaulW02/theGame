@@ -28,6 +28,7 @@ struct soldier{
     int health;
     int kills;
     int powerUp;
+    int dead;
     int powerUpTimer;
     int respawnTimer;
     char soldierName[MAX_NAME];
@@ -48,8 +49,9 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->health = 100;
     s->kills = 0;
     s->powerUp = 0;
+    s->dead = 0;
     s->powerUpTimer = 0;
-    s->respawnTimer = 0;
+    s->respawnTimer = -1;
     return s;
 }
 
@@ -204,7 +206,7 @@ PUBLIC int getSoldierPowerUpTimer(Soldier s){
     return s->powerUpTimer;
 }
 
-PUBLIC int setSoldierRespawnTimer(Soldier s, int timer){
+PUBLIC void setSoldierRespawnTimer(Soldier s, int timer){
     s->respawnTimer = timer;
 }
 
@@ -220,4 +222,12 @@ PUBLIC void setSoldierName(Soldier s, char soldierName[MAX_NAME])
 PUBLIC char* getSoldierName(Soldier s)
 {
     return  s->soldierName;
+}
+
+PUBLIC void setSoldierDead(Soldier s, int dead){
+    s->dead = dead;
+}
+
+PUBLIC int getSoldierDead(Soldier s){
+    return s->dead;
 }
