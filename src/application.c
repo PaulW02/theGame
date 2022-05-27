@@ -266,7 +266,7 @@ PUBLIC void applicationUpdate(Application theApp){
             SDL_RenderPresent(gameInfo->l->gRenderer);
         }
 
-        usleep(10000000);
+        usleep(5000000);
     }
     
     usleep(1000000);
