@@ -127,10 +127,8 @@ void *handlePlayer(void *ptr) {
     
     PlayersData receivedPlayersData;
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
-
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-
     ((ServerGameInfo *)ptr)->gameState = 2;
 
     playerInfo[0] = currentPlayerId;

@@ -11,7 +11,7 @@ typedef struct lobby *Lobby;
 //Functions
 Lobby createLobby(SDL_Renderer *gRenderer);
 int lobbyApplication(Lobby l, int lobbyState);
-void pushLobbyPlayer(Lobby l, char path[], char name[]);
+void pushLobbyPlayer(Lobby l, char path[], char name[], int id);
 int lobbyMenu(Lobby l, int lobbyState);
 void destroyLobby(Lobby l);
 void showCurrentLobbyPlayers(Lobby l);
