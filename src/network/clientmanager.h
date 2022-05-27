@@ -37,8 +37,6 @@ struct gameInfo{
     int id;
     int amountOfPlayersConnected;
     int gameState;
-    char soldierNames[MAX_PLAYERS][MAX_NAME];
-    char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
     SDL_Texture *mSoldier[MAX_PLAYERS];
     SDL_Renderer *gRenderer;
     SDL_Rect gSpriteClips[MAX_PLAYERS][8];
@@ -52,6 +50,6 @@ typedef struct gameInfo GameInfo;
 
 void setupPlayerAndWeapon(GameInfo *gameInfo);
 void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams[]);
-void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
+void setCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
 void setReceivedValuesForAllPlayers(GameInfo *gameInfo, PlayersData clientPlayersData);
 #endif
