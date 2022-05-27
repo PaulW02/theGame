@@ -40,7 +40,7 @@ PUBLIC void movementInput(SDL_Event appWindowEvent, Soldier s){
         }
         if(keystate[SDL_SCANCODE_SPACE]){
             setSoldierShotFired(s, 1);
-            shootingSound();
+            //shootingSound();
             if(!getWeaponReload(weapon))
             {
                 setSoldierShotFired(s, 1);

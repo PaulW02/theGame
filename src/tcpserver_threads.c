@@ -2,6 +2,7 @@
 #include <SDL2/SDL_net.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
@@ -23,10 +24,10 @@ struct serverGameInfo {
     PlayersData playersData[MAX_PLAYERS];
     Soldier soldiers[MAX_PLAYERS];
     int id;
+    int gameState;
     PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     int amountOfPlayersConnected;
     int allReceivedCheck[MAX_PLAYERS];
-    int gameState;
 };
 typedef struct serverGameInfo ServerGameInfo;
 
@@ -78,6 +79,19 @@ int main(int argc,char** argv)
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);
+
+        }
+
+        if(serverGameInfo->gameState == 2)
+        {
+            if (!matchTimer) 
+            {
+                matchTimer = SDL_GetTicks() + 180000; //3 minutes
+            }
+            else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
+            {
+                gameOver = 1;
+            }
         }
 
 		
@@ -151,6 +165,7 @@ void *handlePlayer(void *ptr) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) { // sometimes blank!
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }
+
     }
 }
 
