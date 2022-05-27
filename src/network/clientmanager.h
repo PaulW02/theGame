@@ -37,8 +37,7 @@ struct gameInfo{
     int id;
     int amountOfPlayersConnected;
     int gameState;
-    Uint32 GameTimer;
-    Uint32 GameTimerReal;
+    Uint32 GameTimerStart;
     char soldierNames[MAX_PLAYERS][MAX_NAME];
     char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
     SDL_Texture *mSoldier[MAX_PLAYERS];

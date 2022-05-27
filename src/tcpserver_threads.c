@@ -27,8 +27,7 @@ struct serverGameInfo {
     int gameState;
     PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     Uint32 gameTimerEnd;
-    Uint32 GameTimer;
-    Uint32 GameTimerReal;
+    Uint32 gameTimerStart;
     int amountOfPlayersConnected;
     int allReceivedCheck[MAX_PLAYERS];
 };
@@ -51,12 +50,9 @@ int main(int argc,char** argv)
     //PlayerConnDetails players[4] = (struct playerConnDetails*)malloc(4*sizeof(PlayerConnDetails));
     ServerGameInfo *serverGameInfo = (struct serverGameInfo *)malloc(sizeof(struct serverGameInfo));
     int threadNr = 0, gameOver = 0;
-    //Uint32 matchTimer = 0;
-    //Uint32 firstValue = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
     serverGameInfo->allReceivedCheck[MAX_PLAYERS] = 0,0,0,0;
     serverGameInfo->gameTimerEnd = 0;
-    serverGameInfo->GameTimerReal = 0;
     char soldierImagePath[PATHLENGTH];
     char soldierName[MAX_NAME];
 
@@ -82,9 +78,10 @@ int main(int argc,char** argv)
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierImagePath, getSoldierFileName(serverGameInfo->soldiers[threadNr]));
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
             serverGameInfo->amountOfPlayersConnected++;
+
             if(serverGameInfo->amountOfPlayersConnected >= 4)
             {
-                serverGameInfo->GameTimer = SDL_GetTicks()/1000;
+                serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
             }
 
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
@@ -94,11 +91,10 @@ int main(int argc,char** argv)
         }
         if(serverGameInfo->gameState == 2)	
         {	
-            serverGameInfo->GameTimerReal = SDL_GetTicks()/1000;
             if (!serverGameInfo->gameTimerEnd) 	
             {	
                 serverGameInfo->gameTimerEnd = SDL_GetTicks() + 180000; //3 minutes
-                //serverGameInfo->GameTimer = SDL_GetTicks()/1000;
+                //serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
             }	
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), serverGameInfo->gameTimerEnd))	
             {	
@@ -129,7 +125,7 @@ void *handlePlayer(void *ptr) {
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->GameTimer, sizeof(((ServerGameInfo *)ptr)->GameTimer));
+    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
     
     ((ServerGameInfo *)ptr)->gameState = 2;
 
@@ -146,7 +142,6 @@ void *handlePlayer(void *ptr) {
     }
 
     int gameOver = 0;
-    Uint32 nextSecond = 0;
 
     while (((ServerGameInfo *)ptr)->gameState == 2)
     {
@@ -162,11 +157,6 @@ void *handlePlayer(void *ptr) {
         }
 
         SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playersData, sizeof(((ServerGameInfo *)ptr)->playersData));
-        if(((ServerGameInfo *)ptr)->GameTimerReal >= nextSecond)
-        {
-            SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, &((ServerGameInfo *)ptr)->GameTimerReal, sizeof(((ServerGameInfo *)ptr)->GameTimerReal));
-            nextSecond = ((ServerGameInfo *)ptr)->GameTimerReal + 1;
-        }
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) { // sometimes blank!
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }

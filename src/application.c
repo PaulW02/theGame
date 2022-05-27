@@ -281,7 +281,7 @@ PUBLIC void applicationUpdate(Application theApp){
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
     updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
 
-    Uint32 startTime = gameInfo->GameTimer;
+    Uint32 startTime = gameInfo->GameTimerStart;
 
     bool keep_window_open = true;
     while(keep_window_open)
@@ -310,14 +310,12 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         
         //Display for Game Timer
-        //passedTime = gameInfo->GameTimerReal;
-        currentTime = 180 - (gameInfo->GameTimerReal - startTime);
-        if(gameInfo->GameTimerReal >= nextSecond)
+        passedTime = SDL_GetTicks()/1000;
+        currentTime = 180 - (passedTime - startTime);
+        if(passedTime >= nextSecond)
         {
-            printf("%d\n", gameInfo->GameTimer);
-            printf("%d\n", gameInfo->GameTimerReal);
             updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
-            nextSecond = gameInfo->GameTimerReal + 1;
+            nextSecond = passedTime + 1;
         }
         SDL_RenderCopy(gameInfo->gRenderer,timeTexture,NULL,&timePos);
         
@@ -347,7 +345,7 @@ PUBLIC void *handleNetwork(void *ptr) {
 
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
-    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->GameTimer, sizeof(((GameInfo *)ptr)->GameTimer));
+    SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->GameTimerStart, sizeof(((GameInfo *)ptr)->GameTimerStart));
 
     setupPlayerAndWeapon(((GameInfo *)ptr));
 
@@ -359,8 +357,6 @@ PUBLIC void *handleNetwork(void *ptr) {
     loadAmmoMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mAmmoCounter[connParams[0]], ((GameInfo *)ptr)->ammoClips[connParams[0]], &((GameInfo *)ptr)->mBulletType[connParams[0]]);
     
     int gameOver = 0;
-    float nextValue = 0;
-    //((GameInfo *)ptr)->GameTimerReal = 1;
     
     while (!gameOver)
     {   
@@ -384,13 +380,6 @@ PUBLIC void *handleNetwork(void *ptr) {
                 setSoldierHealth(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].health);
                 //setWeaponMagazine(getSoldierWeapon(((GameInfo *)ptr)->soldiers[i]), ((GameInfo *)ptr)->playersData[i].magazine);
             }
-        }
-        if(((GameInfo *)ptr)->GameTimerReal >= nextValue)
-        {
-            printf("hej");
-            SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->GameTimerReal, sizeof(((GameInfo *)ptr)->GameTimerReal));
-            nextValue = ((GameInfo *)ptr)->GameTimerReal + 0.9;
-            printf("da");
         }
     }
 }
