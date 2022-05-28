@@ -39,7 +39,7 @@ PUBLIC void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams
     gameInfo->id = connParams[0];
 }
 
-PUBLIC void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id){
+PUBLIC void setCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id){
     clientPlayersData->id = id;
     clientPlayersData->x = getSoldierPositionX(gameInfo->soldiers[id]);
     clientPlayersData->y = getSoldierPositionY(gameInfo->soldiers[id]);
