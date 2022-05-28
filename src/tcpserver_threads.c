@@ -79,10 +79,10 @@ int main(int argc,char** argv)
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
             serverGameInfo->amountOfPlayersConnected++;
 
-            if(serverGameInfo->amountOfPlayersConnected >= 4)
+            /*if(serverGameInfo->amountOfPlayersConnected >= 4)
             {
                 serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
-            }
+            }*/
 
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
@@ -94,7 +94,8 @@ int main(int argc,char** argv)
             if (!serverGameInfo->gameTimerEnd) 	
             {	
                 serverGameInfo->gameTimerEnd = SDL_GetTicks() + 180000; //3 minutes
-                //serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
+                serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
+                printf("%d",serverGameInfo->gameTimerStart);
             }	
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), serverGameInfo->gameTimerEnd))	
             {	
@@ -125,7 +126,6 @@ void *handlePlayer(void *ptr) {
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
     
     ((ServerGameInfo *)ptr)->gameState = 2;
 
@@ -142,7 +142,10 @@ void *handlePlayer(void *ptr) {
     }
 
     int gameOver = 0;
-
+    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameState, sizeof(((ServerGameInfo *)ptr)->gameState));
+    usleep(3000000);
+    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
+    
     while (((ServerGameInfo *)ptr)->gameState == 2)
     {
         if(SDLNet_TCP_Recv(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, &receivedPlayersData, sizeof(struct playersData)))
