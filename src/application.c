@@ -129,7 +129,8 @@ PUBLIC void applicationUpdate(Application theApp){
 
     SDL_Texture *timeTexture = NULL;
     SDL_Rect timePos;
-    Uint32 nextSecond, passedTime, currentTime = 0;
+    Uint32 nextSecond, passedTime;
+    int currentTime = 0;
 
     int weaponSpeed;
     int maxRange;
@@ -262,6 +263,8 @@ PUBLIC void applicationUpdate(Application theApp){
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
+
+    //Loads time display texture, position, font etc. and sets value based on current time
     updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
 
     Uint32 startTime = SDL_GetTicks()/1000;
@@ -297,6 +300,7 @@ PUBLIC void applicationUpdate(Application theApp){
         //Display for Game Timer
         passedTime = SDL_GetTicks()/1000 - startTime;
         currentTime = 180 - passedTime;
+        //Texture for game timer is loaded once every second to prevent lag
         if(passedTime >= nextSecond)
         {
             updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);

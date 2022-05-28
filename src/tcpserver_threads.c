@@ -90,7 +90,7 @@ int main(int argc,char** argv)
         {
             if (!matchTimer) 
             {
-                matchTimer = SDL_GetTicks() + 180000; //3 minutes
+                matchTimer = SDL_GetTicks() + 180000 + 10000; //3 minutes (+ 10s because of lobby delay)
             }
             else if (SDL_TICKS_PASSED(SDL_GetTicks(), matchTimer))
             {

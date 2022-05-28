@@ -250,11 +250,13 @@ void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersC
     PowersClips[ 0 ].h =16;
 }
 
-PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect *pos, Uint32 currentTime)
+PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect *pos, int currentTime)
 {
+    //This function sets position, value, font and color for time display
     Uint32 timeMinutes, timeSeconds;
     char timeDisplay[3];
     SDL_Color color = {0x00,0x00,0x00};
+    //Translating current time from seconds to format "m:ds"
     if(currentTime < 60)
     {
         timeMinutes = 0;
@@ -263,7 +265,7 @@ PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture
     {
         timeMinutes = 1;
     }
-    else if (currentTime <180)
+    else if (currentTime < 180)
     {
         timeMinutes = 2;
     }
@@ -272,13 +274,20 @@ PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture
         timeMinutes = 3;
     }
     timeSeconds = currentTime%60;
+    if(currentTime < 0)
+    {
+        timeSeconds = 0;
+    }
 
+    //load font
     TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",24);
-    sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
 
+    //set timeDisplay value and create texture
+    sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
     SDL_Surface* text = TTF_RenderText_Solid(font,timeDisplay, color);
     *timeTexture = SDL_CreateTextureFromSurface(gRenderer,text);
 
+    //set timeDisplay position and size
     SDL_QueryTexture(*timeTexture,NULL,NULL,&pos->w,&pos->h);
     pos->x=(WINDOW_WIDTH-pos->w)/2;
     pos->y=50;
