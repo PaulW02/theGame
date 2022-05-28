@@ -28,6 +28,7 @@ struct serverGameInfo {
     PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     int amountOfPlayersConnected;
     int matchDone;
+    int playerKills[MAX_PLAYERS];
 };
 typedef struct serverGameInfo ServerGameInfo;
 
@@ -171,6 +172,12 @@ void *handlePlayer(void *ptr) {
         if (((ServerGameInfo *)ptr)->matchDone)
         {
             ((ServerGameInfo *)ptr)->gameState = 0;
+        }
+
+        if(currentPlayerId == 0){
+            SDLNet_TCP_Recv(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerKills, sizeof(((ServerGameInfo *)ptr)->playerKills));
+        }else{
+            SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerKills, sizeof(((ServerGameInfo *)ptr)->playerKills));
         }
         
         //Send the gameState variable everytime to let the clients know that the game is on or not

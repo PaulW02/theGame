@@ -279,7 +279,7 @@ PUBLIC void applicationUpdate(Application theApp){
         renderBackground(gameInfo->gRenderer, mTiles, gTiles, tiles);
         createAllCurrentBullets(gameInfo->soldiers, bullets, &amountOfBullets, &bulletsActive);
         manageFireRateAndAmmo(gameInfo->soldiers);
-        bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets);
+        bulletPlayerCollision(bullets, gameInfo->soldiers, &amountOfBullets, gameInfo->playerKills);
         bulletWallCollision(tiles, bullets, &amountOfBullets);
         powersPlayerCollision(gameInfo->soldiers, powers);
         
@@ -292,6 +292,11 @@ PUBLIC void applicationUpdate(Application theApp){
         float elapsedMS = (end - start) / ((float) SDL_GetPerformanceFrequency() * 1000.0f);
         SDL_Delay(floor(16.666f - elapsedMS));
     }
+
+    for (int i = 0; i < MAX_PLAYERS; i++){
+        setSoldierKills(gameInfo->soldiers[i], gameInfo->playerKills[i]);
+    }
+    
 	//End Screen	
     EndScreen es = createEndScreen(gameInfo->gRenderer, gameInfo->soldiers);	
     if(endScreenApplication(es) == -1) return;
@@ -352,6 +357,12 @@ PUBLIC void *handleNetwork(void *ptr) {
                 setSoldierShotFired(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].shotFired);
                 setSoldierHealth(((GameInfo *)ptr)->soldiers[i], ((GameInfo *)ptr)->playersData[i].health);
             }
+        }
+
+        if((((GameInfo *)ptr)->id) == 0){
+            SDLNet_TCP_Send(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerKills, sizeof(((GameInfo *)ptr)->playerKills));
+        }else{
+            SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerKills, sizeof(((GameInfo *)ptr)->playerKills));
         }
 
         SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->gameState, sizeof(((GameInfo *)ptr)->gameState));
