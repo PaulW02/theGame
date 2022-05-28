@@ -339,6 +339,7 @@ PUBLIC void *handleNetwork(void *ptr) {
     //Receiving from server total amount of connected players and their player image and name
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->amountOfPlayersConnected, sizeof(((GameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, ((GameInfo *)ptr)->playerLobbyInformation, sizeof(((GameInfo *)ptr)->playerLobbyInformation));
+    //SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->GameTimerStart, sizeof(((GameInfo *)ptr)->GameTimerStart));
 
     //Setting up player and their weapon
     setupPlayerAndWeapon(((GameInfo *)ptr));

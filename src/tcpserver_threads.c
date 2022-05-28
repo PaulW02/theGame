@@ -50,7 +50,6 @@ int main(int argc,char** argv)
     ServerGameInfo *serverGameInfo = (struct serverGameInfo *)malloc(sizeof(struct serverGameInfo));
     int threadNr = 0, gameOver = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
-    serverGameInfo->allReceivedCheck[MAX_PLAYERS] = 0,0,0,0;
     serverGameInfo->gameTimerEnd = 0;
     serverGameInfo->matchDone = 0;
     char soldierImagePath[PATHLENGTH];
@@ -135,7 +134,8 @@ void *handlePlayer(void *ptr) {
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    
+    //SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
+
     //Setting gameState to 2
     ((ServerGameInfo *)ptr)->gameState = 2;
 
@@ -153,8 +153,7 @@ void *handlePlayer(void *ptr) {
     }
 
     int gameOver = 0;
-    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameState, sizeof(((ServerGameInfo *)ptr)->gameState));
-    usleep(3000000);
+    usleep(1000);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
 
     //Looping while the match is on
