@@ -310,8 +310,8 @@ PUBLIC void applicationUpdate(Application theApp){
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         
         //Display for Game Timer
-        passedTime = SDL_GetTicks()/1000;
-        currentTime = 180 - (passedTime - startTime);
+        passedTime = SDL_GetTicks()/1000 - startTime;
+        currentTime = 180 - passedTime;
         if(passedTime >= nextSecond)
         {
             updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
