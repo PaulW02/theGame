@@ -48,11 +48,12 @@ struct gameInfo{
     SDL_Rect ammoClips[MAX_PLAYERS][11];
     SDL_Texture *mReloadDisplay[MAX_PLAYERS];
     SDL_Texture *mBulletType[MAX_PLAYERS];
+    int playerKills[MAX_PLAYERS];
 };
 typedef struct gameInfo GameInfo;
 
 void setupPlayerAndWeapon(GameInfo *gameInfo);
 void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams[]);
-void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
+void setCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
 void setReceivedValuesForAllPlayers(GameInfo *gameInfo, PlayersData clientPlayersData);
 #endif

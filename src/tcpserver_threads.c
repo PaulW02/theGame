@@ -29,13 +29,12 @@ struct serverGameInfo {
     Uint32 gameTimerEnd;
     Uint32 gameTimerStart;
     int amountOfPlayersConnected;
-    int allReceivedCheck[MAX_PLAYERS];
+    int matchDone;
+    int playerKills[MAX_PLAYERS];
 };
 typedef struct serverGameInfo ServerGameInfo;
 
 void *handlePlayer(void *ptr);
-int checkAllPlayersReceived(int allReceivedCheck[], int amountOfPlayersConnected, int id);
-
 
 int main(int argc,char** argv)
 {
@@ -53,6 +52,7 @@ int main(int argc,char** argv)
     serverGameInfo->amountOfPlayersConnected = 0;
     serverGameInfo->allReceivedCheck[MAX_PLAYERS] = 0,0,0,0;
     serverGameInfo->gameTimerEnd = 0;
+    serverGameInfo->matchDone = 0;
     char soldierImagePath[PATHLENGTH];
     char soldierName[MAX_NAME];
 
@@ -62,48 +62,53 @@ int main(int argc,char** argv)
         client=SDLNet_TCP_Accept(server);
         if(client)
         {
-            
-            // Asign player ID in a vacant position
-            // Create thread for player
+            //Assign id for the client that connected to the server
             serverGameInfo->gameState = 1;
             serverGameInfo->playerConnections[threadNr].id = threadNr;
             serverGameInfo->playerConnections[threadNr].sock = client;
             serverGameInfo->id = threadNr;
 
+            //Receive player image and name
             SDLNet_TCP_Recv(serverGameInfo->playerConnections[threadNr].sock, soldierImagePath, PATHLENGTH+1);
             SDLNet_TCP_Recv(serverGameInfo->playerConnections[threadNr].sock, soldierName, MAX_NAME+1);
+
+            //Create new soldier with the values received
             Soldier newSoldier;
             setValuesForConnectedPlayer(&newSoldier, threadNr, soldierImagePath, soldierName);
             serverGameInfo->soldiers[threadNr] = newSoldier;
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierImagePath, getSoldierFileName(serverGameInfo->soldiers[threadNr]));
             strcpy(serverGameInfo->playerLobbyInformation[threadNr].soldierName, getSoldierName(serverGameInfo->soldiers[threadNr]));
+            
             serverGameInfo->amountOfPlayersConnected++;
-
-            /*if(serverGameInfo->amountOfPlayersConnected >= 4)
-            {
-                serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
-            }*/
-
+          
+            //Create thread to handle the player that connected
             pthread_create(&threads[threadNr], NULL, handlePlayer, (void *)serverGameInfo);
             threadNr++;
             printf("%d Threads\n", threadNr);
 
         }
-        if(serverGameInfo->gameState == 2)	
-        {	
-            if (!serverGameInfo->gameTimerEnd) 	
-            {	
+
+        //Check if game has started (Game state == 2) and if so then start a timer that counts to 3 minutes before it closes everything
+        if(serverGameInfo->gameState == 2)
+        {
+            if (!serverGameInfo->gameTimerEnd) 
+            {
                 serverGameInfo->gameTimerEnd = SDL_GetTicks() + 180000; //3 minutes
                 serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
-                printf("%d",serverGameInfo->gameTimerStart);
-            }	
-            else if (SDL_TICKS_PASSED(SDL_GetTicks(), serverGameInfo->gameTimerEnd))	
-            {	
-                serverGameInfo->gameState = 0;	
+            }
+            else if (SDL_TICKS_PASSED(SDL_GetTicks(), serverGameInfo->gameTimerEnd))
+            {
+                serverGameInfo->matchDone = 1;
             }
         }
-
     }
+
+    //Waiting for threads
+    for (int i = 0; i < threadNr; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+    
     SDLNet_TCP_Close(server);
     
     SDLNet_Quit();
@@ -116,19 +121,25 @@ void *handlePlayer(void *ptr) {
     char soldierFileName[PATHLENGTH];
     int oldAmountOfPlayersConnected = -1;
     int sentCount = 0;
+    PlayersData receivedPlayersData;
+
+    //Setting start value outside of the map
     for (int i = 0; i < MAX_PLAYERS; i++)
     {
         ((ServerGameInfo *)ptr)->playersData[i].x = -50;
         ((ServerGameInfo *)ptr)->playersData[i].y = -50;
     }
     
-    PlayersData receivedPlayersData;
+    
+    //Looping until there are 4 players connected and then sending to all clients the amountOfPlayersConnected variable and the image and name of all the 4 players
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
     
+    //Setting gameState to 2
     ((ServerGameInfo *)ptr)->gameState = 2;
 
+    //Setting the playerInfo array to all the player values of current player and send them to the client that uses that player
     playerInfo[0] = currentPlayerId;
     playerInfo[1] = getSoldierFrame(((ServerGameInfo *)ptr)->soldiers[currentPlayerId]);
     playerInfo[2] = getSoldierPositionX(((ServerGameInfo *)ptr)->soldiers[currentPlayerId]);
@@ -145,9 +156,11 @@ void *handlePlayer(void *ptr) {
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameState, sizeof(((ServerGameInfo *)ptr)->gameState));
     usleep(3000000);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
-    
+
+    //Looping while the match is on
     while (((ServerGameInfo *)ptr)->gameState == 2)
     {
+        //Receiving a players data and setting them to the correct index of the playersData array
         if(SDLNet_TCP_Recv(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, &receivedPlayersData, sizeof(struct playersData)))
         {
             ((ServerGameInfo *)ptr)->playersData[currentPlayerId].id = currentPlayerId;
@@ -159,24 +172,27 @@ void *handlePlayer(void *ptr) {
             ((ServerGameInfo *)ptr)->playersData[currentPlayerId].magazine = receivedPlayersData.magazine;
         }
 
+        //Sending the whole playersData array to the client
         SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playersData, sizeof(((ServerGameInfo *)ptr)->playersData));
+
+        //Checking to see if the timer is done, if it is end the match by setting gameState to 0
+        if (((ServerGameInfo *)ptr)->matchDone)
+        {
+            ((ServerGameInfo *)ptr)->gameState = 0;
+        }
+
+        if(currentPlayerId == 0){
+            SDLNet_TCP_Recv(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerKills, sizeof(((ServerGameInfo *)ptr)->playerKills));
+        }else{
+            SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerKills, sizeof(((ServerGameInfo *)ptr)->playerKills));
+        }
+        
+        //Send the gameState variable everytime to let the clients know that the game is on or not
+        SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, &((ServerGameInfo *)ptr)->gameState, sizeof(((ServerGameInfo *)ptr)->gameState));
+
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) { // sometimes blank!
 			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         }
 
     }
-}
-
-int checkAllPlayersReceived(int allReceivedCheck[], int amountOfPlayersConnected, int id){
-    int counter = 0;
-    allReceivedCheck[id] = amountOfPlayersConnected;
-    for (int i = 0; i < MAX_PLAYERS; i++)
-    {
-        if (allReceivedCheck[i] != 0)
-        {
-            counter += allReceivedCheck[i];
-        }
-        
-    }
-    return counter;
 }

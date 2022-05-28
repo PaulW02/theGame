@@ -195,7 +195,7 @@ PUBLIC void checkPlayerOutOfBoundaries(Soldier s)
     }
 }
 
-PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets){
+PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets, int playerKills[]){
     int leftA, leftB;
     int rightA, rightB;
     int topA, topB;
@@ -218,13 +218,14 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
             if( ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
             }else{
                 if(((getBulletSoldierId(bullets[i])) != (j))){
-                    deleteBullet(amountOfBullets, bullets, i);
                     setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
                     if(getSoldierHealth(soldiers[j]) <= 0 && getSoldierDead(soldiers[j]) == 0){                        
                         setSoldierKills(soldiers[getBulletSoldierId(bullets[i])], getSoldierKills(soldiers[getBulletSoldierId(bullets[i])])+1);   // ökar antal kills
                         currentScore = getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]);
-                        printf("SoldierPresent: %d kills", currentScore);
+                        printf("%s killed %s and has now %d kills\n", getSoldierName(soldiers[getBulletSoldierId(bullets[i])]), getSoldierName(soldiers[j]), getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]));
+                        playerKills[getBulletSoldierId(bullets[i])] = getSoldierKills(soldiers[getBulletSoldierId(bullets[i])]);
                     }
+                    deleteBullet(amountOfBullets, bullets, i);
                 }
             }   
         }
