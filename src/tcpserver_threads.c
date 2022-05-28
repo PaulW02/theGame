@@ -92,6 +92,7 @@ int main(int argc,char** argv)
         {
             if (!serverGameInfo->gameTimerEnd) 
             {
+                //gameTimerEnd is the time at which the game will be closed, gameTimerStart when it started
                 serverGameInfo->gameTimerEnd = SDL_GetTicks() + 180000; //3 minutes
                 serverGameInfo->gameTimerStart = SDL_GetTicks()/1000;
             }
@@ -134,7 +135,6 @@ void *handlePlayer(void *ptr) {
     while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    //SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
 
     //Setting gameState to 2
     ((ServerGameInfo *)ptr)->gameState = 2;
@@ -153,7 +153,9 @@ void *handlePlayer(void *ptr) {
     }
 
     int gameOver = 0;
-    usleep(1000);
+
+    //Waiting so gameTimer has been set in main, then sends starting time to all clients
+    usleep(100000);
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->gameTimerStart, sizeof(((ServerGameInfo *)ptr)->gameTimerStart));
 
     //Looping while the match is on

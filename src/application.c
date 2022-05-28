@@ -120,6 +120,7 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mAmmoCounter = NULL;
     SDL_Rect ammoClips[11];
     SDL_Rect ammoPosition;
+    
     SDL_Texture *mReloadDisplay = NULL;
     SDL_Texture *mBulletType = NULL;
 
@@ -262,8 +263,11 @@ PUBLIC void applicationUpdate(Application theApp){
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
+
+    //Sets text for time display based on current time
     updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
 
+    //Game starting time received from server
     Uint32 startTime = gameInfo->GameTimerStart;
 
     bool keep_window_open = true;
@@ -294,9 +298,10 @@ PUBLIC void applicationUpdate(Application theApp){
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
         
-        //Display for Game Timer
+        //Time Display
         passedTime = SDL_GetTicks()/1000;
         currentTime = 180 - (passedTime - startTime);
+        //Texture for time display is updated once a second to prevent lag
         if(passedTime >= nextSecond)
         {
             updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
@@ -354,6 +359,7 @@ PUBLIC void *handleNetwork(void *ptr) {
     loadReloadMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mReloadDisplay[connParams[0]]);
     loadAmmoMedia(((GameInfo *)ptr)->gRenderer, getSoldierWeapon(((GameInfo *)ptr)->soldiers[connParams[0]]), &((GameInfo *)ptr)->mAmmoCounter[connParams[0]], ((GameInfo *)ptr)->ammoClips[connParams[0]], &((GameInfo *)ptr)->mBulletType[connParams[0]]);
 
+    //Receiving starting time for the game, so clients can individually manage their timeDisplay
     SDLNet_TCP_Recv(((GameInfo *)ptr)->tcp_sd, &((GameInfo *)ptr)->GameTimerStart, sizeof(((GameInfo *)ptr)->GameTimerStart));
     
     while (((GameInfo *)ptr)->gameState == 2)
