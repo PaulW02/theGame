@@ -52,17 +52,20 @@ PUBLIC Weapon createWeapon(int range, int power, int speed, int magazine_size, i
 
 PUBLIC void manageFireRate(Weapon w)
 {
+    //Uses a timer to check if the "firerate time" has passed since soldier's weapon last fired a bullet
     if(getWeaponReload(w))
     {
         return;
     }
     else if (getWeaponBulletTimer(w) < getWeaponFirerate(w))
     {
+        //weapon is on cooldown
         setWeaponShotCooldown(w,true);
         setWeaponBulletTimer(w,getWeaponBulletTimer(w)+1);
     }
     else
     {
+        //weapon is ready to fire
         setWeaponShotCooldown(w,false);
     }
 }
@@ -71,8 +74,10 @@ PUBLIC void manageReload(Weapon w)
 {
     if (getWeaponReload(w))
     {
+        //reloading
         if(getWeaponBulletTimer(w) >= getWeaponReloadTime(w))
         {
+            //reloading finished
             setWeaponReload(w,false);
             setWeaponMagazine(w,getWeaponMagazine_Size(w));
         }
@@ -80,6 +85,7 @@ PUBLIC void manageReload(Weapon w)
     }
     else if (getWeaponMagazine(w) == 0)
     {
+        //start reloading
         setWeaponBulletTimer(w, 0);
         setWeaponReload(w,true);
     }

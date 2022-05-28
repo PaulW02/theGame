@@ -21,11 +21,13 @@ PUBLIC void createAllCurrentBullets(Soldier soldiers[], Bullet bullets[], int *a
     { 
         if (getSoldierShotFired(soldiers[i]))
         {
-            //Weapon weapon = getSoldierWeapon(soldiers[i]);
+            //If weapon is ready to fire, fire
             if(!getWeaponShotCooldown(getSoldierWeapon(soldiers[i])))
             {
+                //starts bullet timer to control firerate, and removes bullet from magazine
                 setWeaponBulletTimer(getSoldierWeapon(soldiers[i]),0);
                 setWeaponMagazine(getSoldierWeapon(soldiers[i]),getWeaponMagazine(getSoldierWeapon(soldiers[i]))-1);
+                
                 *bulletsActive = 1;
                 Bullet b = createBullet(getSoldierPositionX(soldiers[i]), getSoldierPositionY(soldiers[i])+14, soldiers[i]);
                 setBulletFrame(b, getSoldierFrame(soldiers[i]));
