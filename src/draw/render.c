@@ -63,15 +63,17 @@ PUBLIC void renderPlayers(SDL_Renderer *gRenderer, Soldier soldiers[], int id, S
     SDL_RenderCopyEx(gRenderer, mPowers, &powersClips[0],&powerupsPosition, 0, NULL, SDL_FLIP_NONE);
 
     Weapon weapon = getSoldierWeapon(soldiers[id]);
-    // ammunition display
+    //Setting positions for ammunition display
     ammoPosition.y = healthBarPositions[id].y - 8;
     ammoPosition.x = healthBarPositions[id].x + 8;
     ammoPosition.h = 7;
     ammoPosition.w = 5;
 
+    //Setting positions for bullet indicator and reload animation
     setWeaponBulletIndicatorPos(weapon, healthBarPositions[id].x, healthBarPositions[id].y - 9, 5, 8);
     setReloadPosition(weapon, healthBarPositions[id].x + 10, healthBarPositions[id].y - 8, 27, 7);
 
+    //Drawing ammo display while weapon is not reloading, reload animation while reloading
     if(!getWeaponReload(weapon))
     {
         drawAmmoDisplay(gRenderer, soldiers[id], mAmmoCounter[id], ammoClips[id], ammoPosition);
@@ -113,6 +115,7 @@ PUBLIC void bulletsRenderer(SDL_Renderer *gRenderer, Soldier soldiers[], Bullet 
 
 PUBLIC void drawAmmoDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mAmmoCounter, SDL_Rect ammoClips[], SDL_Rect ammoPosition)
 {
+    //Draws each individual number for ammo display (and '/'), with a margin of 6 between them
     Weapon w = getSoldierWeapon(s);
     //Prints current magazine size
     SDL_RenderCopyEx(gRenderer, mAmmoCounter, &ammoClips[getWeaponMagazine(w)/10], &ammoPosition, 0, NULL, SDL_FLIP_NONE);
@@ -129,8 +132,8 @@ PUBLIC void drawAmmoDisplay(SDL_Renderer *gRenderer, Soldier s, SDL_Texture *mAm
 
 PUBLIC void drawReloadDisplay(SDL_Renderer *gRenderer, Weapon w, SDL_Texture *mReloadDisplay)
 {
-    int reloadTime = getWeaponReloadTime(w);
     int timer = getWeaponBulletTimer(w);
+    //Switches between reload clips with timer while reloading
     if((timer%10)==1)
     {
         if(getReloadClip(w)>=3)
