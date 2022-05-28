@@ -1,6 +1,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_net.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -125,6 +126,11 @@ PUBLIC void applicationUpdate(Application theApp){
     SDL_Texture *mPowers = NULL;
     SDL_Rect powersClips[1];
     SDL_Rect powersPosition;
+
+    SDL_Texture *timeTexture = NULL;
+    SDL_Rect timePos;
+    Uint32 nextSecond, passedTime;
+    int currentTime = 0;
 
     int weaponSpeed;
     int maxRange;
@@ -258,6 +264,11 @@ PUBLIC void applicationUpdate(Application theApp){
     loadTiles(gameInfo->gRenderer, &mTiles, gTiles);
     loadPowers(gameInfo->gRenderer, &mPowers, powersClips);
 
+    //Loads time display texture, position, font etc. and sets value based on current time
+    updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
+
+    Uint32 startTime = SDL_GetTicks()/1000;
+
     bool keep_window_open = true;
 
     //Drawing and event handling loop
@@ -285,6 +296,18 @@ PUBLIC void applicationUpdate(Application theApp){
         
         renderPlayers(gameInfo->gRenderer, gameInfo->soldiers, gameInfo->id, gameInfo->mSoldier, gameInfo->gSpriteClips, tiles, mHealthBar, healthClips, healthBarPositions, gameInfo->mAmmoCounter, gameInfo->ammoClips, ammoPosition, gameInfo->mBulletType, gameInfo->mReloadDisplay, powersPosition, mPowers, powersClips, powers);
         bulletsRenderer(gameInfo->gRenderer, gameInfo->soldiers, bullets, gameInfo->bulletTexture, &amountOfBullets, &bulletsActive);
+        
+        //Display for Game Timer
+        passedTime = SDL_GetTicks()/1000 - startTime;
+        currentTime = 180 - passedTime;
+        //Texture for game timer is loaded once every second to prevent lag
+        if(passedTime >= nextSecond)
+        {
+            updateTimeDisplay(gameInfo->gRenderer, &timeTexture, &timePos, currentTime);
+            nextSecond = passedTime + 1;
+        }
+        SDL_RenderCopy(gameInfo->gRenderer,timeTexture,NULL,&timePos);
+        
         SDL_RenderPresent(gameInfo->gRenderer);
         timerUpdate(gameInfo->soldiers[gameInfo->id], powers);
 
