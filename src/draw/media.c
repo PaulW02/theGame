@@ -194,25 +194,34 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmo
     ammoClips[ 10 ].w =5;
     ammoClips[ 10 ].h =7;
 
-    //Bullet indicator based on weapon
+    //Set bullet indicator image and size based on current weapon
     SDL_Surface* gBulletTypeSurface;
     if(strstr(getWeaponBullet(w), "pistolbullet"))
     {
-        gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.PNG");
+        gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.png");
         setWeaponBulletTypeRect(w, 0, 0, 5, 8);
     }
-    /*else if(strstr(getWeaponBullet(w), "bow"))
+    else if(strstr(getWeaponBullet(w), "bow"))
     {
-
+        gBulletTypeSurface = IMG_Load("resources/bullettype_bow.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
     else if(strstr(getWeaponBullet(w), "spear"))
     {
-
+        gBulletTypeSurface = IMG_Load("resources/bullettype_spear.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
-    else if(strstr(getWeaponBullet(w), "rod"))
+    else if(strstr(getWeaponBullet(w), "redrod"))
     {
+        gBulletTypeSurface = IMG_Load("resources/bullettype_redrod.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
+    }
+    else if(strstr(getWeaponBullet(w), "bluerod"))
+    {
+        gBulletTypeSurface = IMG_Load("resources/bullettype_bluerod.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
+    }
 
-    }*/
     *mBulletType = SDL_CreateTextureFromSurface(gRenderer, gBulletTypeSurface);
 }
 

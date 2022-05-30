@@ -226,6 +226,14 @@ PUBLIC SDL_Rect getWeaponBulletTypeRect(Weapon w){
     return w->bulletType;
 }
 
+PUBLIC int getWeaponBulletTypeRectW(Weapon w){
+    return w->bulletType.w;
+}
+
+PUBLIC int getWeaponBulletTypeRectH(Weapon w){
+    return w->bulletType.h;
+}
+
 PUBLIC void setWeaponBulletTypeRect(Weapon weapon, int x, int y, int w, int h){
     weapon->bulletType.x = x;
     weapon->bulletType.y = y;
