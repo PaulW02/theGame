@@ -200,23 +200,23 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmo
     }
     else if(strstr(getWeaponBullet(w), "bow"))
     {
-        gBulletTypeSurface = IMG_Load("resources/bowbullet.png");
-        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+        gBulletTypeSurface = IMG_Load("resources/bullettype_bow.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
     else if(strstr(getWeaponBullet(w), "spear"))
     {
-        gBulletTypeSurface = IMG_Load("resources/spearbullet.png");
-        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+        gBulletTypeSurface = IMG_Load("resources/bullettype_spear.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
     else if(strstr(getWeaponBullet(w), "redrod"))
     {
-        gBulletTypeSurface = IMG_Load("resources/redrodbullet.png");
-        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+        gBulletTypeSurface = IMG_Load("resources/bullettype_redrod.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
     else if(strstr(getWeaponBullet(w), "bluerod"))
     {
-        gBulletTypeSurface = IMG_Load("resources/bluerodbullet.png");
-        setWeaponBulletTypeRect(w, 0, 0, 10, 5);
+        gBulletTypeSurface = IMG_Load("resources/bullettype_bluerod.png");
+        setWeaponBulletTypeRect(w, 0, 0, 20, 6);
     }
 
     *mBulletType = SDL_CreateTextureFromSurface(gRenderer, gBulletTypeSurface);
