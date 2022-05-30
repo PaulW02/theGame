@@ -194,7 +194,7 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmo
     ammoClips[ 10 ].w =5;
     ammoClips[ 10 ].h =7;
 
-    //Bullet indicator based on weapon
+    //Set bullet indicator image and size based on current weapon
     SDL_Surface* gBulletTypeSurface;
     if(strstr(getWeaponBullet(w), "pistolbullet"))
     {
