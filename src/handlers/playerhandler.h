@@ -10,9 +10,16 @@
 
 #include "../player/soldier.h"
 
+#define MAX_NAME 16
+#define PATHLENGTH 64
+
+
+
+
 void initPlayers(Soldier soldiers[]);
-void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[]);
+void setValuesForConnectedPlayer(Soldier *newSoldier, int id, char soldierImagePath[], char soldierName[]);
 void weaponChoiceHandler(Soldier soldier);
 int getHealthImageBasedOnCurrentHealth(int currentHealth);
 void respawnPlayer(Soldier soldierToRespawn);
+void scoreBoard(Soldier soldiers[], SDL_Renderer *gRenderer);
 #endif

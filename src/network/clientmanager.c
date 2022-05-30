@@ -18,9 +18,10 @@
 
 PUBLIC void setupPlayerAndWeapon(GameInfo *gameInfo){
         
-    for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
+    for (int i = 0; i < MAX_PLAYERS; i++)
     {
-        setSoldierFileName(gameInfo->soldiers[i], gameInfo->soldierImagePaths[i]);
+        setSoldierFileName(gameInfo->soldiers[i], gameInfo->playerLobbyInformation[i].soldierImagePath);
+        setSoldierName(gameInfo->soldiers[i], gameInfo->playerLobbyInformation[i].soldierName);
         weaponChoiceHandler(gameInfo->soldiers[i]);
         loadSoldierMedia(gameInfo->gRenderer, &gameInfo->mSoldier[i], gameInfo->gSpriteClips[i], gameInfo->soldiers[i]);
         loadBulletMedia(gameInfo->gRenderer, &gameInfo->bulletTexture[i], getSoldierWeapon(gameInfo->soldiers[i]));
@@ -38,7 +39,7 @@ PUBLIC void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams
     gameInfo->id = connParams[0];
 }
 
-PUBLIC void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id){
+PUBLIC void setCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id){
     clientPlayersData->id = id;
     clientPlayersData->x = getSoldierPositionX(gameInfo->soldiers[id]);
     clientPlayersData->y = getSoldierPositionY(gameInfo->soldiers[id]);
@@ -49,7 +50,7 @@ PUBLIC void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersD
 }
 
 PUBLIC void setReceivedValuesForAllPlayers(GameInfo *gameInfo, PlayersData clientPlayersData){
-    for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
+    for (int i = 0; i < MAX_PLAYERS; i++)
     {
 
         if(i != clientPlayersData.id){

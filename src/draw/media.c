@@ -4,6 +4,7 @@
 #include <string.h>
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
 #include "media.h"
 
@@ -12,6 +13,8 @@
 
 #include "../player/bullet.h"
 #include "../player/soldier.h"
+
+#include "../application.h"
 
 #define PUBLIC /* empty */
 #define PRIVATE static
@@ -191,8 +194,8 @@ PUBLIC void loadAmmoMedia(SDL_Renderer *gRenderer, Weapon w, SDL_Texture **mAmmo
     ammoClips[ 10 ].w =5;
     ammoClips[ 10 ].h =7;
 
+    //Bullet indicator based on weapon
     SDL_Surface* gBulletTypeSurface;
-    //Bullet indicator
     if(strstr(getWeaponBullet(w), "pistolbullet"))
     {
         gBulletTypeSurface = IMG_Load("resources/bullettype_pistol.png");
@@ -254,4 +257,47 @@ void loadPowers(SDL_Renderer *gRenderer, SDL_Texture **mPowers, SDL_Rect PowersC
     PowersClips[ 0 ].y =0;
     PowersClips[ 0 ].w =16;
     PowersClips[ 0 ].h =16;
+}
+
+PUBLIC void updateTimeDisplay(SDL_Renderer *gRenderer, SDL_Texture **timeTexture, SDL_Rect *pos, int currentTime)
+{
+    //This function sets position, value, font and color for time display
+    Uint32 timeMinutes, timeSeconds;
+    char timeDisplay[3];
+    SDL_Color color = {0x00,0x00,0x00};
+    //Translating current time from seconds to format "m:ds"
+    if(currentTime < 60)
+    {
+        timeMinutes = 0;
+    }
+    else if(currentTime < 120)
+    {
+        timeMinutes = 1;
+    }
+    else if (currentTime < 180)
+    {
+        timeMinutes = 2;
+    }
+    else
+    {
+        timeMinutes = 3;
+    }
+    timeSeconds = currentTime%60;
+    if(currentTime < 0)
+    {
+        timeSeconds = 0;
+    }
+
+    //load font
+    TTF_Font* font = TTF_OpenFont("resources/fonts/8bitOperatorPlus-Regular.ttf",24);
+
+    //set timeDisplay value and create texture
+    sprintf(timeDisplay,"%d:%d%d",timeMinutes, timeSeconds/10, timeSeconds%10);
+    SDL_Surface* text = TTF_RenderText_Solid(font,timeDisplay, color);
+    *timeTexture = SDL_CreateTextureFromSurface(gRenderer,text);
+
+    //set timeDisplay position and size
+    SDL_QueryTexture(*timeTexture,NULL,NULL,&pos->w,&pos->h);
+    pos->x=(WINDOW_WIDTH-pos->w)/2;
+    pos->y=50;
 }

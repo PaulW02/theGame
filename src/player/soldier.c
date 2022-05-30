@@ -8,6 +8,7 @@
 #define PUBLIC /* empty */
 #define PRIVATE static
 #define MAXCHAR 100
+#define MAX_NAME 16
 
 PRIVATE int WIDTH = 32;
 PRIVATE int HEIGHT = 32;
@@ -27,8 +28,10 @@ struct soldier{
     int health;
     int kills;
     int powerUp;
+    int dead;
     int powerUpTimer;
     int respawnTimer;
+    char soldierName[MAX_NAME];
 };
 
 PUBLIC Soldier createSoldier(int x, int y){
@@ -46,8 +49,9 @@ PUBLIC Soldier createSoldier(int x, int y){
     s->health = 100;
     s->kills = 0;
     s->powerUp = 0;
+    s->dead = 0;
     s->powerUpTimer = 0;
-    s->respawnTimer = 0;
+    s->respawnTimer = -1;
     return s;
 }
 
@@ -202,10 +206,28 @@ PUBLIC int getSoldierPowerUpTimer(Soldier s){
     return s->powerUpTimer;
 }
 
-PUBLIC int setSoldierRespawnTimer(Soldier s, int timer){
+PUBLIC void setSoldierRespawnTimer(Soldier s, int timer){
     s->respawnTimer = timer;
 }
 
 PUBLIC int getSoldierRespawnTimer(Soldier s){
     return s->respawnTimer;
+}
+
+PUBLIC void setSoldierName(Soldier s, char soldierName[MAX_NAME])
+{
+    strcpy(s->soldierName,soldierName);
+}
+
+PUBLIC char* getSoldierName(Soldier s)
+{
+    return  s->soldierName;
+}
+
+PUBLIC void setSoldierDead(Soldier s, int dead){
+    s->dead = dead;
+}
+
+PUBLIC int getSoldierDead(Soldier s){
+    return s->dead;
 }

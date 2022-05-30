@@ -6,8 +6,10 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "../application.h"
+#include "../handlers/playerhandler.h"
 #include "../draw/media.h"
 #include "../player/soldier.h"
+#include "../lobby.h"
 
 struct playersData{
     int id;
@@ -20,13 +22,21 @@ struct playersData{
 };
 typedef struct playersData PlayersData;
 
+struct playerLobbyInformation{
+    char soldierName[MAX_NAME];
+    char soldierImagePath[PATHLENGTH];
+};
+typedef struct playerLobbyInformation PlayerLobbyInformation;
+
 struct gameInfo{
+    Lobby l;
     PlayersData playersData[MAX_PLAYERS];
     Soldier soldiers[MAX_PLAYERS];
+    PlayerLobbyInformation playerLobbyInformation[MAX_PLAYERS];
     TCPsocket tcp_sd;
     int id;
     int amountOfPlayersConnected;
-    char soldierImagePaths[MAX_PLAYERS][PATHLENGTH];
+    int gameState;
     SDL_Texture *mSoldier[MAX_PLAYERS];
     SDL_Renderer *gRenderer;
     SDL_Rect gSpriteClips[MAX_PLAYERS][8];
@@ -35,11 +45,12 @@ struct gameInfo{
     SDL_Rect ammoClips[MAX_PLAYERS][11];
     SDL_Texture *mReloadDisplay[MAX_PLAYERS];
     SDL_Texture *mBulletType[MAX_PLAYERS];
+    int playerKills[MAX_PLAYERS];
 };
 typedef struct gameInfo GameInfo;
 
 void setupPlayerAndWeapon(GameInfo *gameInfo);
 void setReceivedValuesForCurrentPlayer(GameInfo *gameInfo, int connParams[]);
-void getCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
+void setCurrentPlayerInfo(GameInfo *gameInfo, PlayersData *clientPlayersData, int id);
 void setReceivedValuesForAllPlayers(GameInfo *gameInfo, PlayersData clientPlayersData);
 #endif
