@@ -7,6 +7,5 @@
 #include "handlers/playerhandler.h"
 
 void timerUpdate(Soldier s, PowerUps p);
-int countDown();
 
 #endif
