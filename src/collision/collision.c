@@ -25,49 +25,39 @@
 
 // Collision detection functions
 PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier s, SDL_Rect *playerPosition, int frame, SDL_Rect *healthBarPosition){
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-    
-    //För portaler
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
+            //Tile position
+            const SDL_Rect tilePos = getTileSDLRec(tiles[i][j]);
+            
+            //Portals
             if(getTilePortal(tiles[i][j])==1){
-                //Rect Player
-                leftA = (getSoldierPositionX(s)+6);
-                rightA = (getSoldierPositionX(s) + (getSoldierWidth()-8));
-                topA = (getSoldierPositionY(s)+6);
-                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-8));
 
-                //Rect Tile
-                leftB = getTilePositionX(tiles[i][j]);
-                rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
-                topB = getTilePositionY(tiles[i][j]);
-                bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
-
-                if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
-                }else{
+                //Adjusted SoldierPosition
+                const SDL_Rect soldierPos = {
+                    (getSoldierPositionX(s)+6),
+                    (getSoldierPositionY(s)+6),
+                    (getSoldierWidth()-8),
+                    (getSoldierHeight()-8)
+                };
+                
+                //Intersect?
+                if(SDL_HasIntersection(&tilePos, &soldierPos) == SDL_TRUE){
                     teleportSoldier(s,tiles, i, j, playerPosition, healthBarPosition);
-                }    
+                }
             }
 
-            //För väggar
+            //Walls
             if(getTileCollision(tiles[i][j])==1){
                 
-                //Rect Player
-                leftA = (getSoldierPositionX(s)+4);
-                rightA = (getSoldierPositionX(s) + (getSoldierWidth()-6));
-                topA = (getSoldierPositionY(s)+10);
-                bottomA = (getSoldierPositionY(s) + (getSoldierHeight()-2));
+                const SDL_Rect soldierPos = {
+                    (getSoldierPositionX(s)+4),
+                    (getSoldierPositionY(s)+8),
+                    (getSoldierWidth()-8),
+                    (getSoldierHeight()-8)
+                };
 
-                //Rect Tile
-                leftB = getTilePositionX(tiles[i][j]);
-                rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
-                topB = getTilePositionY(tiles[i][j]);
-                bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
-
-                if( !((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB)) ){
+                if(SDL_HasIntersection(&tilePos, &soldierPos) == SDL_TRUE){
                     stepBack(s, playerPosition, frame);
                 }
             }   
@@ -77,31 +67,19 @@ PUBLIC bool soldierWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Soldier
 }
 
 PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet bullets[], int *counter){
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
     for (int i = 0; i<getTileColumns(); i++){
         for (int j = 0; j<getTileRows(); j++){
             if(getTileCollision(tiles[i][j])==1){
                 for (int k = 0; k < (*counter); k++){
 
-                    //Rect Bullet
-                    leftA = getBulletPositionX(bullets[k]);
-                    rightA = (getBulletPositionX(bullets[k]) + getBulletWidth(bullets[k]));
-                    topA = getBulletPositionY(bullets[k]);
-                    bottomA = (getBulletPositionY(bullets[k]) + getBulletHeight(bullets[k]));
+                    //Tile & Bullet position
+                    const SDL_Rect tilePos = getTileSDLRec(tiles[i][j]);
+                    const SDL_Rect bulletPos = getBulletPositionSDL(bullets[k]);
 
-                    //Rect Tile
-                    leftB = getTilePositionX(tiles[i][j]);
-                    rightB = (getTilePositionX(tiles[i][j]) + getTileWidth());
-                    topB = getTilePositionY(tiles[i][j]);
-                    bottomB = (getTilePositionY(tiles[i][j]) + getTileHeight());
-
-                    if( (bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) ){
-                    }else{
+                    //Intersect?
+                    if(SDL_HasIntersection(&tilePos, &bulletPos) == SDL_TRUE){
                         deleteBullet(counter, bullets, k);
-                    }                    
+                    }
                 }
             }
         }
@@ -109,6 +87,7 @@ PUBLIC void bulletWallCollision(Tile tiles[AMOUNT_TILES][AMOUNT_TILES], Bullet b
 }
 
 PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
+    //Pushed back depending on which way soldier walking
     int newYPos, newXPos;
     if(getSoldierSpeedY(s)>0){
         newYPos=(playerPosition->y-=getSoldierSpeed(s));
@@ -129,6 +108,7 @@ PUBLIC void stepBack(Soldier s, SDL_Rect *playerPosition, int frame){
 }
 
 PUBLIC void teleportSoldier(Soldier s, Tile tiles[AMOUNT_TILES][AMOUNT_TILES], int row, int column, SDL_Rect *playerPosition, SDL_Rect *healthBarPosition){
+   //Soldier teleported to another portal of the same color
    int newYPos, newXPos;
    
    if(getTileNumber(tiles[row][column])==0x0d){
@@ -196,27 +176,18 @@ PUBLIC void checkPlayerOutOfBoundaries(Soldier s)
 }
 
 PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amountOfBullets, int playerKills[]){
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-    int healthImage, currentScore=0;
+    int healthImage, currentScore;
     for (int i = 0; i < (*amountOfBullets); i++){
         for (int j = 0; j < MAX_PLAYERS; j++){
-               //Rect Bullet
-            leftA = getBulletPositionX(bullets[i]);
-            rightA = (getBulletPositionX(bullets[i]) + getBulletWidth(bullets[i]));
-            topA = getBulletPositionY(bullets[i]);
-            bottomA = (getBulletPositionY(bullets[i]) + getBulletHeight(bullets[i]));
+            
+            //Player and bullet rectangle
+            const SDL_Rect soldierPos = getSoldierPosition(soldiers[j]);
+            const SDL_Rect bulletPos = getBulletPositionSDL(bullets[i]);
 
-                //Rect Player
-            leftB = (getSoldierPositionX(soldiers[j]));
-            rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth()));
-            topB = (getSoldierPositionY(soldiers[j]));
-            bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight()));
+            //Intersect?
+            if(SDL_HasIntersection(&bulletPos, &soldierPos) == SDL_TRUE){
 
-            if( ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
-            }else{
+                //Not able to shoot yourself!
                 if(((getBulletSoldierId(bullets[i])) != (j))){
                     setSoldierHealth(soldiers[j], getSoldierHealth(soldiers[j]) - getWeaponPower(getSoldierWeapon(soldiers[getBulletSoldierId(bullets[i])])));
                     if(getSoldierHealth(soldiers[j]) <= 0 && getSoldierDead(soldiers[j]) == 0){                        
@@ -233,27 +204,19 @@ PUBLIC void bulletPlayerCollision(Bullet bullets[], Soldier soldiers[], int *amo
 }
 
 PUBLIC void powersPlayerCollision(Soldier soldiers[], PowerUps powers){
-
-   int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-
     for (int j = 0; j < MAX_PLAYERS; j++){
 
-        //Rect Player
-        leftB = (getSoldierPositionX(soldiers[j])+8);
-        rightB = (getSoldierPositionX(soldiers[j]) + (getSoldierWidth())-8);
-        topB = (getSoldierPositionY(soldiers[j])+6);
-        bottomB = (getSoldierPositionY(soldiers[j]) + (getSoldierHeight())-8);
-    
-                        //Rect Player
-        leftA = getPowerUpsPositionX(powers);
-        rightA = getPowerUpsPositionX(powers) + getPowerUpsWidth(powers);
-        topA = getPowerUpsPositionY(powers);
-        bottomA = getPowerUpsPositionY(powers) + getPowerUpsHeight(powers);
+        //Powerup Rectangle & adjusted soldier rectangle
+        const SDL_Rect powerUpPos = getPowerUpsPosition(powers);
+        const SDL_Rect soldierPos = {
+            (getSoldierPositionX(soldiers[j])+8),
+            (getSoldierPositionY(soldiers[j])+6),
+            (getSoldierWidth()-8),
+            (getSoldierHeight()-8)
+        };
         
-        if(! ((bottomA <= topB) || (topA >= bottomB) || (rightA <= leftB) || (leftA >= rightB) )){
+        //Intersect?
+        if(SDL_HasIntersection(&powerUpPos, &soldierPos) == SDL_TRUE){
             powerUpTouched(soldiers[j], powers);
         }
     }
