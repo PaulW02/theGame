@@ -1,6 +1,7 @@
 #ifndef menu_h
 #define menu_h
 #include "SDL2/SDL.h"
+#include <stdbool.h>
 
 typedef struct menu *Menu;
 
@@ -26,6 +27,7 @@ char* getPlayerName(Menu m);
 void renderText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
 void renderImage(SDL_Renderer *gRenderer, char *imageName, int posX, int posY, int scaleModifier,Uint8 alpha);
 void renderImageEx(SDL_Renderer *gRenderer, char *path,int posX,int posY, int flip, int directionFrame, Uint8 alpha);
+bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
 
 
 #endif

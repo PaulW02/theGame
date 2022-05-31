@@ -48,7 +48,7 @@ PUBLIC void destroyMenu(Menu m);
 PUBLIC void renderImage(SDL_Renderer *gRenderer, char *imageName, int posX, int posY, int scaleModifier,Uint8 alpha);
 PRIVATE int startPage(Menu m);
 PRIVATE int mainMenu(Menu m);
-PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
+PUBLIC bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button);
 PRIVATE int howToPlayMenu(Menu m);
 PRIVATE int onlineMenuConfig(Menu m);
 PUBLIC void renderText(SDL_Renderer *gRenderer, char *textToRender, SDL_Color color, int x, int y, int size);
@@ -265,8 +265,6 @@ PUBLIC void renderImage(SDL_Renderer *gRenderer, char *imageName,int posX,int po
 
 PRIVATE int mainMenu(Menu m)
 {
-    //Typsnitt: Showcard Gothic, Storlek 48
-
     bool windowCloseRequested = false, userInterfaceAppeard = false, hovering[3] = {false};
     int menuChoice = 4, button;
     Uint8 alpha[3] = {255,255,255};
@@ -284,7 +282,7 @@ PRIVATE int mainMenu(Menu m)
         if(menuChoice<3) alpha[menuChoice]=255;
         if(hovering[0]=checkImageBoxForCursor("onlineOption.png",-1,225,&button)) menuChoice=0;
         if(hovering[1]=checkImageBoxForCursor("howToPlay.png",-1,325,&button)) menuChoice=1;
-        //if(hovering[2]=checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
+        if(hovering[2]=checkImageBoxForCursor("exit.png",-1,425,&button)) menuChoice=2;
         if(!hovering[0] && !hovering[1] && !hovering[2]) alpha[menuChoice]=255;
         else alpha[menuChoice]=144;
         
@@ -302,8 +300,7 @@ PRIVATE int mainMenu(Menu m)
                 break;
             
             case 2:
-                m->gameModeType='C';
-                return 0;
+                return CLOSEREQUSTED;
                 break;
 
             default:
@@ -317,7 +314,7 @@ PRIVATE int mainMenu(Menu m)
         
         renderImage(m->gRenderer,"onlineOption.png",-1,225,1,alpha[0]);
         renderImage(m->gRenderer,"howToPlay.png",-1,325,1,alpha[1]);
-        //renderImage(m->gRenderer,"co_op.png",-1,425,1,alpha[2]);
+        renderImage(m->gRenderer,"exit.png",-1,425,1,alpha[2]);
 
         SDL_RenderPresent(m->gRenderer);
     }
@@ -327,7 +324,7 @@ PRIVATE int mainMenu(Menu m)
 /*Checks if the cursor is within the image paramater*/
 /*Can only check from the 'resource/menu/' path, will need
   modification if it's to be used elsewear */
-PRIVATE bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button)
+PUBLIC bool checkImageBoxForCursor(char *imageName, int imagePosX, int imagePosY, int *button)
 {
     int cursorX, cursorY;
     char path[42] = "resources/menu/";

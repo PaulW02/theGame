@@ -208,8 +208,11 @@ PUBLIC void applicationUpdate(Application theApp){
                           {0x00,0xFF,0x00},  //Green
                           {0x00,0x00,0xFF},  //Blue
                           {0xFF,0x00,0xFF}}; //Pink
-    int posX = 0, padding = 70, countdown = 30;
+    int posX = 0, padding = 70, countdown = 30, button, mouseButtonDown=0;
+    bool hovering = false;
     int posY[4] = {275,300,300,275};
+    Uint8 alpha = 255;
+
 
     while(!closeRequested)
     {
@@ -225,14 +228,25 @@ PUBLIC void applicationUpdate(Application theApp){
 
         while(SDL_PollEvent(&gameInfo->l->windowEvent))
         {
-            if(gameInfo->l->windowEvent.type == SDL_QUIT){
-                closeRequested = true;
+            switch (gameInfo->l->windowEvent.type)
+            {
+                case SDL_QUIT:
+                    return;
+                    break;
+
+                case SDL_MOUSEBUTTONDOWN:
+                    mouseButtonDown=1;
+                    break;
+
+                default:
+                    break;
             }
         }
         if(gameInfo->l->players[0].playerPath[0] != '\0')
         {
             SDL_RenderClear(gameInfo->l->gRenderer);
             renderImage(gameInfo->l->gRenderer,"lobby.png",-1,150,1,255);
+            renderImage(gameInfo->l->gRenderer,"start_now.png",-1,475,2,alpha);
 
             for(int i = 0; i < gameInfo->l->numberOfPlayers; i++)
             {
@@ -248,6 +262,17 @@ PUBLIC void applicationUpdate(Application theApp){
             usleep(5000000);
             
         }
+        
+        //The Start now button
+        if(hovering=checkImageBoxForCursor("start_now.png",-1,475,&button)) alpha=144;
+        else alpha=255;
+        
+        if(hovering && button==1 && mouseButtonDown)
+        {
+            printf("pressed 'Start now'\n");
+            mouseButtonDown=0;
+        }
+
     }
     usleep(10000000);
     
