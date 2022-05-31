@@ -196,6 +196,9 @@ PUBLIC void applicationUpdate(Application theApp){
     strcpy(soldierName, getSoldierName(gameInfo->soldiers[gameInfo->id]));
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
+    SDLNet_TCP_Recv(gameInfo->tcp_sd, &gameInfo->id, sizeof(gameInfo->id));
+
+    gameInfo->forceStart = 0;
 
     pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
 
@@ -223,6 +226,16 @@ PUBLIC void applicationUpdate(Application theApp){
            closeRequested = true;
        }
 
+       if (gameInfo->forceStart)
+       {
+           for (int i = 0; i < gameInfo->amountOfPlayersConnected; i++)
+           {
+               pushLobbyPlayer(gameInfo->l, gameInfo->playerLobbyInformation[i].soldierImagePath, gameInfo->playerLobbyInformation[i].soldierName, i);
+           }
+           
+           closeRequested = true;
+       }
+
         while(SDL_PollEvent(&gameInfo->l->windowEvent))
         {
             if(gameInfo->l->windowEvent.type == SDL_QUIT){
@@ -243,11 +256,22 @@ PUBLIC void applicationUpdate(Application theApp){
             }
             SDL_RenderPresent(gameInfo->l->gRenderer);
         }
-        if(gameInfo->amountOfPlayersConnected == MAX_PLAYERS){
+
+        if (gameInfo->id != 0)
+        {
+            SDLNet_TCP_Recv(gameInfo->playerConnections[i].sock,&gameInfo->forceStart, sizeof(gameInfo->forceStart));
+        }
+        
+
+        if(gameInfo->amountOfPlayersConnected == MAX_PLAYERS || gameInfo->forceStart){
+            if(gameInfo->id == 0){
+                SDLNet_TCP_Send(gameInfo->tcp_sd, &gameInfo->forceStart, sizeof(gameInfo->forceStart));
+            }
             gameInfo->gameState = 2;
             usleep(5000000);
             
         }
+
     }
     usleep(10000000);
     

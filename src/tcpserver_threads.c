@@ -29,6 +29,7 @@ struct serverGameInfo {
     int amountOfPlayersConnected;
     int matchDone;
     int playerKills[MAX_PLAYERS];
+    int forceStart;
 };
 typedef struct serverGameInfo ServerGameInfo;
 
@@ -50,6 +51,7 @@ int main(int argc,char** argv)
     Uint32 matchTimer = 0;
     serverGameInfo->amountOfPlayersConnected = 0;
     serverGameInfo->matchDone = 0;
+    serverGameInfo->forceStart = 0;
     char soldierImagePath[PATHLENGTH];
     char soldierName[MAX_NAME];
 
@@ -126,15 +128,31 @@ void *handlePlayer(void *ptr) {
         ((ServerGameInfo *)ptr)->playersData[i].y = -50;
     }
     
+    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, &((ServerGameInfo *)ptr)->id, sizeof(((ServerGameInfo *)ptr)->id));
     
     //Looping until there are 4 players connected and then sending to all clients the amountOfPlayersConnected variable and the image and name of all the 4 players
-    while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS);
+    while (((ServerGameInfo *)ptr)->amountOfPlayersConnected < MAX_PLAYERS){
+        if(currentPlayerId == 0){
+            SDLNet_TCP_Recv(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->forceStart, sizeof(((ServerGameInfo *)ptr)->forceStart));
+            if (((ServerGameInfo *)ptr)->forceStart)
+            {
+                for (int i = 1; i < ((ServerGameInfo *)ptr)->amountOfPlayersConnected; i++)
+                {
+                    SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[i].sock,&((ServerGameInfo *)ptr)->forceStart, sizeof(((ServerGameInfo *)ptr)->forceStart));
+                }
+                break;
+            }
+        }else{
+                SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->forceStart, sizeof(((ServerGameInfo *)ptr)->forceStart));
+        }  
+    }
+    printf("TEST1\n");
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock,&((ServerGameInfo *)ptr)->amountOfPlayersConnected, sizeof(((ServerGameInfo *)ptr)->amountOfPlayersConnected));
     SDLNet_TCP_Send(((ServerGameInfo *)ptr)->playerConnections[currentPlayerId].sock, ((ServerGameInfo *)ptr)->playerLobbyInformation, sizeof(((ServerGameInfo *)ptr)->playerLobbyInformation));
-    
+    printf("TEST1\n");
     //Setting gameState to 2
     ((ServerGameInfo *)ptr)->gameState = 2;
-
+    
     //Setting the playerInfo array to all the player values of current player and send them to the client that uses that player
     playerInfo[0] = currentPlayerId;
     playerInfo[1] = getSoldierFrame(((ServerGameInfo *)ptr)->soldiers[currentPlayerId]);

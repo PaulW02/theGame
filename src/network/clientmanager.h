@@ -46,6 +46,7 @@ struct gameInfo{
     SDL_Texture *mReloadDisplay[MAX_PLAYERS];
     SDL_Texture *mBulletType[MAX_PLAYERS];
     int playerKills[MAX_PLAYERS];
+    int forceStart;
 };
 typedef struct gameInfo GameInfo;
 
