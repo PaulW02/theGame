@@ -1,5 +1,3 @@
-
-
 #ifndef powers_h
 #define powers_h
 

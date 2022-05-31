@@ -1,5 +1,3 @@
-
-
 #include <string.h>
 #include "powers.h"
 #include "SDL2/SDL.h"

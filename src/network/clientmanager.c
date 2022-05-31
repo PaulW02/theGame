@@ -6,7 +6,6 @@
 #include "SDL2/SDL_net.h"
 
 #include "clientmanager.h"
-#include "packethandler.h"
 #include "../sounds/soundeffects.h"
 #include "../player/soldier.h"
 #include "../handlers/playerhandler.h"
