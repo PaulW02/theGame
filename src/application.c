@@ -197,7 +197,10 @@ PUBLIC void applicationUpdate(Application theApp){
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierImagePath, PATHLENGTH+1);
     SDLNet_TCP_Send(gameInfo->tcp_sd, soldierName, MAX_NAME+1);
 
+    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
 
+
+    //Lobby starts here
     bool closeRequested = false;
     int oldAmountOfPlayersConnected = -1;
     SDL_Color colorWhite = {0xFF,0xFF,0xFF}; //White
@@ -207,20 +210,9 @@ PUBLIC void applicationUpdate(Application theApp){
                           {0xFF,0x00,0xFF}}; //Pink
     int posX = 0, padding = 70, countdown = 30;
     int posY[4] = {275,300,300,275};
-    char countdownNumber[3];
 
-    Uint32 ticks, seconds, startTimeValue;
-
-    startTimeValue = SDL_GetTicks() / 1000;
-    pthread_create(&networkThread, NULL, handleNetwork, (void *)gameInfo);
     while(!closeRequested)
     {
-        /*
-        //Countdown [WIP]
-        ticks = SDL_GetTicks();
-        seconds = (ticks/1000)% 2 + 1;
-        */
-
        if (gameInfo->amountOfPlayersConnected == MAX_PLAYERS)
        {
            for (int i = 0; i < MAX_PLAYERS; i++)
@@ -254,10 +246,10 @@ PUBLIC void applicationUpdate(Application theApp){
         if(gameInfo->amountOfPlayersConnected == MAX_PLAYERS){
             gameInfo->gameState = 2;
             usleep(5000000);
+            
         }
     }
-    
-    usleep(1000000);
+    usleep(10000000);
     
     //Loading images for health, tiles and powerups
     loadHealthMedia(gameInfo->gRenderer, &mHealthBar, healthClips);

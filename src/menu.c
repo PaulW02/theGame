@@ -284,7 +284,7 @@ PRIVATE int mainMenu(Menu m)
         if(menuChoice<3) alpha[menuChoice]=255;
         if(hovering[0]=checkImageBoxForCursor("onlineOption.png",-1,225,&button)) menuChoice=0;
         if(hovering[1]=checkImageBoxForCursor("howToPlay.png",-1,325,&button)) menuChoice=1;
-        if(hovering[2]=checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
+        //if(hovering[2]=checkImageBoxForCursor("co_op.png",-1,425,&button)) menuChoice=2;
         if(!hovering[0] && !hovering[1] && !hovering[2]) alpha[menuChoice]=255;
         else alpha[menuChoice]=144;
         
@@ -317,7 +317,7 @@ PRIVATE int mainMenu(Menu m)
         
         renderImage(m->gRenderer,"onlineOption.png",-1,225,1,alpha[0]);
         renderImage(m->gRenderer,"howToPlay.png",-1,325,1,alpha[1]);
-        renderImage(m->gRenderer,"co_op.png",-1,425,1,alpha[2]);
+        //renderImage(m->gRenderer,"co_op.png",-1,425,1,alpha[2]);
 
         SDL_RenderPresent(m->gRenderer);
     }
