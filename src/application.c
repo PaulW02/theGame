@@ -269,8 +269,10 @@ PUBLIC void applicationUpdate(Application theApp){
         
         if(hovering && button==1 && mouseButtonDown)
         {
-            printf("pressed 'Start now'\n");
             mouseButtonDown=0;
+            //Here is what happends when 'Start Now' button is pressed
+
+        
         }
 
     }
